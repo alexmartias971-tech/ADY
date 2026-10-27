@@ -1,0 +1,475 @@
+<!doctype html>
+<html lang="fr" class="no-js">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <title>Ady Coffee Shop · Californian coffee shop à Sainte-Anne, livraison plage de la Caravelle</title>
+  <meta name="description" content="Ady, le Californian coffee shop de Sainte-Anne (Guadeloupe). Iced latte, matcha, cold brew et douceurs, livrés sur la plage de la Caravelle dès 5 € de commande.">
+  <meta name="theme-color" content="#BF472C">
+  <link rel="icon" href="assets/favicon.svg" type="image/svg+xml">
+  <link rel="apple-touch-icon" href="assets/apple-touch-icon.png">
+  <meta property="og:type" content="website">
+  <meta property="og:locale" content="fr_FR">
+  <meta property="og:title" content="Ady Coffee Shop · Une véritable Adyction">
+  <meta property="og:description" content="Californian coffee shop à Sainte-Anne. Commande ton iced latte, on te le livre sur la plage de la Caravelle.">
+  <meta property="og:image" content="assets/og-image.jpg">
+  <meta name="twitter:card" content="summary_large_image">
+
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Big+Shoulders+Stencil:wght@700;800&family=DM+Sans:opsz,wght@9..40,400;9..40,500;9..40,700&family=Londrina+Solid:wght@400;900&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="css/style.css">
+
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "CafeOrCoffeeShop",
+    "name": "Ady Coffee Shop",
+    "slogan": "Une véritable Adyction",
+    "servesCuisine": ["Café", "Boissons glacées", "Matcha"],
+    "address": { "@type": "PostalAddress", "streetAddress": "Durivage", "addressLocality": "Sainte-Anne", "postalCode": "97180", "addressRegion": "Guadeloupe", "addressCountry": "FR" }
+  }
+  </script>
+</head>
+<body>
+  <a class="skip" href="#carte">Aller à la carte</a>
+
+  <!-- Bandeau défilant -->
+  <div class="topbar" aria-label="Infos livraison">
+    <div class="marquee" data-marquee>
+      <span>Livraison sur la plage de la Caravelle</span><i>✺</i>
+      <span>Dès 5 € de commande</span><i>✺</i>
+      <span>Paiement à la livraison</span><i>✺</i>
+      <span>Californian coffee shop · Sainte-Anne</span><i>✺</i>
+    </div>
+  </div>
+
+  <!-- En-tête -->
+  <header class="nav" id="nav">
+    <a class="nav__logo" href="#top" aria-label="Ady Coffee Shop, accueil">
+      <svg viewBox="0 0 944 496" aria-hidden="true"><use href="assets/brand.svg#st-oval"/></svg>
+    </a>
+    <nav class="nav__links" id="menu-principal" aria-label="Navigation principale">
+      <a href="#shop">Le shop</a>
+      <a href="#carte">La carte</a>
+      <a href="#livraison">Livraison plage</a>
+      <a href="#fidelite">Fidélité</a>
+      <a href="#infos">Infos</a>
+    </nav>
+    <div class="nav__actions">
+      <span class="status-pill" data-status hidden></span>
+      <button class="btn btn--terra btn--sm cart-btn" type="button" data-open-panel aria-label="Ouvrir le panier">
+        <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 8h12l-1 12H7L6 8Z" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linejoin="round"/><path d="M9 8V6a3 3 0 0 1 6 0v2" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"/></svg>
+        <span class="cart-btn__label">Panier</span>
+        <span class="cart-btn__count" data-cart-count>0</span>
+      </button>
+      <button class="burger" type="button" aria-label="Menu" aria-expanded="false" aria-controls="menu-principal" data-burger><span></span><span></span></button>
+    </div>
+  </header>
+
+  <main id="top">
+    <!-- HERO -->
+    <section class="hero">
+      <div class="hero__inner">
+        <div class="hero__text">
+          <p class="eyebrow eyebrow--cream reveal">Californian coffee shop — Sainte-Anne, Guadeloupe</p>
+          <h1 class="hero__title reveal">
+            <span class="hero__title-small">Une véritable</span>
+            <span class="hero__title-big">Adyction</span>
+          </h1>
+          <p class="hero__lead reveal">Iced latte, matcha, cold brew et douceurs maison, à 5 minutes à pied de la <strong>plage de la Caravelle</strong>. Tu es sur le sable&nbsp;? Commande, envoie ton spot, on t’apporte tout ça.</p>
+          <div class="hero__cta reveal">
+            <a class="btn btn--cream btn--lg" href="#carte">Commander sur la plage</a>
+            <a class="btn btn--ghost btn--lg" href="#livraison">Comment ça marche&nbsp;?</a>
+          </div>
+          <ul class="hero__facts reveal">
+            <li><b data-min-order>5 €</b> minimum</li>
+            <li><b data-delay>15 à 20 min</b> en moyenne</li>
+            <li><b>Paiement</b> à la livraison</li>
+          </ul>
+        </div>
+
+        <div class="hero__art" aria-hidden="true" data-parallax>
+          <div class="sunset">
+            <svg viewBox="0 0 400 400">
+              <defs>
+                <mask id="sunset-mask">
+                  <rect width="400" height="400" fill="#fff"/>
+                  <rect y="236" width="400" height="10" fill="#000"/>
+                  <rect y="268" width="400" height="14" fill="#000"/>
+                  <rect y="304" width="400" height="18" fill="#000"/>
+                  <rect y="344" width="400" height="22" fill="#000"/>
+                </mask>
+              </defs>
+              <circle cx="200" cy="200" r="196" fill="#d9654a" mask="url(#sunset-mask)"/>
+            </svg>
+          </div>
+          <svg class="rays" viewBox="0 0 400 400"><g fill="#fbe9d6" opacity=".14" data-rays></g></svg>
+          <svg class="hero__logo" viewBox="0 0 1440 1208"><use href="assets/brand.svg#logo"/></svg>
+          <div class="floaty floaty--can" data-depth="22"><div class="bob"><svg viewBox="0 0 680 800"><use href="assets/brand.svg#st-can"/></svg></div></div>
+          <div class="floaty floaty--moka" data-depth="-16"><div class="bob bob--slow"><svg viewBox="0 0 608 752"><use href="assets/brand.svg#st-moka"/></svg></div></div>
+          <div class="floaty floaty--palms" data-depth="12"><div class="bob bob--sway"><svg viewBox="0 0 928 920"><use href="assets/brand.svg#st-palms"/></svg></div></div>
+          <div class="floaty floaty--matcha" data-depth="-26"><div class="bob bob--fast" data-ill="iced-matcha"></div></div>
+          <div class="floaty floaty--latte" data-depth="30"><div class="bob" data-ill="iced-latte"></div></div>
+        </div>
+      </div>
+      <svg class="wave wave--bottom" viewBox="0 0 1440 80" preserveAspectRatio="none" aria-hidden="true"><path d="M0 40 C 120 80 240 0 360 30 S 600 80 720 40 S 960 0 1080 34 S 1320 76 1440 36 V80 H0Z" fill="#fbe9d6"/></svg>
+    </section>
+
+    <div class="band-wrap" aria-hidden="true">
+      <div class="band">
+        <div class="marquee marquee--slow" data-marquee>
+          <span>Iced latte</span><i>✺</i><span>Matcha</span><i>✺</i><span>Cold brew</span><i>✺</i><span>Frappé</span><i>✺</i><span>Açaí bowl</span><i>✺</i><span>Good vibes only</span><i>✺</i>
+        </div>
+      </div>
+    </div>
+
+    <!-- LE SHOP -->
+    <section class="story section" id="shop">
+      <div class="container story__grid">
+        <div class="story__text">
+          <p class="eyebrow reveal">Le shop</p>
+          <h2 class="title reveal">Un bout de Californie à Sainte-Anne</h2>
+          <p class="reveal">Ady, c’est un coffee shop né sous les palmiers&nbsp;: des boissons glacées généreuses, du bon café et l’esprit West Coast, version Guadeloupe. On s’est installés à deux pas de la plage de la Caravelle.</p>
+          <p class="reveal">Viens le boire au shop, emporte-le à la plage… ou reste allongé sur ta serviette&nbsp;: on te livre.</p>
+          <ul class="chips reveal">
+            <li>Iced &amp; hot coffee</li>
+            <li>Matcha &amp; smoothies</li>
+            <li>Livraison sur le sable</li>
+          </ul>
+        </div>
+        <div class="story__art" aria-hidden="true">
+          <div class="sticker sticker--head reveal" style="--r:-6deg"><svg viewBox="0 0 728 584"><use href="assets/brand.svg#st-head"/></svg></div>
+          <div class="sticker sticker--oval reveal" style="--r:8deg"><svg viewBox="0 0 944 496"><use href="assets/brand.svg#st-oval"/></svg></div>
+          <div class="sticker sticker--can reveal" style="--r:-14deg"><svg viewBox="0 0 680 800"><use href="assets/brand.svg#st-can"/></svg></div>
+          <div class="sticker sticker--moka reveal" style="--r:10deg"><svg viewBox="0 0 608 752"><use href="assets/brand.svg#st-moka"/></svg></div>
+          <div class="sticker sticker--palms reveal" style="--r:-4deg"><svg viewBox="0 0 928 920"><use href="assets/brand.svg#st-palms"/></svg></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- LA CARTE -->
+    <section class="menu section" id="carte">
+      <div class="container">
+        <div class="section-head">
+          <p class="eyebrow reveal">La carte</p>
+          <h2 class="title reveal">Choisis ton adyction</h2>
+          <p class="reveal">Ajoute tes boissons au panier&nbsp;: on les prépare dès que ta commande arrive, et on file sur la plage.</p>
+        </div>
+        <div class="tabs" role="tablist" aria-label="Catégories" data-tabs></div>
+        <div class="grid" data-grid aria-live="polite"></div>
+      </div>
+    </section>
+
+    <!-- LIVRAISON PLAGE -->
+    <section class="beach" id="livraison">
+      <div class="beach__scene" aria-hidden="true">
+        <svg class="beach__svg" viewBox="0 0 1440 520" preserveAspectRatio="xMidYMax slice">
+          <defs>
+            <linearGradient id="sky" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#8fc3db"/><stop offset="1" stop-color="#d4ecf2"/></linearGradient>
+            <pattern id="sand-dots" width="22" height="22" patternUnits="userSpaceOnUse"><circle cx="4" cy="6" r="1.6" fill="#d9a77a"/><circle cx="15" cy="16" r="1.2" fill="#e3b78d"/></pattern>
+          </defs>
+          <rect width="1440" height="520" fill="url(#sky)"/>
+          <g class="cloud cloud--1" fill="#fff" opacity=".9"><ellipse cx="220" cy="90" rx="70" ry="22"/><ellipse cx="260" cy="76" rx="44" ry="26"/><ellipse cx="190" cy="80" rx="34" ry="20"/></g>
+          <g class="cloud cloud--2" fill="#fff" opacity=".8"><ellipse cx="1060" cy="60" rx="60" ry="18"/><ellipse cx="1092" cy="48" rx="36" ry="22"/></g>
+          <circle cx="1010" cy="150" r="58" fill="#fbe9d6"/>
+          <g class="sea">
+            <rect y="236" width="1440" height="120" fill="#3f97ae"/>
+            <g class="sea__wave sea__wave--1"><path d="M0 250 q30 -10 60 0 t60 0 t60 0 t60 0 t60 0 t60 0 t60 0 t60 0 t60 0 t60 0 t60 0 t60 0 t60 0 t60 0 t60 0 t60 0 t60 0 t60 0 t60 0 t60 0 t60 0 t60 0 t60 0 t60 0 t60 0 t60 0 t60 0 t60 0 t60 0 t60 0 V300 H0Z" fill="#5fb0c2"/></g>
+            <g class="sea__wave sea__wave--2"><path d="M0 290 q40 -12 80 0 t80 0 t80 0 t80 0 t80 0 t80 0 t80 0 t80 0 t80 0 t80 0 t80 0 t80 0 t80 0 t80 0 t80 0 t80 0 t80 0 t80 0 t80 0 t80 0 t80 0 t80 0 V340 H0Z" fill="#2f8199"/></g>
+            <g class="sea__wave sea__wave--3"><path d="M0 330 q30 -10 60 0 t60 0 t60 0 t60 0 t60 0 t60 0 t60 0 t60 0 t60 0 t60 0 t60 0 t60 0 t60 0 t60 0 t60 0 t60 0 t60 0 t60 0 t60 0 t60 0 t60 0 t60 0 t60 0 t60 0 t60 0 t60 0 t60 0 t60 0 t60 0 t60 0 V360 H0Z" fill="#fbe9d6" opacity=".9"/></g>
+          </g>
+          <path d="M0 350 C 240 330 480 362 720 348 S 1200 330 1440 352 V520 H0Z" fill="#f2cfa6"/>
+          <path d="M0 350 C 240 330 480 362 720 348 S 1200 330 1440 352 V520 H0Z" fill="url(#sand-dots)"/>
+          <!-- le shop -->
+          <g transform="translate(400 300)">
+            <rect x="0" y="40" width="150" height="100" rx="8" fill="#fbe9d6" stroke="#2a1810" stroke-width="5"/>
+            <path d="M-16 46 L75 -6 L166 46 Z" fill="#bf472c" stroke="#2a1810" stroke-width="5" stroke-linejoin="round"/>
+            <path d="M-6 46 h162" stroke="#fbe9d6" stroke-width="6" stroke-dasharray="14 12"/>
+            <rect x="56" y="82" width="38" height="58" rx="5" fill="#bf472c" stroke="#2a1810" stroke-width="5"/>
+            <rect x="14" y="70" width="30" height="28" rx="4" fill="#9ccbe0" stroke="#2a1810" stroke-width="4"/>
+            <rect x="106" y="70" width="30" height="28" rx="4" fill="#9ccbe0" stroke="#2a1810" stroke-width="4"/>
+            <rect x="34" y="-40" width="82" height="30" rx="15" fill="#2a1810"/>
+            <text x="75" y="-18" text-anchor="middle" font-family="Londrina Solid, sans-serif" font-weight="900" font-size="22" fill="#fbe9d6">ADY</text>
+          </g>
+          <!-- palmiers -->
+          <g class="palm-sway" transform="translate(588 206)"><svg width="160" height="160" viewBox="0 0 928 920" style="--st-bg:transparent;--st-ink:#2a1810"><use href="assets/brand.svg#st-palms"/></svg></g>
+          <g class="palm-sway" style="animation-delay:-2s" transform="translate(150 186)"><svg width="190" height="190" viewBox="0 0 928 920" style="--st-bg:transparent;--st-ink:#2a1810"><use href="assets/brand.svg#st-palms"/></svg></g>
+          <g class="palm-sway" style="animation-delay:-3.5s" transform="translate(1180 196)"><svg width="170" height="170" viewBox="0 0 928 920" style="--st-bg:transparent;--st-ink:#2a1810"><use href="assets/brand.svg#st-palms"/></svg></g>
+          <!-- chemin de livraison -->
+          <path id="delivery-path" class="beach__path" d="M560 440 C 640 500 700 400 780 450 S 900 470 960 430" fill="none" stroke="#bf472c" stroke-width="5" stroke-dasharray="4 14" stroke-linecap="round"/>
+          <!-- serviette + parasol -->
+          <g transform="translate(900 360)">
+            <rect x="-20" y="64" width="140" height="56" rx="8" fill="#bf472c" transform="skewX(-20)"/>
+            <path d="M-6 76 h120 M-12 92 h120 M-18 108 h120" stroke="#fbe9d6" stroke-width="6" transform="skewX(-20)"/>
+            <path d="M60 110 L66 -6" stroke="#2a1810" stroke-width="6" stroke-linecap="round"/>
+            <path d="M-20 4 Q66 -70 152 4 Q130 -8 109 4 Q88 -8 66 4 Q44 -8 23 4 Q1 -8 -20 4Z" fill="#fbe9d6" stroke="#2a1810" stroke-width="5" stroke-linejoin="round"/>
+            <path d="M23 4 Q40 -40 66 -52 M109 4 Q92 -40 66 -52" stroke="#bf472c" stroke-width="5" fill="none"/>
+          </g>
+          <g transform="translate(986 330)"><g class="pin"><path d="M0 0 C -26 -28 -22 -60 0 -60 C 22 -60 26 -28 0 0Z" fill="#bf472c" stroke="#2a1810" stroke-width="4"/><circle cx="0" cy="-40" r="9" fill="#fbe9d6"/></g></g>
+          <!-- le gobelet qui voyage du shop à la serviette (rempli par app.js) -->
+          <g data-courier></g>
+        </svg>
+      </div>
+
+      <div class="beach__content container">
+        <div class="section-head section-head--center">
+          <p class="eyebrow reveal">Livraison plage</p>
+          <h2 class="title reveal">Livré les pieds dans le sable</h2>
+          <p class="reveal">Sur une plage, un point GPS ne suffit pas toujours. Alors on te demande aussi une petite photo de ton spot&nbsp;: le livreur te trouve du premier coup.</p>
+        </div>
+        <ol class="steps-list">
+          <li class="step-card reveal" style="--r:-2deg"><span class="step-card__num">1</span><h3>Remplis ton panier</h3><p>Minimum <b data-min-order>5 €</b> de commande pour qu’on se déplace jusqu’à toi.</p></li>
+          <li class="step-card reveal" style="--r:1.5deg"><span class="step-card__num">2</span><h3>Pose ton épingle</h3><p>On récupère ta position GPS, que tu peux ajuster à la main sur la carte de la plage.</p></li>
+          <li class="step-card reveal" style="--r:-1deg"><span class="step-card__num">3</span><h3>Photographie ton spot</h3><p>Ta serviette, ton parasol, un repère&nbsp;: une photo et c’est réglé.</p></li>
+          <li class="step-card reveal" style="--r:2deg"><span class="step-card__num">4</span><h3>On arrive&nbsp;!</h3><p>En <b data-delay>15 à 20 min</b> environ. Tu paies à la livraison, en espèces ou par carte.</p></li>
+        </ol>
+        <div class="beach__cta reveal">
+          <a class="btn btn--terra btn--lg" href="#carte">Je commande</a>
+          <p class="beach__zone">Zone de livraison&nbsp;: <b data-zone-name>plage de la Caravelle</b>, Sainte-Anne.</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- FIDÉLITÉ -->
+    <section class="loyalty section" id="fidelite">
+      <div class="container loyalty__grid">
+        <div class="loyalty__text">
+          <p class="eyebrow eyebrow--cream reveal">Fidélité</p>
+          <h2 class="title title--cream reveal">10 tampons, 1 café offert</h2>
+          <p class="reveal">Un tampon par boisson. Au dixième, ton café est pour nous. La carte s’ajoute à ton Apple Wallet ou Google Wallet&nbsp;: plus besoin de carton dans le sac de plage.</p>
+          <div class="reveal" data-loyalty-cta>
+            <p class="loyalty__hint">Demande-la au comptoir ou au livreur&nbsp;!</p>
+          </div>
+        </div>
+        <div class="wallet-card reveal" data-wallet>
+          <div class="wallet-card__top">
+            <svg class="wallet-card__logo" viewBox="0 0 728 584" aria-hidden="true"><use href="assets/brand.svg#st-head"/></svg>
+            <span class="wallet-card__name">ADY COFFEE SHOP</span>
+            <span class="wallet-card__count"><small>Tampons</small><b data-stamp-count>0/10</b></span>
+          </div>
+          <svg class="wallet-card__art" viewBox="0 0 1440 1208" aria-hidden="true"><use href="assets/brand.svg#logo"/></svg>
+          <div class="beans" data-beans aria-label="Exemple de carte fidélité : 10 tampons"></div>
+          <div class="wallet-card__bottom"><span><small>Récompense</small>Un café offert</span><span class="wallet-card__qr" aria-hidden="true"></span></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- INSTAGRAM -->
+    <section class="insta section" id="insta">
+      <div class="container">
+        <div class="section-head">
+          <p class="eyebrow reveal">Sur Insta</p>
+          <h2 class="title reveal">Palmiers, glaçons &amp; stickers</h2>
+        </div>
+        <div class="insta__strip">
+          <figure class="polaroid reveal" style="--r:-3deg"><img src="assets/insta/iced-latte-palmiers.jpg" alt="Iced latte Ady devant des cocotiers" loading="lazy" width="276" height="346"></figure>
+          <figure class="polaroid reveal" style="--r:2deg"><img src="assets/insta/iced-matcha.jpg" alt="Iced matcha latte Ady entouré de grains de café, de lait et de matcha" loading="lazy" width="668" height="908"></figure>
+          <figure class="polaroid reveal" style="--r:-1deg"><img src="assets/insta/stickers-plage.jpg" alt="Stickers Ady sur fond de plage" loading="lazy" width="656" height="904"></figure>
+          <figure class="polaroid reveal" style="--r:3deg"><img src="assets/insta/gobelet-plage.jpg" alt="Gobelet Ady tenu face à la mer" loading="lazy" width="277" height="346"></figure>
+          <figure class="polaroid reveal" style="--r:-2deg"><img src="assets/insta/grains-logo.jpg" alt="Logo Ady sur des grains de café" loading="lazy" width="664" height="904"></figure>
+        </div>
+        <div class="insta__cta" data-insta-cta hidden></div>
+      </div>
+    </section>
+
+    <!-- INFOS -->
+    <section class="infos section" id="infos">
+      <div class="container">
+        <div class="section-head">
+          <p class="eyebrow reveal">Infos pratiques</p>
+          <h2 class="title reveal">Passe nous voir</h2>
+        </div>
+        <div class="infos__grid">
+          <article class="info-card reveal">
+            <h3>Le shop</h3>
+            <p data-address>Durivage, 97180 Sainte-Anne, Guadeloupe</p>
+            <p class="muted">À 5 minutes à pied de la plage de la Caravelle.</p>
+            <a class="btn btn--terra btn--sm" data-directions href="#" target="_blank" rel="noopener">Itinéraire</a>
+          </article>
+          <article class="info-card reveal">
+            <h3>Horaires <span class="status-pill status-pill--inline" data-status hidden></span></h3>
+            <ul class="hours" data-hours></ul>
+          </article>
+          <article class="info-card reveal">
+            <h3>Contact</h3>
+            <div class="contact-links" data-contact></div>
+          </article>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <footer class="footer">
+    <div class="container footer__inner">
+      <svg class="footer__logo" viewBox="0 0 1440 1208" aria-hidden="true"><use href="assets/brand.svg#logo"/></svg>
+      <div class="footer__cols">
+        <p class="footer__slogan">Une véritable Adyction.</p>
+        <nav aria-label="Liens de pied de page">
+          <a href="#carte">La carte</a>
+          <a href="#livraison">Livraison plage</a>
+          <a href="#infos">Infos</a>
+          <a href="mentions-legales.html">Mentions légales</a>
+        </nav>
+        <p class="footer__copy">© <span data-year>2026</span> Ady Coffee Shop · Sainte-Anne, Guadeloupe</p>
+      </div>
+    </div>
+  </footer>
+
+  <!-- Barre panier (mobile) -->
+  <button class="cartbar" type="button" data-open-panel data-cartbar hidden>
+    <span class="cartbar__count" data-cart-count>0</span>
+    <span class="cartbar__label">Voir mon panier</span>
+    <span class="cartbar__total" data-cart-total>0,00 €</span>
+  </button>
+
+  <!-- Choix des options -->
+  <div class="sheet" id="sheet" role="dialog" aria-modal="true" aria-labelledby="sheet-title" hidden>
+    <div class="sheet__backdrop" data-close-sheet></div>
+    <form class="sheet__box" data-sheet-form>
+      <button class="icon-btn sheet__close" type="button" data-close-sheet aria-label="Fermer">
+        <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 6l12 12M18 6L6 18" stroke="currentColor" stroke-width="2.6" stroke-linecap="round"/></svg>
+      </button>
+      <div class="sheet__head">
+        <div class="sheet__art" data-sheet-art></div>
+        <div>
+          <h3 id="sheet-title" data-sheet-title></h3>
+          <p class="muted" data-sheet-desc></p>
+        </div>
+      </div>
+      <div class="sheet__options" data-sheet-options></div>
+      <div class="sheet__foot">
+        <div class="stepper" data-sheet-qty>
+          <button type="button" data-qty="-1" aria-label="Retirer un">−</button>
+          <output>1</output>
+          <button type="button" data-qty="1" aria-label="Ajouter un">+</button>
+        </div>
+        <button class="btn btn--terra" type="submit" data-sheet-submit>Ajouter</button>
+      </div>
+    </form>
+  </div>
+
+  <!-- Panneau commande : panier → spot → contact → confirmation -->
+  <div class="panel" id="panel" role="dialog" aria-modal="true" aria-labelledby="panel-title" hidden>
+    <div class="panel__backdrop" data-close-panel></div>
+    <div class="panel__box">
+      <header class="panel__head">
+        <button class="icon-btn" type="button" data-back aria-label="Étape précédente" hidden>
+          <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M15 5l-7 7 7 7" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        </button>
+        <h2 id="panel-title">Ma commande plage</h2>
+        <button class="icon-btn" type="button" data-close-panel aria-label="Fermer">
+          <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 6l12 12M18 6L6 18" stroke="currentColor" stroke-width="2.6" stroke-linecap="round"/></svg>
+        </button>
+      </header>
+      <ol class="progress" data-progress>
+        <li data-step-dot="1"><span>1</span>Panier</li>
+        <li data-step-dot="2"><span>2</span>Ton spot</li>
+        <li data-step-dot="3"><span>3</span>Contact</li>
+      </ol>
+
+      <div class="panel__body" data-panel-body>
+        <!-- Étape 1 : panier -->
+        <section class="step" data-step="1">
+          <div class="cart-empty" data-cart-empty>
+            <svg viewBox="0 0 728 584" aria-hidden="true"><use href="assets/brand.svg#st-head"/></svg>
+            <p><b>Ton panier est vide.</b><br>Une petite soif&nbsp;? Jette un œil à la carte.</p>
+            <a class="btn btn--terra btn--sm" href="#carte" data-close-panel>Voir la carte</a>
+          </div>
+          <ul class="cart-lines" data-cart-lines></ul>
+          <div class="min-meter" data-min-meter>
+            <div class="min-meter__beans" data-min-beans></div>
+            <p data-min-text></p>
+          </div>
+        </section>
+
+        <!-- Étape 2 : localisation + photo -->
+        <section class="step" data-step="2" hidden>
+          <h3 class="step__title">Où es-tu sur la plage&nbsp;?</h3>
+          <p class="muted">Touche «&nbsp;Me localiser&nbsp;» puis ajuste l’épingle si besoin (tu peux aussi toucher la carte).</p>
+          <div class="map-wrap">
+            <div class="map" id="map" aria-label="Carte de la plage pour placer ta position"></div>
+            <button class="btn btn--terra btn--sm map-locate" type="button" data-locate>
+              <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="4" fill="currentColor"/><path d="M12 2v3M12 19v3M2 12h3M19 12h3" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"/><circle cx="12" cy="12" r="7.5" fill="none" stroke="currentColor" stroke-width="2"/></svg>
+              Me localiser
+            </button>
+          </div>
+          <p class="geo-status" data-geo-status role="status">Ta position n’est pas encore définie.</p>
+
+          <h3 class="step__title">Une photo de ton spot <span class="req" data-photo-req>obligatoire</span></h3>
+          <p class="muted">Cadre ta serviette, ton parasol ou un repère (poste de secours, palmier penché, bateau…).</p>
+          <div class="photo" data-photo>
+            <div class="photo__actions">
+              <label class="photo__btn">
+                <input type="file" accept="image/*" capture="environment" data-photo-input>
+                <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 8h3l2-3h6l2 3h3v11H4z" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/><circle cx="12" cy="13" r="3.5" fill="none" stroke="currentColor" stroke-width="2"/></svg>
+                Prendre une photo
+              </label>
+              <label class="photo__btn photo__btn--alt">
+                <input type="file" accept="image/*" data-photo-input>
+                <svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="5" width="18" height="14" rx="2" fill="none" stroke="currentColor" stroke-width="2"/><path d="M3 16l5-5 4 4 3-3 6 6" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/></svg>
+                Galerie
+              </label>
+            </div>
+            <figure class="photo__preview" data-photo-preview hidden>
+              <img alt="Aperçu de la photo de ton spot" data-photo-img>
+              <button type="button" class="icon-btn photo__remove" data-photo-remove aria-label="Supprimer la photo">
+                <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 6l12 12M18 6L6 18" stroke="currentColor" stroke-width="2.6" stroke-linecap="round"/></svg>
+              </button>
+            </figure>
+          </div>
+          <label class="field">
+            <span>Un repère en plus&nbsp;? <em>(facultatif)</em></span>
+            <input type="text" maxlength="140" placeholder="Ex. parasol jaune, à droite du poste de secours" data-landmark>
+          </label>
+        </section>
+
+        <!-- Étape 3 : contact -->
+        <section class="step" data-step="3" hidden>
+          <form class="contact-form" data-contact-form novalidate>
+            <label class="field">
+              <span>Prénom</span>
+              <input type="text" name="prenom" autocomplete="given-name" maxlength="40" required placeholder="Marie">
+            </label>
+            <label class="field">
+              <span>Téléphone <em>(le livreur peut t’appeler)</em></span>
+              <input type="tel" name="telephone" autocomplete="tel" inputmode="tel" maxlength="20" required placeholder="0690 12 34 56">
+            </label>
+            <fieldset class="field">
+              <legend>Paiement à la livraison</legend>
+              <div class="choice-row" data-payments></div>
+            </fieldset>
+            <label class="field">
+              <span>Une note pour nous&nbsp;? <em>(facultatif)</em></span>
+              <textarea name="note" rows="2" maxlength="300" placeholder="Allergie, monnaie à prévoir…"></textarea>
+            </label>
+            <input class="hp" type="text" name="site" tabindex="-1" autocomplete="off" aria-hidden="true">
+          </form>
+          <div class="recap" data-recap></div>
+          <p class="legal-note">Ta position et ta photo servent uniquement à te livrer. <a href="mentions-legales.html#donnees" target="_blank">En savoir plus</a></p>
+        </section>
+
+        <!-- Étape 4 : confirmation -->
+        <section class="step step--done" data-step="4" hidden>
+          <div class="done">
+            <svg class="done__head" viewBox="0 0 728 584" aria-hidden="true"><use href="assets/brand.svg#st-head"/></svg>
+            <h3 data-done-title>C’est parti&nbsp;!</h3>
+            <p data-done-text></p>
+            <div class="done__actions" data-done-actions></div>
+          </div>
+        </section>
+      </div>
+
+      <footer class="panel__foot" data-panel-foot>
+        <div class="totals" data-totals></div>
+        <p class="form-error" data-error role="alert" hidden></p>
+        <button class="btn btn--terra btn--block btn--lg" type="button" data-next>Continuer</button>
+      </footer>
+    </div>
+  </div>
+
+  <div class="toast" data-toast role="status" aria-live="polite"></div>
+
+  <script type="module" src="js/app.js"></script>
+</body>
+</html>
