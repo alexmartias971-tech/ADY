@@ -45,6 +45,8 @@ create table if not exists public.products (
   created_at timestamptz not null default now()
 );
 create unique index if not exists products_name_live on public.products (lower(name)) where not archived;
+-- allergènes affichés dans la fiche produit (obligatoire avant l'achat en ligne)
+alter table public.products add column if not exists allergens text;
 
 create table if not exists public.product_variants (     -- tailles des t-shirts
   id uuid primary key default gen_random_uuid(),
@@ -182,7 +184,7 @@ declare
   is_iced boolean;
   local_t time := (now() at time zone 'America/Guadeloupe')::time;
   v_mode text := coalesce(p->>'mode', 'shop');
-  v_name text := left(trim(coalesce(p->>'name', '')), 60);
+  v_name text := left(trim(coalesce(p->>'name', '')), 80);
   v_phone text := left(trim(coalesce(p->>'phone', '')), 30);
   v_disc numeric := 0;
 begin
@@ -190,9 +192,16 @@ begin
   if not s.orders_open then raise exception 'Les commandes en ligne sont fermées pour le moment.'; end if;
   if v_mode not in ('shop','plage') then raise exception 'Mode de commande inconnu.'; end if;
   if v_mode = 'plage' and not s.beach_open then raise exception 'La livraison plage est fermée pour le moment.'; end if;
-  if v_name = '' then raise exception 'Ajoute ton prénom.'; end if;
+  if v_name = '' then raise exception 'Ajoute ton nom et ton prénom.'; end if;
   if v_mode = 'plage' and v_phone = '' then raise exception 'Ajoute ton numéro pour que le livreur puisse t''appeler.'; end if;
   if jsonb_typeof(p->'items') <> 'array' or jsonb_array_length(p->'items') = 0 then raise exception 'Ta commande est vide.'; end if;
+  -- anti-abus : un même numéro ne peut pas enchaîner les commandes, et un plafond protège le shop d'une avalanche
+  if v_phone <> '' and (select count(*) from public.orders where phone = v_phone and created_at > now() - interval '10 minutes') >= 3 then
+    raise exception 'Tu viens déjà de passer plusieurs commandes. Patiente quelques minutes ou appelle le shop.';
+  end if;
+  if (select count(*) from public.orders where status = 'new' and created_at > now() - interval '15 minutes') >= 40 then
+    raise exception 'Le shop reçoit beaucoup de commandes en ce moment. Réessaie dans quelques minutes.';
+  end if;
   -- livraison plage : position dans la zone (petite tolérance pour le GPS) et photo du spot
   if v_mode = 'plage' then
     if (p->>'lat') is null or (p->>'lng') is null then raise exception 'Place ton épingle sur la carte pour qu''on te trouve.'; end if;
@@ -341,13 +350,16 @@ create policy "admins lignes" on public.order_items for all to authenticated usi
 -- Photos du spot (livraison plage) : le client dépose, seuls les admins lisent
 -- =====================================================================
 insert into storage.buckets (id, name, public, file_size_limit, allowed_mime_types)
-values ('spots', 'spots', false, 5242880, array['image/jpeg','image/png','image/webp'])
-on conflict (id) do nothing;
+values ('spots', 'spots', false, 2097152, array['image/jpeg','image/png','image/webp'])
+on conflict (id) do update set public = false, file_size_limit = 2097152, allowed_mime_types = array['image/jpeg','image/png','image/webp'];
 
 drop policy if exists "dépôt photo spot" on storage.objects;
-create policy "dépôt photo spot" on storage.objects for insert to anon, authenticated with check (bucket_id = 'spots');
+create policy "dépôt photo spot" on storage.objects for insert to anon, authenticated
+  with check (bucket_id = 'spots' and name ~ '^[0-9a-f-]{36}\.(jpg|jpeg|png|webp)$');
 drop policy if exists "admins lisent les photos" on storage.objects;
 create policy "admins lisent les photos" on storage.objects for select to authenticated using (bucket_id = 'spots' and public.is_admin());
+drop policy if exists "admins suppriment les photos" on storage.objects;
+create policy "admins suppriment les photos" on storage.objects for delete to authenticated using (bucket_id = 'spots' and public.is_admin());
 
 -- =====================================================================
 -- Temps réel : le back-office reçoit les nouvelles commandes instantanément
@@ -355,3 +367,34 @@ create policy "admins lisent les photos" on storage.objects for select to authen
 do $$ begin
   alter publication supabase_realtime add table public.orders;
 exception when duplicate_object then null; end $$;
+
+-- =====================================================================
+-- Durées de conservation (voir la page Confidentialité)
+--   • téléphone, position, repère et note : effacés 30 jours après la commande ;
+--   • photo du spot : supprimée 7 jours après (le back-office efface le fichier
+--     à son ouverture, via l'API de stockage, puis vide photo_path).
+-- =====================================================================
+create or replace function public.purge_donnees() returns jsonb
+language plpgsql security definer set search_path = public as $$
+declare n int;
+begin
+  if auth.uid() is not null and not public.is_admin() then raise exception 'Accès refusé.'; end if;
+  update public.orders set phone = null, lat = null, lng = null, accuracy = null, spot = null, note = null
+   where created_at < now() - interval '30 days'
+     and (phone is not null or lat is not null or spot is not null or note is not null);
+  get diagnostics n = row_count;
+  return jsonb_build_object('effacees', n);
+end $$;
+revoke all on function public.purge_donnees() from public, anon;
+grant execute on function public.purge_donnees() to authenticated;
+
+-- Purge quotidienne automatique si l'extension pg_cron est disponible (sinon : à l'ouverture du back-office)
+do $$ begin
+  if exists (select 1 from pg_available_extensions where name = 'pg_cron') then
+    create extension if not exists pg_cron;
+    perform cron.unschedule(jobid) from cron.job where jobname = 'ady-purge';
+    perform cron.schedule('ady-purge', '17 8 * * *', 'select public.purge_donnees()');
+  end if;
+exception when others then
+  raise notice 'pg_cron indisponible : la purge se fera à l''ouverture du back-office.';
+end $$;

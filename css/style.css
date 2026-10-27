@@ -385,7 +385,7 @@ body[data-hero='terra'] .site-header:not(.is-scrolled) .burger { background: rgb
   cursor: pointer; user-select: none; -webkit-tap-highlight-color: transparent;
 }
 .wallet.is-tracking { transition: transform .08s linear; }
-.wallet::before { content: ''; position: absolute; inset: 0; border-radius: inherit; background: var(--grain-l) 0 0 / 160px; opacity: .3; pointer-events: none; }
+
 .wallet::after { content: ''; position: absolute; inset: 0; border-radius: inherit; pointer-events: none; background: radial-gradient(circle at var(--gx) var(--gy), rgba(255, 255, 255, .28), transparent 55%); mix-blend-mode: soft-light; }
 .wallet__head { display: flex; align-items: center; gap: 10px; }
 .wallet__head svg { width: 46px; --st-bg: var(--cream); --st-ink: #c24a2e; }
@@ -719,15 +719,13 @@ body[data-hero='terra'] .site-header:not(.is-scrolled) .burger { background: rgb
 
 /* ═══════════════════════════════════════════════════════════════
    v3 — affiche 3D, parcours plage / shop, carte façon ardoise,
-   photos du shop. Le grain n'existe qu'à un seul endroit par visuel :
-   dans les illustrations (SVG), sous elles (panneaux), ou sur les photos.
+   photos du shop. Le grain, léger, ne touche que les illustrations
+   (dans le SVG ou sous elles) ; les photos restent nettes.
    ═══════════════════════════════════════════════════════════════ */
 
-/* ── Photos : grain argentique + vignettage, une seule couche ── */
-.photo { position: relative; overflow: hidden; margin: 0; background: var(--ink); isolation: isolate; }
-.photo img { width: 100%; height: 100%; object-fit: cover; filter: saturate(1.06) contrast(1.03); }
-.photo::before { content: ''; position: absolute; inset: 0; z-index: 1; pointer-events: none; box-shadow: inset 0 0 90px rgba(42, 24, 16, .28); }
-.photo::after { content: ''; position: absolute; inset: 0; z-index: 1; pointer-events: none; opacity: .7; background: var(--grain) 0 0 / 170px, var(--grain-l) 85px 60px / 170px; }
+/* ── Photos : nettes, sans grain ni filtre ─────────────────── */
+.photo { position: relative; overflow: hidden; margin: 0; background: var(--cream-2); }
+.photo img { width: 100%; height: 100%; object-fit: cover; }
 .ill--photo { display: block; width: 100%; height: 100%; object-fit: cover; }
 
 /* ── Héro : deux entrées, livré sur la plage ou je passe au shop ── */
@@ -800,10 +798,8 @@ body[data-hero='terra'] .site-header:not(.is-scrolled) .burger { background: rgb
 .pcard__art::after { content: ''; position: absolute; inset: 0; pointer-events: none; opacity: 0; transition: opacity .4s; background: radial-gradient(circle at var(--gx, 50%) var(--gy, 30%), rgba(255, 255, 255, .42), transparent 55%); mix-blend-mode: soft-light; }
 .pcard.is-tilting .pcard__art::after { opacity: 1; }
 .pcard:hover .pcard__art .ill { transform: translateY(-6px) rotate(-3deg) scale(1.03); }
-.pcard__art:has(> .ill--photo)::before, .sheet__art:has(> .ill--photo)::before {
-  width: auto; aspect-ratio: auto; inset: 0; top: 0; left: 0; translate: none; scale: none; border-radius: 0; z-index: 1;
-  background: var(--grain) 0 0 / 170px, var(--grain-l) 85px 60px / 170px; box-shadow: inset 0 0 70px rgba(42, 24, 16, .25);
-}
+.pcard__art:has(> .ill--photo)::before, .sheet__art:has(> .ill--photo)::before { display: none; }
+.pcard__art:has(> .ill--photo), .sheet__art:has(> .ill--photo), .mrow__art:has(> .ill--photo), .cart-line__art:has(> .ill--photo), .upsell__item .art:has(> .ill--photo), .mini-lines__art:has(> .ill--photo) { background: var(--cream-2); }
 .pcard__art > .ill--photo { width: 100%; height: 100%; translate: none; }
 .pcard:hover .pcard__art > .ill--photo { transform: scale(1.05); }
 .sheet__art > .ill--photo { position: absolute; inset: 0; width: 100%; height: 100%; animation: none; }
@@ -1126,3 +1122,47 @@ body[data-hero='terra'] .site-header:not(.is-scrolled) .track-pill { background:
   .pills li > .status { padding: 7px 12px; }
 }
 .cartbar__label small { display: block; margin-top: 3px; font: 500 12px/1.2 var(--f-body); letter-spacing: 0; text-transform: none; opacity: .72; }
+
+/* ── Contact : nom + prénom, fidélité scannée à la remise ─── */
+.field-row { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 10px; }
+.loyal-note { display: flex; gap: 12px; align-items: flex-start; margin: 18px 0 0; padding: 14px 16px; border-radius: 16px; background: var(--paper); box-shadow: inset 0 0 0 1.5px rgba(42, 24, 16, .12); font-size: 14px; line-height: 1.45; color: var(--ink-2); }
+.loyal-note .icon { flex: none; color: var(--terra); margin-top: 1px; }
+.loyal-note b { color: var(--ink); }
+.btn--legal { height: auto; min-height: 62px; padding: 12px 22px; font-size: 18px; line-height: 1.1; white-space: normal; text-align: center; }
+.notice--demo { margin: 18px 0 0; background: #eef3fb; box-shadow: inset 0 0 0 1.5px #b9c9e4; color: #2b3d5c; }
+
+/* ── Écran de chargement (première page de la visite) ─────── */
+.loader {
+  position: fixed; inset: 0; z-index: 1000; display: grid; place-items: center; background: var(--terra); color: var(--cream);
+  transition: transform .9s cubic-bezier(.76, 0, .24, 1); animation: loader-auto .5s 7s forwards;
+}
+.loader::after { content: ''; position: absolute; left: 0; right: 0; bottom: -22px; height: 22px; background: radial-gradient(circle at 50% 0, var(--terra) 21px, transparent 22px) 0 0 / 44px 22px repeat-x; }
+.loader.is-done { transform: translateY(calc(-100% - 24px)); pointer-events: none; }
+.deja-vu .loader { display: none; }
+.loader__in { display: grid; justify-items: center; gap: 24px; transition: opacity .35s, transform .6s var(--ease); }
+.loader.is-done .loader__in { opacity: 0; transform: translateY(-30px) scale(.96); }
+.loader__mark { width: min(210px, 48vw); height: auto; animation: loader-mark .9s var(--ease) both, loader-bob 2.4s 1s ease-in-out infinite; }
+@keyframes loader-mark { from { opacity: 0; transform: translateY(14px) scale(.92) rotate(-3deg); } }
+@keyframes loader-bob { 50% { translate: 0 -6px; } }
+.loader__beans { display: flex; gap: 7px; }
+.loader__beans svg { width: 17px; height: 21px; fill: currentColor; opacity: .22; transform: rotate(-12deg) scale(.8); animation: loader-bean .45s var(--spring) forwards; animation-delay: calc(var(--i) * 65ms + .2s); }
+@keyframes loader-bean { to { opacity: 1; transform: rotate(-12deg) scale(1); } }
+.loader__txt { margin: 0; font: 900 21px/1 var(--f-display); letter-spacing: .04em; text-transform: uppercase; opacity: .92; }
+@keyframes loader-auto { to { opacity: 0; visibility: hidden; } }
+@media (prefers-reduced-motion: reduce) {
+  .loader { transition: opacity .3s; }
+  .loader.is-done { transform: none; opacity: 0; }
+}
+.sheet__allergens { margin: 10px 0 0; font-size: 14px; line-height: 1.45; color: var(--ink-2); }
+.sheet__allergens b { color: var(--ink); }
+
+/* ── Site de démonstration & pages légales ─────────────────── */
+.demo-bar { position: relative; z-index: 101; margin: 0; padding: 8px var(--gutter); background: var(--ink); color: var(--cream); font-size: 13px; line-height: 1.35; text-align: center; }
+.demo-bar a { color: inherit; text-underline-offset: 3px; }
+.demo-box { margin: 24px 0 0; padding: 16px 18px; border-radius: 16px; background: #eef3fb; box-shadow: inset 0 0 0 1.5px #b9c9e4; color: #2b3d5c; font-size: 15px; }
+.demo-info { background: #eef3fb; box-shadow: 0 0 0 2px #b9c9e4; border-radius: 4px; padding: 0 5px; color: #2b3d5c; white-space: nowrap; }
+.legal ul { padding-left: 20px; }
+.legal li { margin-bottom: 8px; }
+.legal-form { margin: 18px 0 0; padding: 18px 20px; border-radius: 16px; background: var(--paper); box-shadow: inset 0 0 0 1.5px rgba(42, 24, 16, .14); }
+.legal-form p { margin: 0 0 10px; }
+.legal-form p:last-child { margin: 0; }

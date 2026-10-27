@@ -8,6 +8,7 @@
   <meta name="theme-color" content="#BF472C">
   <link rel="icon" href="assets/favicon.svg" type="image/svg+xml">
   <link rel="apple-touch-icon" href="assets/apple-touch-icon.png">
+  <script src="js/boot.js"></script>
   <meta property="og:type" content="website">
   <meta property="og:locale" content="fr_FR">
   <meta property="og:site_name" content="Ady Coffee Shop">
@@ -15,9 +16,9 @@
   <meta property="og:description" content="Conditions de vente des commandes livrées sur la plage.">
   <meta property="og:image" content="assets/og-image.jpg">
   <meta name="twitter:card" content="summary_large_image">
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Big+Shoulders+Stencil:wght@700;800&family=DM+Sans:opsz,wght@9..40,400;9..40,500;9..40,600;9..40,700&family=Londrina+Solid:wght@400;900&display=swap" rel="stylesheet">
+  <link rel="preload" href="assets/fonts/londrina-solid-900-latin.woff2" as="font" type="font/woff2" crossorigin>
+  <link rel="preload" href="assets/fonts/dm-sans-latin.woff2" as="font" type="font/woff2" crossorigin>
+  <link rel="stylesheet" href="css/fonts.css">
   <link rel="stylesheet" href="css/style.css">
   <script src="config.js" defer></script>
   <script src="js/demo-seed.js" defer></script>
@@ -26,6 +27,13 @@
   <meta name="robots" content="noindex">
 </head>
 <body data-page="cgv" data-hero="cream">
+  <div class="loader" data-loader aria-hidden="true">
+    <div class="loader__in">
+      <img class="loader__mark" src="assets/mark-cream.webp" alt="" width="520" height="542" fetchpriority="high" decoding="async">
+      <div class="loader__beans"><svg viewBox="8 5 32 38" style="--i:0"><path fill-rule="evenodd" d="M24 6c10 0 16 10 13 22s-15 16-22 10S9 18 14 12c3-4 6-6 10-6Zm-.8 1.5c-5.7 7.5 5.8 18-2 33l2.4.3c8-15.3-3.4-25.8 2.2-33.2Z"/></svg><svg viewBox="8 5 32 38" style="--i:1"><path fill-rule="evenodd" d="M24 6c10 0 16 10 13 22s-15 16-22 10S9 18 14 12c3-4 6-6 10-6Zm-.8 1.5c-5.7 7.5 5.8 18-2 33l2.4.3c8-15.3-3.4-25.8 2.2-33.2Z"/></svg><svg viewBox="8 5 32 38" style="--i:2"><path fill-rule="evenodd" d="M24 6c10 0 16 10 13 22s-15 16-22 10S9 18 14 12c3-4 6-6 10-6Zm-.8 1.5c-5.7 7.5 5.8 18-2 33l2.4.3c8-15.3-3.4-25.8 2.2-33.2Z"/></svg><svg viewBox="8 5 32 38" style="--i:3"><path fill-rule="evenodd" d="M24 6c10 0 16 10 13 22s-15 16-22 10S9 18 14 12c3-4 6-6 10-6Zm-.8 1.5c-5.7 7.5 5.8 18-2 33l2.4.3c8-15.3-3.4-25.8 2.2-33.2Z"/></svg><svg viewBox="8 5 32 38" style="--i:4"><path fill-rule="evenodd" d="M24 6c10 0 16 10 13 22s-15 16-22 10S9 18 14 12c3-4 6-6 10-6Zm-.8 1.5c-5.7 7.5 5.8 18-2 33l2.4.3c8-15.3-3.4-25.8 2.2-33.2Z"/></svg><svg viewBox="8 5 32 38" style="--i:5"><path fill-rule="evenodd" d="M24 6c10 0 16 10 13 22s-15 16-22 10S9 18 14 12c3-4 6-6 10-6Zm-.8 1.5c-5.7 7.5 5.8 18-2 33l2.4.3c8-15.3-3.4-25.8 2.2-33.2Z"/></svg><svg viewBox="8 5 32 38" style="--i:6"><path fill-rule="evenodd" d="M24 6c10 0 16 10 13 22s-15 16-22 10S9 18 14 12c3-4 6-6 10-6Zm-.8 1.5c-5.7 7.5 5.8 18-2 33l2.4.3c8-15.3-3.4-25.8 2.2-33.2Z"/></svg><svg viewBox="8 5 32 38" style="--i:7"><path fill-rule="evenodd" d="M24 6c10 0 16 10 13 22s-15 16-22 10S9 18 14 12c3-4 6-6 10-6Zm-.8 1.5c-5.7 7.5 5.8 18-2 33l2.4.3c8-15.3-3.4-25.8 2.2-33.2Z"/></svg><svg viewBox="8 5 32 38" style="--i:8"><path fill-rule="evenodd" d="M24 6c10 0 16 10 13 22s-15 16-22 10S9 18 14 12c3-4 6-6 10-6Zm-.8 1.5c-5.7 7.5 5.8 18-2 33l2.4.3c8-15.3-3.4-25.8 2.2-33.2Z"/></svg><svg viewBox="8 5 32 38" style="--i:9"><path fill-rule="evenodd" d="M24 6c10 0 16 10 13 22s-15 16-22 10S9 18 14 12c3-4 6-6 10-6Zm-.8 1.5c-5.7 7.5 5.8 18-2 33l2.4.3c8-15.3-3.4-25.8 2.2-33.2Z"/></svg></div>
+      <p class="loader__txt">Une véritable Adyction.</p>
+    </div>
+  </div>
   <a class="skip" href="#contenu">Aller au contenu</a>
   <header class="site-header" id="site-header">
     <div class="site-header__inner">
@@ -62,44 +70,63 @@
       <div class="container legal">
         <p class="kicker">Infos légales</p>
         <h1 class="h1" style="font-size:clamp(52px,7vw,96px)">Conditions générales de vente</h1>
-        <p class="lead">Applicables aux commandes passées sur ce site, livrées sur la plage ou à retirer au shop. <span class="todo">Modèle à faire valider par un professionnel.</span></p>
+        <p class="lead">Applicables à toute commande passée sur ce site, livrée sur la plage ou à retirer au shop.</p>
+        <p class="demo-box"><b>Site de démonstration.</b> Tant que les informations signalées «&nbsp;à compléter&nbsp;» ne sont pas renseignées, ce site sert de démonstration&nbsp;: aucune commande n’y est préparée, livrée ni encaissée.</p>
 
         <h2>1. Vendeur</h2>
-        <p>ADY COFFEE, <span class="todo">forme juridique et capital</span>, SIREN 994 655 413 <span class="todo">à vérifier</span>, Durivage, 97180 Sainte-Anne, Guadeloupe. Contact&nbsp;: <span class="todo">e-mail / téléphone</span>.</p>
+        <p>ADY COFFEE — forme juridique et capital&nbsp;: <span class="demo-info">DEMO</span><br>
+          Siège&nbsp;: Durivage, 97180 Sainte-Anne, Guadeloupe<br>
+          SIREN / RCS&nbsp;: <span class="demo-info">DEMO</span> · TVA intracommunautaire&nbsp;: <span class="demo-info">DEMO</span><br>
+          Contact&nbsp;: e-mail <span class="demo-info">DEMO</span>, téléphone <span class="demo-info">DEMO</span></p>
 
-        <h2>2. Commande</h2>
-        <p>Le client choisit ses produits puis le mode de remise&nbsp;: <b>livraison sur la plage</b> ou <b>retrait au shop</b>. Il indique son prénom et, pour la livraison, son téléphone, sa position et une photo de l’endroit où il se trouve. La commande est confirmée à l’écran par un numéro&nbsp;; son avancement s’affiche ensuite en direct (reçue, en préparation, en route ou prête, livrée).</p>
-        <p>Les produits salés sont servis aux horaires indiqués sur la carte. Les articles épuisés ne peuvent pas être commandés.</p>
+        <h2>2. Produits</h2>
+        <p>Boissons et plats préparés à la commande, et t-shirts ADY. Les illustrations sont des représentations&nbsp;: elles ne sont pas contractuelles. Les plats salés sont servis aux horaires indiqués sur la carte. Les allergènes de chaque produit sont indiqués dans sa fiche, avant l’ajout au panier&nbsp;; en cas de doute, contacte-nous avant de commander.</p>
 
         <h2>3. Prix</h2>
-        <p>Les prix sont indiqués en euros, toutes taxes comprises. Le prix applicable est celui affiché au moment de la commande&nbsp;; il est recalculé par notre système lors de la validation. Les options payantes (lait végétal, sirop, format…) sont indiquées avant l’ajout au panier.</p>
+        <p>Les prix sont en euros, toutes taxes comprises. Le prix applicable est celui affiché au moment de la commande, options comprises (lait végétal, sirop, format…). La livraison sur la plage est gratuite à partir du minimum de commande affiché&nbsp;; d’éventuels frais seraient indiqués avant la validation.</p>
 
-        <h2>4. Paiement</h2>
-        <p>Le paiement s’effectue sur place&nbsp;: à la livraison ou au comptoir, en espèces ou par carte bancaire. Aucun paiement n’est demandé en ligne.</p>
+        <h2>4. Commande</h2>
+        <p>Le client choisit ses produits, puis le mode de remise&nbsp;: <b>livraison sur la plage</b> ou <b>retrait au shop</b>. Il indique ses nom et prénom et, pour la livraison, son téléphone, sa position et une photo de l’endroit où il se trouve. Il vérifie le récapitulatif, puis valide avec le bouton «&nbsp;Commander avec obligation de paiement&nbsp;»&nbsp;: c’est à ce moment que la commande est passée.</p>
+        <p>Le numéro de commande s’affiche aussitôt à l’écran, avec le suivi en direct (reçue, en préparation, en route ou prête, remise). Le shop peut refuser ou annuler une commande en cas de rupture, de position hors zone, de commande manifestement anormale ou d’impossibilité de joindre le client&nbsp;; le client en est informé sur l’écran de suivi. Rien n’étant payé en ligne, aucune somme n’est alors due.</p>
 
-        <h2>5. Livraison sur la plage</h2>
-        <p>La livraison est assurée à pied, uniquement dans la zone indiquée sur le site (plage de la Caravelle, Sainte-Anne), pendant les horaires d’ouverture, à partir du minimum de commande affiché. Le délai annoncé est indicatif. Le client reste joignable au numéro indiqué et fournit une position et une photo permettant de le trouver. <span class="todo">Préciser la conduite à tenir si le client reste introuvable.</span></p>
+        <h2>5. Confirmation</h2>
+        <p>La confirmation du contrat est remise sur un support durable, au plus tard au moment de la remise de la commande&nbsp;: ticket de caisse ou justificatif de paiement.</p>
 
-        <h2>6. Retrait au shop</h2>
-        <p>La commande est préparée pour l’heure choisie («&nbsp;dès que possible&nbsp;» ou un créneau). Elle est remise au comptoir sur simple présentation du prénom ou du numéro de commande. <span class="todo">Durée de conservation d’une commande non retirée.</span></p>
+        <h2>6. Paiement</h2>
+        <p>Le paiement se fait à la remise de la commande&nbsp;: au livreur sur la plage ou au comptoir, en espèces ou par carte bancaire (terminal de paiement). Aucun paiement n’est demandé sur le site.</p>
 
-        <h2>7. Annulation</h2>
-        <p>Le shop peut annuler une commande en cas de rupture, de position hors zone ou d’impossibilité de joindre le client&nbsp;; le client en est informé sur l’écran de suivi. Le client qui souhaite annuler contacte le shop avant le début de la préparation.</p>
+        <h2>7. Livraison sur la plage</h2>
+        <p>La livraison se fait à pied, uniquement dans la zone indiquée sur le site (plage de la Caravelle, Sainte-Anne), pendant les horaires d’ouverture, à partir du minimum de commande affiché. Le délai annoncé est indicatif. Le client reste joignable au numéro indiqué et dans la zone indiquée. Si le livreur ne trouve pas le client et ne parvient pas à le joindre&nbsp;: <span class="demo-info">site de démonstration&nbsp;: à compléter</span>. Les produits sont sous la responsabilité du client dès leur remise.</p>
 
-        <h2>8. Carte fidélité</h2>
-        <p>Un tampon est attribué par boisson achetée, au shop ou en livraison (en indiquant son numéro de carte). Au dixième tampon, la boisson la moins chère de la commande est offerte, après vérification de la carte par le shop. La récompense n’est ni échangeable ni remboursable.</p>
+        <h2>8. Retrait au shop</h2>
+        <p>La commande est préparée pour l’heure choisie («&nbsp;dès que possible&nbsp;» ou un créneau) et remise au comptoir sur présentation du nom ou du numéro de commande. Délai de conservation d’une commande non retirée&nbsp;: <span class="demo-info">site de démonstration&nbsp;: à compléter</span>.</p>
 
         <h2>9. Droit de rétractation</h2>
-        <p>Conformément à l’article L221-28 du Code de la consommation, le droit de rétractation ne s’applique pas aux denrées alimentaires et boissons susceptibles de se détériorer rapidement. En cas de produit non conforme, contacte-nous au moment de la livraison ou du retrait.</p>
+        <p><b>Boissons et plats&nbsp;:</b> conformément à l’article L221-28 du Code de la consommation (3° et 4°), le droit de rétractation ne s’applique pas aux produits préparés selon les choix du client ni aux denrées susceptibles de se détériorer rapidement.</p>
+        <p><b>T-shirts&nbsp;:</b> le client dispose de 14 jours à compter de la remise pour se rétracter, sans avoir à se justifier. Il nous en informe par une déclaration dénuée d’ambiguïté (e-mail, courrier ou au comptoir), par exemple avec le formulaire ci-dessous, puis rapporte ou renvoie l’article, non porté et dans son état d’origine, au plus tard 14 jours après sa déclaration&nbsp;; les frais de renvoi éventuels sont à sa charge. Nous remboursons la somme payée dans les 14 jours suivant la rétractation, par le même moyen de paiement, ce remboursement pouvant être différé jusqu’à la récupération de l’article.</p>
+        <div class="legal-form">
+          <p><b>Formulaire de rétractation</b> (à compléter et nous renvoyer uniquement si tu veux te rétracter)</p>
+          <p>À l’attention d’ADY COFFEE, Durivage, 97180 Sainte-Anne, Guadeloupe, e-mail <span class="demo-info">DEMO</span>&nbsp;:<br>
+          Je vous notifie par la présente ma rétractation du contrat portant sur la vente du bien ci-dessous&nbsp;:<br>
+          Commandé le / reçu le&nbsp;: …… · Numéro de commande&nbsp;: …… · Article et taille&nbsp;: ……<br>
+          Nom et prénom&nbsp;: …… · Adresse&nbsp;: ……<br>
+          Date et signature (en cas d’envoi papier)&nbsp;: ……</p>
+        </div>
 
-        <h2>10. Allergènes</h2>
-        <p>La liste des allergènes présents dans nos produits est disponible sur simple demande au shop ou auprès du livreur. <span class="todo">Ajouter la liste ou le lien.</span></p>
+        <h2>10. Garanties légales</h2>
+        <p>Le client bénéficie de la <b>garantie légale de conformité</b> (articles L217-3 et suivants du Code de la consommation)&nbsp;: il dispose de deux ans à compter de la remise du bien pour l’invoquer, sans avoir à prouver la date d’apparition du défaut. Il peut obtenir la réparation ou le remplacement du bien, ou à défaut une réduction du prix ou l’annulation de la vente. Il bénéficie aussi de la <b>garantie des vices cachés</b> (articles 1641 à 1649 du Code civil), à faire valoir dans les deux ans suivant la découverte du vice. Pour un produit alimentaire non conforme, préviens-nous au moment de la remise.</p>
 
-        <h2>11. Données personnelles</h2>
-        <p>Les informations collectées servent uniquement à préparer, remettre et suivre la commande. Voir la rubrique <a href="mentions-legales#donnees">données personnelles</a>.</p>
+        <h2>11. Carte fidélité</h2>
+        <p>Un tampon est attribué par boisson payée, en scannant la carte du client au moment du paiement (au comptoir ou par le livreur). Au dixième tampon, la boisson la moins chère de la commande est offerte. La récompense n’est ni échangeable ni remboursable.</p>
 
-        <h2>12. Litiges</h2>
-        <p>En cas de litige, une solution amiable sera recherchée en priorité. Le client peut recourir gratuitement à un médiateur de la consommation&nbsp;: <span class="todo">nom et coordonnées du médiateur</span>. Droit applicable&nbsp;: droit français.</p>
+        <h2>12. Données personnelles</h2>
+        <p>Les informations collectées servent uniquement à préparer, remettre et suivre la commande&nbsp;: voir la <a href="confidentialite">politique de confidentialité</a>. Le client peut s’inscrire gratuitement sur la liste d’opposition au démarchage téléphonique Bloctel (bloctel.gouv.fr)&nbsp;; son numéro ne sert de toute façon qu’à sa commande.</p>
+
+        <h2>13. Réclamations et médiation</h2>
+        <p>Toute réclamation peut être adressée au shop (coordonnées à l’article 1). À défaut de solution amiable, le client peut recourir gratuitement au médiateur de la consommation dont relève le vendeur&nbsp;: <span class="demo-info">site de démonstration&nbsp;: à compléter</span>.</p>
+
+        <h2>14. Droit applicable</h2>
+        <p>Les présentes conditions sont soumises au droit français. Version en vigueur&nbsp;: <span data-year>2026</span>.</p>
       </div>
     </section>
   </main>
@@ -128,6 +155,7 @@
             <li><a href="cgv">Conditions de vente</a></li>
             <li><a href="admin" rel="nofollow">Espace équipe</a></li>
             <li><a href="mentions-legales">Mentions légales</a></li>
+            <li><a href="confidentialite">Confidentialité</a></li>
             <li data-insta></li>
           </ul>
         </div>

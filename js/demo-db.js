@@ -5,7 +5,7 @@
    Back-office démo : demo.com@gmail.com / demo
    ===================================================================== */
 (function () {
-  const KEY = "ady-demo-db-v3";
+  const KEY = "ady-demo-db-v4";
   const DEMO_EMAIL = "demo.com@gmail.com";
   const DEMO_PASSWORDS = ["demo", "démo", "Demo", "Démo"];
   const uid = () => (crypto.randomUUID ? crypto.randomUUID() : "xxxxxxxx-xxxx-4xxx-8xxx-xxxxxxxxxxxx".replace(/x/g, () => ((Math.random() * 16) | 0).toString(16)));
@@ -26,7 +26,7 @@
     S.products.forEach((p) => {
       const id = uid();
       db.products.push({ id, category_id: p.category_id, name: p.name, description: p.description || "", price: p.price, iced: !!p.iced, signature: !!p.signature,
-        available: true, stock: null, image: p.image || null, featured: !!p.featured, badge: p.badge || null, sort: p.sort, archived: false, created_at: now() });
+        available: true, stock: null, image: p.image || null, featured: !!p.featured, badge: p.badge || null, allergens: null, sort: p.sort, archived: false, created_at: now() });
       (p.variants || []).forEach((label, k) => db.product_variants.push({ id: uid(), product_id: id, label, stock: label === "S" ? 2 : 8, sort: k }));
       (p.groups || []).forEach((g, k) => db.product_option_groups.push({ product_id: id, group_id: g, sort: k }));
     });
@@ -54,13 +54,13 @@
       ord.created_at = ago(minutes); ord.status = o.status || "new";
     };
     try {
-      mk({ mode: "plage", name: "Léa", phone: "0690 11 22 33", spot: "Parasol jaune, à droite du poste de secours", lat: 16.2183, lng: -61.3958, accuracy: 9,
+      mk({ mode: "plage", name: "Léa Martin", phone: "0690 11 22 33", spot: "Parasol jaune, à droite du poste de secours", lat: 16.2183, lng: -61.3958, accuracy: 9,
         items: [{ product_id: find("Maracudja matcha tonic").id, qty: 2 }, { product_id: find("Iced latte tiramisu").id, qty: 1, options: [choice("lait", "Avoine").id] }] }, null, 2);
-      mk({ mode: "shop", name: "Marc", when: "Dans 15 min", note: "Bien glacé svp", status: "preparing",
+      mk({ mode: "shop", name: "Marc Dupont", when: "Dans 15 min", note: "Bien glacé svp", status: "preparing",
         items: [{ product_id: find("Latte").id, qty: 2, options: [choice("temperature", "Glacé").id, choice("sirop", "Caramel").id] }] }, null, 7);
-      mk({ mode: "plage", name: "Sarah", phone: "0690 00 00 00", spot: "Serviette rayée rouge", status: "delivering",
+      mk({ mode: "plage", name: "Sarah Louis", phone: "0690 00 00 00", spot: "Serviette rayée rouge", status: "delivering",
         items: [{ product_id: find("Citronnade gwozey peyi").id, qty: 2, options: [choice("format", "50 cl").id] }, { product_id: find("T-shirt ADY Coffee Club").id, variant_id: db.product_variants.find((v) => v.product_id === find("T-shirt ADY Coffee Club").id && v.label === "M").id, qty: 1 }] }, null, 18);
-      mk({ mode: "shop", name: "Kévin", when: "Dès que possible", status: "done", items: [{ product_id: find("Cappuccino").id, qty: 2 }] }, null, 52);
+      mk({ mode: "shop", name: "Kévin Bernard", when: "Dès que possible", status: "done", items: [{ product_id: find("Cappuccino").id, qty: 2 }] }, null, 52);
     } catch (e) { console.warn(e); }
     save(db, true);
   }
@@ -74,7 +74,7 @@
     const err = (m) => ({ data: null, error: { message: m } });
     const s = db.settings[0];
     const mode = p.mode || "shop";
-    const name = String(p.name || "").trim().slice(0, 60), phone = String(p.phone || "").trim().slice(0, 30);
+    const name = String(p.name || "").trim().slice(0, 80), phone = String(p.phone || "").trim().slice(0, 30);
     if (!s.orders_open) return err("Les commandes en ligne sont fermées pour le moment.");
     if (!["shop", "plage"].includes(mode)) return err("Mode de commande inconnu.");
     if (mode === "plage" && !s.beach_open) return err("La livraison plage est fermée pour le moment.");

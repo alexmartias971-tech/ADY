@@ -1,7 +1,7 @@
 // Éléments communs à toutes les pages : en-tête, menu mobile, statut d'ouverture,
 // panier, suivi de commande, apparitions au défilement, effet 3D.
 import { CONFIG } from './config.js';
-import { chargerCatalogue, catalogue } from './data.js';
+import { chargerCatalogue, catalogue, estDemo } from './data.js';
 import { illustration, defsGlobales } from './illustrations.js';
 import { panier, nettoyerPanier } from './cart.js';
 import { etatOuverture, JOURS, heure } from './horaires.js';
@@ -12,6 +12,8 @@ import { initCheckout, ouvrirPanneau } from './checkout.js';
 export async function initUI() {
   document.documentElement.classList.remove('no-js');
   document.body.insertAdjacentHTML('afterbegin', defsGlobales());
+  // tant que la base n'est pas branchée, on le dit clairement : rien n'est préparé ni livré
+  if (estDemo()) document.body.insertAdjacentHTML('afterbegin', '<p class="demo-bar" role="note"><b>Site de démonstration</b> · les commandes ne sont ni préparées ni livrées. <a href="mentions-legales">En savoir plus</a></p>');
   hydrateIcons();
   initEntete();
   initStatut();

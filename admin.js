@@ -26,6 +26,29 @@ async function boot() {
   if (!ok) { $("[data-login]").hidden = false; $("[data-login-err]").textContent = "Ce compte n'a pas accès au back-office."; await SB.auth.signOut(); return; }
   $("[data-login]").hidden = true; $("[data-app]").hidden = false;
   start();
+  if (!DEMO) purger();
+}
+
+/* ===== Durées de conservation : photos supprimées après 7 jours, coordonnées après 30 jours ===== */
+async function purger() {
+  try {
+    await SB.rpc("purge_donnees");
+    const limite = new Date(Date.now() - 7 * 864e5).toISOString();
+    const { data: vieilles } = await SB.from("orders").select("id, photo_path").lt("created_at", limite).not("photo_path", "is", null).limit(200);
+    if (vieilles && vieilles.length) {
+      const { error } = await SB.storage.from("spots").remove(vieilles.map((o) => o.photo_path));
+      if (!error) await SB.from("orders").update({ photo_path: null }).in("id", vieilles.map((o) => o.id));
+    }
+    // photos déposées sans commande (commande abandonnée) : supprimées au bout d'un jour
+    const { data: fichiers } = await SB.storage.from("spots").list("", { limit: 500, sortBy: { column: "created_at", order: "asc" } });
+    const anciens = (fichiers || []).filter((f) => f.created_at && Date.now() - new Date(f.created_at).getTime() > 864e5).map((f) => f.name);
+    if (anciens.length) {
+      const { data: lies } = await SB.from("orders").select("photo_path").in("photo_path", anciens);
+      const garder = new Set((lies || []).map((o) => o.photo_path));
+      const orphelins = anciens.filter((n) => !garder.has(n));
+      if (orphelins.length) await SB.storage.from("spots").remove(orphelins);
+    }
+  } catch (e) { console.warn("Purge des données : réessai à la prochaine ouverture", e); }
 }
 $("[data-login-form]").addEventListener("submit", async (e) => {
   e.preventDefault();
@@ -248,6 +271,7 @@ function productRow(p) {
     <input class="prow__name" data-f="name" value="${esc(p.name)}" aria-label="Nom">
     <input class="prow__price" data-f="price" type="number" min="0" step="0.1" value="${Number(p.price)}" aria-label="Prix en euros">
     <input class="prow__desc" data-f="description" value="${esc(p.description)}" placeholder="Description (facultatif)" aria-label="Description">
+    <input class="prow__desc" data-f="allergens" value="${esc(p.allergens || "")}" placeholder="Allergènes (ex : lait, gluten, fruits à coque) — obligatoire" aria-label="Allergènes">
     <div class="prow__opts">
       ${GROUPS.filter((g) => g.id !== "temperature").map((g) => `<label><input type="checkbox" data-link="${esc(g.id)}" ${LINKS.some((l) => l.product_id === p.id && l.group_id === g.id) ? "checked" : ""}> ${esc(g.name)}</label>`).join("")}
       <label><input type="checkbox" data-link="temperature" ${LINKS.some((l) => l.product_id === p.id && l.group_id === "temperature") ? "checked" : ""}> Chaud ou glacé</label>
@@ -305,7 +329,7 @@ editor.addEventListener("change", async (e) => {
     let v = e.target.type === "checkbox" ? e.target.checked : e.target.value.trim();
     if (f === "price") { v = Number(String(v).replace(",", ".")); if (!(v >= 0)) return toast("Prix invalide"); }
     if (f === "name" && !v) return toast("Le nom ne peut pas être vide");
-    if (f === "badge") v = v || null;
+    if (f === "badge" || f === "allergens") v = v || null;
     const { error } = await SB.from("products").update({ [f]: v }).eq("id", row.dataset.pid);
     if (error) return fail(error);
     const p = PRODS.find((x) => x.id === row.dataset.pid); if (p) p[f] = v;

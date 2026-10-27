@@ -14,8 +14,17 @@ export function client() {
   if (!clientP) {
     clientP = (async () => {
       if (!estDemo()) {
-        const { createClient } = await import('https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/+esm');
-        return createClient(cfg().supabaseUrl, cfg().supabaseAnonKey);
+        // bibliothèque Supabase hébergée sur le site (vendor/), chargée seulement quand elle sert
+        if (!window.supabase) {
+          await new Promise((ok, ko) => {
+            const sc = document.createElement('script');
+            sc.src = 'vendor/supabase/supabase.js';
+            sc.onload = ok;
+            sc.onerror = () => ko(new Error('La connexion à la carte a échoué. Recharge la page.'));
+            document.head.appendChild(sc);
+          });
+        }
+        return window.supabase.createClient(cfg().supabaseUrl, cfg().supabaseAnonKey);
       }
       return window.ADY_DEMO.createClient();
     })();
@@ -74,7 +83,7 @@ async function charger() {
     const epuise = !x.available || x.stock === 0 || (variantes.length > 0 && variantes.every((y) => y.epuise));
     return {
       id: x.id, nom: x.name, desc: x.description || '', prix: Number(x.price), cat: x.category_id, kind: cats[x.category_id]?.kind || 'drink',
-      glace: !!x.iced, signature: !!x.signature, vedette: !!x.featured, badge: x.badge || null, image: x.image || null,
+      glace: !!x.iced, signature: !!x.signature, vedette: !!x.featured, badge: x.badge || null, image: x.image || null, allergenes: x.allergens || null,
       variantes, groupes: groupesP, epuise, sort: x.sort,
     };
   });

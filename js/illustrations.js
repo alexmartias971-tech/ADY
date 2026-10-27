@@ -437,8 +437,8 @@ function plat(nom, label) {
 // p = produit (data.js) ; options.glace force la version glacée (fiche produit)
 export function illustration(p, { glace } = {}) {
   const nom = p.nom || '';
-  const label = nom.replace(/"/g, '');
-  if (p.kind === 'merch' && p.image) return `<img class="ill ill--photo" src="${p.image}" alt="" loading="lazy">`;
+  const label = nom.replace(/[&<>"']/g, '');
+  if (p.kind === 'merch' && p.image) return `<img class="ill ill--photo" src="${p.image.replace(/["<>\s]/g, '')}" alt="" loading="lazy">`;
   if (p.kind === 'food') return plat(nom, label);
   if (/affogato/i.test(nom)) return affogato(nom, label);
   const froid = glace ?? (p.glace || /^(iced|.*tonic|citronnade|thé glacé|jus)/i.test(nom));

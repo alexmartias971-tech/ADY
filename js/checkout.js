@@ -89,7 +89,7 @@ function construire() {
         <p class="geo-status" data-geo role="status">Ta position n’est pas encore définie.</p>
         <h3 class="step__title">Ton spot en photo <span class="req" data-photo-req>obligatoire</span></h3>
         <p>C’est ce qui aide le plus le livreur à te trouver.</p>
-        <div class="photo-tip"><svg viewBox="-6 -6 136 156" aria-hidden="true">${polaroid({ x: 0, y: 0, w: 120, rot: -4 })}</svg><span>Cadre ta serviette ou ton parasol, avec un repère visible&nbsp;: poste de secours, palmier, bateau…</span></div>
+        <div class="photo-tip"><svg viewBox="-6 -6 136 156" aria-hidden="true">${polaroid({ x: 0, y: 0, w: 120, rot: -4 })}</svg><span>Cadre ta serviette ou ton parasol, avec un repère visible&nbsp;: poste de secours, palmier, bateau… Évite d’y faire figurer d’autres personnes.</span></div>
         <div class="photo__actions" data-photo-actions>
           <label class="photo__btn photo__btn--main"><input type="file" accept="image/*" capture="environment" data-photo-input>${icon('camera')} Prendre la photo</label>
           <label class="photo__btn"><input type="file" accept="image/*" data-photo-input>${icon('image')} Galerie</label>
@@ -116,20 +116,20 @@ function construire() {
       <section class="step" data-step="3" hidden>
         <h3 class="step__title">Tes coordonnées</h3>
         <form data-form novalidate>
-          <label class="field"><span>Prénom</span><input type="text" name="prenom" autocomplete="given-name" maxlength="60" required placeholder="Marie"></label>
+          <div class="field-row">
+            <label class="field"><span>Prénom</span><input type="text" name="prenom" autocomplete="given-name" maxlength="40" required placeholder="Marie"></label>
+            <label class="field"><span>Nom</span><input type="text" name="nom" autocomplete="family-name" maxlength="40" required placeholder="Durand"></label>
+          </div>
           <label class="field"><span>Téléphone <em data-tel-hint>(le livreur peut t’appeler)</em></span><input type="tel" name="telephone" autocomplete="tel" inputmode="tel" maxlength="30" placeholder="0690 12 34 56"></label>
           <fieldset class="field"><legend data-pay-legend>Paiement à la livraison</legend><div class="choices" data-payments></div></fieldset>
-          <details class="loyal" data-loyal>
-            <summary>${icon('card')} J’ai une carte fidélité ADY</summary>
-            <label class="field"><span>Numéro de carte <em>(sous le QR code)</em></span><input type="text" name="fidelite" maxlength="20" placeholder="ADY-0000" autocomplete="off" style="text-transform:uppercase"></label>
-            <label class="check" data-reward hidden><input type="checkbox" name="recompense"> J’utilise ma récompense&nbsp;: ma boisson la moins chère est offerte</label>
-          </details>
+          <p class="loyal-note">${icon('card')}<span><b>Carte fidélité ADY&nbsp;?</b> <span data-loyal-note>Montre ton QR code au livreur au moment de payer</span>&nbsp;: on la scanne, et ta boisson offerte est déduite si tu y as droit.</span></p>
           <label class="field"><span>Une note pour nous&nbsp;? <em>(facultatif)</em></span><input type="text" name="note" maxlength="200" placeholder="Bien glacé, sans paille…"></label>
-          <label class="check"><input type="checkbox" name="memo" checked> Se souvenir de moi sur ce téléphone</label>
+          <label class="check"><input type="checkbox" name="memo"> Se souvenir de mes coordonnées sur ce téléphone</label>
           <input class="hp" type="text" name="site" tabindex="-1" autocomplete="off" aria-hidden="true">
         </form>
         <div class="recap" data-recap></div>
-        <p class="legal-note">En commandant, tu acceptes nos <a href="cgv" target="_blank">conditions de vente</a>. Ta position et ta photo servent uniquement à te livrer (<a href="mentions-legales#donnees" target="_blank">en savoir plus</a>).</p>
+        <p class="notice notice--demo" data-demo-note hidden>Site de démonstration&nbsp;: cette commande n’est ni préparée ni livrée.</p>
+        <p class="legal-note">En validant, tu acceptes nos <a href="cgv" target="_blank" rel="noopener">conditions de vente</a> et tu t’engages à payer ta commande à la remise. Tes coordonnées, ta position et ta photo servent uniquement à préparer et remettre ta commande (<a href="confidentialite" target="_blank" rel="noopener">confidentialité</a>).</p>
       </section>
 
       <section class="step" data-step="4" hidden><div data-suivi></div></section>
@@ -228,7 +228,9 @@ function majPied() {
     b.innerHTML = `Continuer ${fleche}`;
     b.disabled = false;
   } else if (n === 3) {
-    b.textContent = etat.envoi ? 'Envoi en cours…' : `Envoyer ma commande · ${euro(total())}`;
+    // libellé imposé pour une commande en ligne (art. L221-14 du Code de la consommation)
+    b.textContent = etat.envoi ? 'Envoi en cours…' : 'Commander avec obligation de paiement';
+    b.classList.toggle('btn--legal', !etat.envoi);
     b.disabled = etat.envoi;
   } else {
     b.textContent = suivi && !['done', 'cancelled'].includes(suivi.status) ? 'Continuer ma visite' : 'Fermer';
@@ -420,6 +422,8 @@ function majContact() {
   const plage = panier.mode === 'plage';
   q('[data-tel-hint]').textContent = plage ? '(le livreur peut t’appeler)' : '(facultatif, pour te prévenir)';
   q('[data-pay-legend]').textContent = plage ? 'Paiement à la livraison' : 'Paiement au comptoir';
+  q('[data-loyal-note]').textContent = plage ? 'Montre ton QR code au livreur au moment de payer' : 'Montre ton QR code au comptoir au moment de payer';
+  q('[data-demo-note]').hidden = !estDemo();
   const actuel = q('[data-form]').querySelector('input[name="paiement"]:checked')?.value;
   q('[data-payments]').innerHTML = CONFIG.paiements
     .map((p, i) => `<label class="choice"><input type="radio" name="paiement" value="${p.id}"${(actuel ? actuel === p.id : i === 0) ? ' checked' : ''}><span>${esc(p.label)}</span></label>`).join('');
@@ -432,12 +436,9 @@ function prerempli() {
     const c = JSON.parse(localStorage.getItem(CLE_CLIENT) || 'null');
     if (!c) return;
     f.elements.prenom.value = c.prenom || '';
+    f.elements.nom.value = c.nom || '';
     f.elements.telephone.value = c.telephone || '';
-    if (c.fidelite) {
-      f.elements.fidelite.value = c.fidelite;
-      q('[data-loyal]').open = true;
-      q('[data-reward]').hidden = false;
-    }
+    f.elements.memo.checked = true;
     setTimeout(() => {
       const pay = f.querySelector(`input[name="paiement"][value="${c.paiement}"]`);
       if (pay) pay.checked = true;
@@ -461,11 +462,10 @@ function lireContact() {
   const d = new FormData(q('[data-form]'));
   return {
     prenom: String(d.get('prenom') || '').trim(),
+    nom: String(d.get('nom') || '').trim(),
     telephone: String(d.get('telephone') || '').trim(),
     paiement: String(d.get('paiement') || ''),
     note: String(d.get('note') || '').trim(),
-    fidelite: String(d.get('fidelite') || '').trim().toUpperCase(),
-    recompense: d.get('recompense') === 'on',
     memo: d.get('memo') === 'on',
     site: String(d.get('site') || ''),
   };
@@ -477,8 +477,10 @@ function validerContact() {
   const telOk = c.telephone.replace(/\D/g, '').length >= 8;
   const telRequis = panier.mode === 'plage';
   f.elements.prenom.setAttribute('aria-invalid', String(!c.prenom));
+  f.elements.nom.setAttribute('aria-invalid', String(!c.nom));
   f.elements.telephone.setAttribute('aria-invalid', String(telRequis && !telOk));
-  if (!c.prenom) { f.elements.prenom.focus(); return 'Indique ton prénom pour qu’on t’appelle quand c’est prêt.'; }
+  if (!c.prenom) { f.elements.prenom.focus(); return 'Indique ton prénom.'; }
+  if (!c.nom) { f.elements.nom.focus(); return 'Indique ton nom.'; }
   if (telRequis && !telOk) { f.elements.telephone.focus(); return 'Ajoute ton numéro : le livreur peut avoir besoin de t’appeler.'; }
   return null;
 }
@@ -499,7 +501,7 @@ async function envoyer() {
     const paiement = CONFIG.paiements.find((p) => p.id === c.paiement)?.label || '';
     const payload = {
       mode: panier.mode,
-      name: c.prenom,
+      name: `${c.prenom} ${c.nom}`,
       phone: c.telephone,
       when: plage ? null : etat.creneau,
       note: [c.note, paiement && `Paiement : ${paiement}`].filter(Boolean).join(' · '),
@@ -508,13 +510,11 @@ async function envoyer() {
       lng: plage ? etat.position?.lng : null,
       accuracy: plage && etat.position?.precision ? Math.round(etat.position.precision) : null,
       photo_path: photoPath,
-      loyalty_code: c.fidelite || null,
-      reward_claimed: !!(c.fidelite && c.recompense),
       items: panier.lignes().map((l) => ({ product_id: l.pid, variant_id: l.vid, qty: l.qty, options: l.opts })),
     };
     const data = await passerCommande(payload);
     try {
-      if (c.memo) localStorage.setItem(CLE_CLIENT, JSON.stringify({ prenom: c.prenom, telephone: c.telephone, paiement: c.paiement, fidelite: c.fidelite }));
+      if (c.memo) localStorage.setItem(CLE_CLIENT, JSON.stringify({ prenom: c.prenom, nom: c.nom, telephone: c.telephone, paiement: c.paiement }));
       else localStorage.removeItem(CLE_CLIENT);
     } catch { /* */ }
     suivi = { token: data.token, number: data.number, mode: panier.mode, total: data.total, discount: data.discount, status: 'new', at: Date.now(), quand: plage ? null : etat.creneau };
@@ -525,7 +525,6 @@ async function envoyer() {
     cerclePrecision?.remove(); cerclePrecision = null;
     q('[data-landmark]').value = '';
     q('[data-form]').elements.note.value = '';
-    q('[data-form]').elements.recompense.checked = false;
     majPhoto();
     etat.envoi = false;
     allerA(4);
@@ -675,7 +674,6 @@ export function initCheckout() {
   form.addEventListener('input', (e) => {
     e.target.removeAttribute('aria-invalid');
     cacherErreur();
-    if (e.target.name === 'fidelite') q('[data-reward]').hidden = !e.target.value.trim();
   });
   form.addEventListener('submit', (e) => { e.preventDefault(); envoyer(); });
 

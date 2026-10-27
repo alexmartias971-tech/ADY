@@ -4,20 +4,21 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
   <title>Mentions légales · Ady Coffee Shop</title>
-  <meta name="description" content="Mentions légales et données personnelles.">
+  <meta name="description" content="Mentions légales du site Ady Coffee Shop.">
   <meta name="theme-color" content="#BF472C">
   <link rel="icon" href="assets/favicon.svg" type="image/svg+xml">
   <link rel="apple-touch-icon" href="assets/apple-touch-icon.png">
+  <script src="js/boot.js"></script>
   <meta property="og:type" content="website">
   <meta property="og:locale" content="fr_FR">
   <meta property="og:site_name" content="Ady Coffee Shop">
   <meta property="og:title" content="Mentions légales · Ady Coffee Shop">
-  <meta property="og:description" content="Mentions légales et données personnelles.">
+  <meta property="og:description" content="Mentions légales du site Ady Coffee Shop.">
   <meta property="og:image" content="assets/og-image.jpg">
   <meta name="twitter:card" content="summary_large_image">
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Big+Shoulders+Stencil:wght@700;800&family=DM+Sans:opsz,wght@9..40,400;9..40,500;9..40,600;9..40,700&family=Londrina+Solid:wght@400;900&display=swap" rel="stylesheet">
+  <link rel="preload" href="assets/fonts/londrina-solid-900-latin.woff2" as="font" type="font/woff2" crossorigin>
+  <link rel="preload" href="assets/fonts/dm-sans-latin.woff2" as="font" type="font/woff2" crossorigin>
+  <link rel="stylesheet" href="css/fonts.css">
   <link rel="stylesheet" href="css/style.css">
   <script src="config.js" defer></script>
   <script src="js/demo-seed.js" defer></script>
@@ -26,6 +27,13 @@
   <meta name="robots" content="noindex">
 </head>
 <body data-page="mentions" data-hero="cream">
+  <div class="loader" data-loader aria-hidden="true">
+    <div class="loader__in">
+      <img class="loader__mark" src="assets/mark-cream.webp" alt="" width="520" height="542" fetchpriority="high" decoding="async">
+      <div class="loader__beans"><svg viewBox="8 5 32 38" style="--i:0"><path fill-rule="evenodd" d="M24 6c10 0 16 10 13 22s-15 16-22 10S9 18 14 12c3-4 6-6 10-6Zm-.8 1.5c-5.7 7.5 5.8 18-2 33l2.4.3c8-15.3-3.4-25.8 2.2-33.2Z"/></svg><svg viewBox="8 5 32 38" style="--i:1"><path fill-rule="evenodd" d="M24 6c10 0 16 10 13 22s-15 16-22 10S9 18 14 12c3-4 6-6 10-6Zm-.8 1.5c-5.7 7.5 5.8 18-2 33l2.4.3c8-15.3-3.4-25.8 2.2-33.2Z"/></svg><svg viewBox="8 5 32 38" style="--i:2"><path fill-rule="evenodd" d="M24 6c10 0 16 10 13 22s-15 16-22 10S9 18 14 12c3-4 6-6 10-6Zm-.8 1.5c-5.7 7.5 5.8 18-2 33l2.4.3c8-15.3-3.4-25.8 2.2-33.2Z"/></svg><svg viewBox="8 5 32 38" style="--i:3"><path fill-rule="evenodd" d="M24 6c10 0 16 10 13 22s-15 16-22 10S9 18 14 12c3-4 6-6 10-6Zm-.8 1.5c-5.7 7.5 5.8 18-2 33l2.4.3c8-15.3-3.4-25.8 2.2-33.2Z"/></svg><svg viewBox="8 5 32 38" style="--i:4"><path fill-rule="evenodd" d="M24 6c10 0 16 10 13 22s-15 16-22 10S9 18 14 12c3-4 6-6 10-6Zm-.8 1.5c-5.7 7.5 5.8 18-2 33l2.4.3c8-15.3-3.4-25.8 2.2-33.2Z"/></svg><svg viewBox="8 5 32 38" style="--i:5"><path fill-rule="evenodd" d="M24 6c10 0 16 10 13 22s-15 16-22 10S9 18 14 12c3-4 6-6 10-6Zm-.8 1.5c-5.7 7.5 5.8 18-2 33l2.4.3c8-15.3-3.4-25.8 2.2-33.2Z"/></svg><svg viewBox="8 5 32 38" style="--i:6"><path fill-rule="evenodd" d="M24 6c10 0 16 10 13 22s-15 16-22 10S9 18 14 12c3-4 6-6 10-6Zm-.8 1.5c-5.7 7.5 5.8 18-2 33l2.4.3c8-15.3-3.4-25.8 2.2-33.2Z"/></svg><svg viewBox="8 5 32 38" style="--i:7"><path fill-rule="evenodd" d="M24 6c10 0 16 10 13 22s-15 16-22 10S9 18 14 12c3-4 6-6 10-6Zm-.8 1.5c-5.7 7.5 5.8 18-2 33l2.4.3c8-15.3-3.4-25.8 2.2-33.2Z"/></svg><svg viewBox="8 5 32 38" style="--i:8"><path fill-rule="evenodd" d="M24 6c10 0 16 10 13 22s-15 16-22 10S9 18 14 12c3-4 6-6 10-6Zm-.8 1.5c-5.7 7.5 5.8 18-2 33l2.4.3c8-15.3-3.4-25.8 2.2-33.2Z"/></svg><svg viewBox="8 5 32 38" style="--i:9"><path fill-rule="evenodd" d="M24 6c10 0 16 10 13 22s-15 16-22 10S9 18 14 12c3-4 6-6 10-6Zm-.8 1.5c-5.7 7.5 5.8 18-2 33l2.4.3c8-15.3-3.4-25.8 2.2-33.2Z"/></svg></div>
+      <p class="loader__txt">Une véritable Adyction.</p>
+    </div>
+  </div>
   <a class="skip" href="#contenu">Aller au contenu</a>
   <header class="site-header" id="site-header">
     <div class="site-header__inner">
@@ -62,33 +70,30 @@
       <div class="container legal">
         <p class="kicker">Infos légales</p>
         <h1 class="h1" style="font-size:clamp(52px,7vw,96px)">Mentions légales</h1>
+        <p class="demo-box"><b>Site de démonstration.</b> Les informations marquées «&nbsp;<span class="demo-info">DEMO</span>&nbsp;» seront complétées avant l’ouverture des commandes en ligne. Tant que ce n’est pas fait, aucune commande passée ici n’est préparée ni livrée.</p>
 
         <h2>Éditeur du site</h2>
-        <p>ADY COFFEE — <span class="todo">forme juridique et capital à compléter</span><br>
-          SIREN 994 655 413 <span class="todo">à vérifier</span><br>
+        <p>ADY COFFEE — forme juridique et capital&nbsp;: <span class="demo-info">DEMO</span><br>
           Siège&nbsp;: Durivage, 97180 Sainte-Anne, Guadeloupe<br>
-          Directeur de la publication&nbsp;: <span class="todo">nom du gérant</span><br>
-          Contact&nbsp;: <span class="todo">e-mail / téléphone</span></p>
+          SIREN / RCS&nbsp;: <span class="demo-info">DEMO</span> · TVA intracommunautaire&nbsp;: <span class="demo-info">DEMO</span><br>
+          Directeur de la publication&nbsp;: <span class="demo-info">DEMO</span><br>
+          Contact&nbsp;: e-mail <span class="demo-info">DEMO</span>, téléphone <span class="demo-info">DEMO</span></p>
 
         <h2>Hébergement</h2>
         <p>Site&nbsp;: Vercel Inc., 440 N Barranca Ave #4133, Covina, CA 91723, États-Unis — vercel.com<br>
-          Base de données des commandes&nbsp;: Supabase Inc. — supabase.com <span class="todo">région de stockage choisie à la création du projet</span></p>
+          Base de données et photos des commandes&nbsp;: Supabase Inc. — supabase.com (région de stockage&nbsp;: <span class="demo-info">DEMO</span>)</p>
 
         <h2>Propriété intellectuelle</h2>
-        <p>Le logo, les illustrations, les photos et l’identité visuelle d’Ady Coffee Shop sont la propriété exclusive de leurs auteurs. Toute reproduction sans autorisation est interdite.</p>
+        <p>Le nom ADY, le logo, les illustrations, les photos et l’identité visuelle d’Ady Coffee Shop sont protégés. Toute reproduction sans autorisation écrite est interdite.</p>
 
-        <h2 id="donnees">Données personnelles</h2>
-        <p>Quand tu passes une commande, nous recevons&nbsp;: ton prénom, ta commande et ton éventuelle note&nbsp;; pour une livraison sur la plage, aussi ton numéro de téléphone, ta position et la photo de ton spot&nbsp;; et, si tu l’indiques, ton numéro de carte fidélité.</p>
-        <ul>
-          <li><b>Pourquoi&nbsp;?</b> Uniquement pour préparer ta commande, te trouver sur la plage, te contacter si besoin et appliquer ta fidélité (exécution de la commande).</li>
-          <li><b>Où&nbsp;?</b> Dans la base de données du shop (Supabase), accessible seulement à l’équipe, depuis l’espace équipe protégé par mot de passe. La photo est stockée dans un espace privé.</li>
-          <li><b>Combien de temps&nbsp;?</b> Le temps de la livraison et du traitement de la commande <span class="todo">durée à préciser par le shop (ex. photos supprimées après 7 jours)</span>.</li>
-          <li><b>Tes droits&nbsp;:</b> accès, rectification et suppression, en nous contactant à <span class="todo">e-mail</span>. Tu peux aussi saisir la CNIL (cnil.fr).</li>
-        </ul>
-        <p>Ton panier, ton mode de commande, le suivi de ta dernière commande et, si tu le souhaites, ton prénom et ton téléphone sont mémorisés dans ton navigateur (stockage local) pour aller plus vite la prochaine fois. Le site n’utilise pas de cookies publicitaires.</p>
+        <h2>Crédits</h2>
+        <p>Polices Big Shoulders Stencil, DM Sans et Londrina Solid (licence SIL Open Font License), hébergées sur ce site. Cartes&nbsp;: données © contributeurs OpenStreetMap (licence ODbL), bibliothèque Leaflet (licence BSD). Bibliothèque supabase-js (licence MIT).</p>
 
-        <h2>Cartographie</h2>
-        <p>Les cartes utilisent les données © contributeurs OpenStreetMap et la bibliothèque Leaflet.</p>
+        <h2>Données personnelles et stockage local</h2>
+        <p>Voir la <a href="confidentialite">politique de confidentialité</a>. Le site n’utilise ni cookie publicitaire ni outil de mesure d’audience&nbsp;: il garde seulement, dans ton navigateur, ce qui sert à son fonctionnement (panier, suivi de commande et, si tu le choisis, tes coordonnées).</p>
+
+        <h2>Conditions de vente</h2>
+        <p>Voir les <a href="cgv">conditions générales de vente</a>.</p>
       </div>
     </section>
   </main>
@@ -117,6 +122,7 @@
             <li><a href="cgv">Conditions de vente</a></li>
             <li><a href="admin" rel="nofollow">Espace équipe</a></li>
             <li><a href="mentions-legales">Mentions légales</a></li>
+            <li><a href="confidentialite">Confidentialité</a></li>
             <li data-insta></li>
           </ul>
         </div>

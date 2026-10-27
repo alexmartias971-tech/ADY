@@ -8,6 +8,7 @@
   <meta name="theme-color" content="#BF472C">
   <link rel="icon" href="assets/favicon.svg" type="image/svg+xml">
   <link rel="apple-touch-icon" href="assets/apple-touch-icon.png">
+  <script src="js/boot.js"></script>
   <meta property="og:type" content="website">
   <meta property="og:locale" content="fr_FR">
   <meta property="og:site_name" content="Ady Coffee Shop">
@@ -15,9 +16,9 @@
   <meta property="og:description" content="Adresse, horaires et contact du coffee shop Ady à Sainte-Anne, à 5 minutes à pied de la plage de la Caravelle.">
   <meta property="og:image" content="assets/og-image.jpg">
   <meta name="twitter:card" content="summary_large_image">
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Big+Shoulders+Stencil:wght@700;800&family=DM+Sans:opsz,wght@9..40,400;9..40,500;9..40,600;9..40,700&family=Londrina+Solid:wght@400;900&display=swap" rel="stylesheet">
+  <link rel="preload" href="assets/fonts/londrina-solid-900-latin.woff2" as="font" type="font/woff2" crossorigin>
+  <link rel="preload" href="assets/fonts/dm-sans-latin.woff2" as="font" type="font/woff2" crossorigin>
+  <link rel="stylesheet" href="css/fonts.css">
   <link rel="stylesheet" href="css/style.css">
   <script src="config.js" defer></script>
   <script src="js/demo-seed.js" defer></script>
@@ -25,6 +26,13 @@
   <script type="module" src="js/main.js"></script>
 </head>
 <body data-page="le-shop" data-hero="cream">
+  <div class="loader" data-loader aria-hidden="true">
+    <div class="loader__in">
+      <img class="loader__mark" src="assets/mark-cream.webp" alt="" width="520" height="542" fetchpriority="high" decoding="async">
+      <div class="loader__beans"><svg viewBox="8 5 32 38" style="--i:0"><path fill-rule="evenodd" d="M24 6c10 0 16 10 13 22s-15 16-22 10S9 18 14 12c3-4 6-6 10-6Zm-.8 1.5c-5.7 7.5 5.8 18-2 33l2.4.3c8-15.3-3.4-25.8 2.2-33.2Z"/></svg><svg viewBox="8 5 32 38" style="--i:1"><path fill-rule="evenodd" d="M24 6c10 0 16 10 13 22s-15 16-22 10S9 18 14 12c3-4 6-6 10-6Zm-.8 1.5c-5.7 7.5 5.8 18-2 33l2.4.3c8-15.3-3.4-25.8 2.2-33.2Z"/></svg><svg viewBox="8 5 32 38" style="--i:2"><path fill-rule="evenodd" d="M24 6c10 0 16 10 13 22s-15 16-22 10S9 18 14 12c3-4 6-6 10-6Zm-.8 1.5c-5.7 7.5 5.8 18-2 33l2.4.3c8-15.3-3.4-25.8 2.2-33.2Z"/></svg><svg viewBox="8 5 32 38" style="--i:3"><path fill-rule="evenodd" d="M24 6c10 0 16 10 13 22s-15 16-22 10S9 18 14 12c3-4 6-6 10-6Zm-.8 1.5c-5.7 7.5 5.8 18-2 33l2.4.3c8-15.3-3.4-25.8 2.2-33.2Z"/></svg><svg viewBox="8 5 32 38" style="--i:4"><path fill-rule="evenodd" d="M24 6c10 0 16 10 13 22s-15 16-22 10S9 18 14 12c3-4 6-6 10-6Zm-.8 1.5c-5.7 7.5 5.8 18-2 33l2.4.3c8-15.3-3.4-25.8 2.2-33.2Z"/></svg><svg viewBox="8 5 32 38" style="--i:5"><path fill-rule="evenodd" d="M24 6c10 0 16 10 13 22s-15 16-22 10S9 18 14 12c3-4 6-6 10-6Zm-.8 1.5c-5.7 7.5 5.8 18-2 33l2.4.3c8-15.3-3.4-25.8 2.2-33.2Z"/></svg><svg viewBox="8 5 32 38" style="--i:6"><path fill-rule="evenodd" d="M24 6c10 0 16 10 13 22s-15 16-22 10S9 18 14 12c3-4 6-6 10-6Zm-.8 1.5c-5.7 7.5 5.8 18-2 33l2.4.3c8-15.3-3.4-25.8 2.2-33.2Z"/></svg><svg viewBox="8 5 32 38" style="--i:7"><path fill-rule="evenodd" d="M24 6c10 0 16 10 13 22s-15 16-22 10S9 18 14 12c3-4 6-6 10-6Zm-.8 1.5c-5.7 7.5 5.8 18-2 33l2.4.3c8-15.3-3.4-25.8 2.2-33.2Z"/></svg><svg viewBox="8 5 32 38" style="--i:8"><path fill-rule="evenodd" d="M24 6c10 0 16 10 13 22s-15 16-22 10S9 18 14 12c3-4 6-6 10-6Zm-.8 1.5c-5.7 7.5 5.8 18-2 33l2.4.3c8-15.3-3.4-25.8 2.2-33.2Z"/></svg><svg viewBox="8 5 32 38" style="--i:9"><path fill-rule="evenodd" d="M24 6c10 0 16 10 13 22s-15 16-22 10S9 18 14 12c3-4 6-6 10-6Zm-.8 1.5c-5.7 7.5 5.8 18-2 33l2.4.3c8-15.3-3.4-25.8 2.2-33.2Z"/></svg></div>
+      <p class="loader__txt">Une véritable Adyction.</p>
+    </div>
+  </div>
   <a class="skip" href="#contenu">Aller au contenu</a>
   <header class="site-header" id="site-header">
     <div class="site-header__inner">
@@ -125,6 +133,7 @@
             <li><a href="cgv">Conditions de vente</a></li>
             <li><a href="admin" rel="nofollow">Espace équipe</a></li>
             <li><a href="mentions-legales">Mentions légales</a></li>
+            <li><a href="confidentialite">Confidentialité</a></li>
             <li data-insta></li>
           </ul>
         </div>

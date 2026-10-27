@@ -28,7 +28,7 @@ export function creerCarteFidelite(stage, { interactif = false, auto = true } = 
         <span class="wallet__count"><small>Tampons</small><b data-count>0/${TOTAL}</b></span>
       </div>
       <div class="wallet__beans" data-beans>${Array.from({ length: TOTAL }, () => `<span class="bean">${beanSVG()}</span>`).join('')}<span class="bean bean--gift">${picto('gift')}</span></div>
-      <div class="wallet__art"><svg viewBox="0 0 1440 1208" aria-hidden="true"><use href="assets/brand.svg#logo"/></svg><figure class="wallet__qrbox"><div class="wallet__qr">${qr()}</div><figcaption>ADY-2417</figcaption></figure></div>
+      <div class="wallet__art"><svg viewBox="0 0 1440 1208" aria-hidden="true"><use href="assets/brand.svg#logo"/></svg><div class="wallet__qr">${qr()}</div></div>
       <div class="wallet__fields"><span><small>Client</small><b>Marie</b></span><span style="text-align:right"><small>Récompense</small><b>Une boisson offerte</b></span></div>
       <p class="wallet__note" data-note>Plus que ${TOTAL} tampons pour : une boisson offerte</p>
     </div>

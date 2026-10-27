@@ -27,6 +27,7 @@ function creer() {
       <div class="sheet__content">
         <h3 id="fiche-titre" data-titre></h3>
         <p data-desc></p>
+        <p class="sheet__allergens" data-allergenes></p>
         <p class="price sheet__price" data-prix></p>
         <div data-options></div>
         <p class="form-error" data-alerte hidden></p>
@@ -106,6 +107,11 @@ export function ouvrirFiche(p) {
   $('[data-titre]', sheet).textContent = p.nom;
   $('[data-desc]', sheet).textContent = p.desc;
   $('[data-desc]', sheet).hidden = !p.desc;
+  // information allergènes obligatoire avant l'achat (règlement UE 1169/2011, décret 2015-447)
+  $('[data-allergenes]', sheet).innerHTML = p.kind === 'merch' ? ''
+    : p.allergenes ? `<b>Allergènes&nbsp;:</b> ${esc(p.allergenes)}`
+      : '<b>Allergènes&nbsp;:</b> liste en cours de rédaction (site de démonstration). Demande-la avant de commander.';
+  $('[data-allergenes]', sheet).hidden = p.kind === 'merch';
   $('[data-prix]', sheet).textContent = euro(p.prix);
   const defauts = choixParDefaut(p);
   const groupes = p.groupes.map((g, gi) => {
