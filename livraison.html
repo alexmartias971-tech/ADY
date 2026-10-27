@@ -1,0 +1,164 @@
+<!doctype html>
+<html lang="fr" class="no-js">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <title>Livraison sur la plage de la Caravelle · Ady Coffee Shop</title>
+  <meta name="description" content="Commande depuis ta serviette : position GPS, photo de ton spot, livré à pied en 15 à 20 minutes. Dès 5 €, paiement à la livraison.">
+  <meta name="theme-color" content="#BF472C">
+  <link rel="icon" href="assets/favicon.svg" type="image/svg+xml">
+  <link rel="apple-touch-icon" href="assets/apple-touch-icon.png">
+  <meta property="og:type" content="website">
+  <meta property="og:locale" content="fr_FR">
+  <meta property="og:site_name" content="Ady Coffee Shop">
+  <meta property="og:title" content="Livraison sur la plage de la Caravelle · Ady Coffee Shop">
+  <meta property="og:description" content="Commande depuis ta serviette : position GPS, photo de ton spot, livré à pied en 15 à 20 minutes. Dès 5 €, paiement à la livraison.">
+  <meta property="og:image" content="assets/og-image.jpg">
+  <meta name="twitter:card" content="summary_large_image">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Big+Shoulders+Stencil:wght@700;800&family=DM+Sans:opsz,wght@9..40,400;9..40,500;9..40,600;9..40,700&family=Londrina+Solid:wght@400;900&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="css/style.css">
+  <script type="module" src="js/main.js"></script>
+</head>
+<body data-page="livraison" data-hero="terra">
+  <a class="skip" href="#contenu">Aller au contenu</a>
+  <header class="site-header" id="site-header">
+    <div class="site-header__inner">
+      <a class="brand" href="./" aria-label="Ady Coffee Shop, accueil"><svg viewBox="0 0 944 496" aria-hidden="true"><use href="assets/brand.svg#st-oval"/></svg></a>
+      <nav class="mainnav" aria-label="Navigation principale">
+        <a href="carte">La carte</a>
+        <a href="livraison" aria-current="page">Livraison plage</a>
+        <a href="fidelite">Fidélité</a>
+        <a href="le-shop">Le shop</a>
+      </nav>
+      <div class="site-header__actions">
+        <span class="status" data-status hidden></span>
+        <button class="cart-btn" type="button" data-open-cart aria-label="Ouvrir le panier"><i data-icon="bag"></i><span class="cart-btn__label">Panier</span><span class="cart-btn__count" data-cart-count>0</span></button>
+        <button class="burger" type="button" data-burger aria-expanded="false" aria-controls="mobile-menu" aria-label="Ouvrir le menu"><span></span><span></span></button>
+      </div>
+    </div>
+  </header>
+  <div class="mobile-menu" id="mobile-menu" hidden>
+    <nav aria-label="Menu mobile">
+      <a href="./" style="--i:0">Accueil<i data-picto="hat"></i></a>
+      <a href="carte" style="--i:1">La carte<i data-picto="cup"></i></a>
+      <a href="livraison" style="--i:2" aria-current="page">Livraison plage<i data-picto="wave"></i></a>
+      <a href="fidelite" style="--i:3">Fidélité<i data-picto="bean"></i></a>
+      <a href="le-shop" style="--i:4">Le shop<i data-picto="sun"></i></a>
+    </nav>
+    <div class="mobile-menu__foot">
+      <span class="status" data-status hidden></span>
+      <a class="btn btn--light btn--lg btn--block" href="carte">Commander sur la plage</a>
+    </div>
+  </div>
+  <main id="contenu">
+    <section class="page-hero on-terra">
+      <div class="container split split--wide">
+        <div>
+          <p class="kicker">Livraison plage</p>
+          <h1 class="h1" style="font-size:clamp(56px,7.4vw,112px)">Livré les pieds dans le sable</h1>
+          <p class="lead">On livre toute la plage de la Caravelle, à pied, depuis le shop. Tu restes allongé, on s’occupe du reste.</p>
+          <ul class="pills">
+            <li><i data-icon="bag"></i>Dès <span data-min-order>5 €</span></li>
+            <li><i data-icon="clock"></i><span data-delay>15 à 20 min</span></li>
+            <li><i data-icon="card"></i>Paiement à la livraison</li>
+          </ul>
+          <div class="actions" style="margin-top:32px"><a class="btn btn--light btn--lg" href="carte">Commander <i data-icon="arrow" class="icon--arrow"></i></a></div>
+        </div>
+        <div class="scene-frame"><div class="scene" data-scene-loop></div></div>
+      </div>
+    </section>
+
+    <section class="section" aria-labelledby="titre-etapes">
+      <div class="container">
+        <div class="section-head">
+          <p class="kicker reveal">En quatre étapes</p>
+          <h2 class="h2 reveal" id="titre-etapes">Comment ça marche</h2>
+        </div>
+        <ol class="how">
+          <li class="reveal"><i data-picto="cup"></i><span class="label">Étape 1</span><h3>Choisis</h3><p>Ajoute tes boissons et douceurs au panier. Minimum <span data-min-order>5 €</span>.</p></li>
+          <li class="reveal"><i data-picto="pin"></i><span class="label">Étape 2</span><h3>Pose ton épingle</h3><p>Ta position GPS, que tu peux ajuster à la main sur la carte de la plage.</p></li>
+          <li class="reveal"><i data-picto="camera"></i><span class="label">Étape 3</span><h3>Photographie ton spot</h3><p>Ta serviette, ton parasol, un repère&nbsp;: une photo et le livreur te trouve du premier coup.</p></li>
+          <li class="reveal"><i data-picto="hat"></i><span class="label">Étape 4</span><h3>On arrive</h3><p>En <span data-delay>15 à 20 min</span> environ. Tu paies sur place, en espèces ou par carte.</p></li>
+        </ol>
+      </div>
+    </section>
+
+    <section class="section section--tight" id="zone" aria-labelledby="titre-zone">
+      <div class="container split">
+        <div>
+          <p class="kicker reveal">La zone</p>
+          <h2 class="h2 reveal" id="titre-zone">Toute la plage de la Caravelle</h2>
+          <p class="lead reveal">On livre partout dans le cercle. Si ta position est en dehors, le site te prévient avant que tu commandes.</p>
+          <p class="muted reveal">Le shop est à 5 minutes à pied&nbsp;: c’est ce qui nous permet d’arriver vite, et avec des glaçons encore entiers.</p>
+        </div>
+        <div class="map-box reveal" data-zone-map aria-label="Carte de la zone de livraison"></div>
+      </div>
+    </section>
+
+    <section class="section" aria-labelledby="titre-faq">
+      <div class="container">
+        <div class="section-head">
+          <p class="kicker reveal">Bon à savoir</p>
+          <h2 class="h2 reveal" id="titre-faq">Tes questions</h2>
+        </div>
+        <div class="faq">
+          <details class="reveal"><summary>Il y a un minimum de commande&nbsp;? <i data-icon="plus"></i></summary><p>Oui&nbsp;: <span data-min-order>5 €</span> hors frais. C’est ce qui nous permet de faire l’aller-retour à pied jusqu’à toi.</p></details>
+          <details class="reveal"><summary>Combien de temps ça prend&nbsp;? <i data-icon="plus"></i></summary><p><span data-delay>15 à 20 min</span> en général, un peu plus aux heures de pointe.</p></details>
+          <details class="reveal"><summary>Comment je paie&nbsp;? <i data-icon="plus"></i></summary><p>À la livraison, en espèces ou par carte bancaire. Rien à payer en ligne.</p></details>
+          <details class="reveal"><summary>Pourquoi une photo de mon spot&nbsp;? <i data-icon="plus"></i></summary><p>Sur une plage, le GPS d’un téléphone peut se tromper de plusieurs mètres, et tout le monde a une serviette. Une photo de ton parasol ou d’un repère, et le livreur te trouve du premier coup.</p></details>
+          <details class="reveal"><summary>Et si je change de place&nbsp;? <i data-icon="plus"></i></summary><p>Pas de souci&nbsp;: le livreur a ton numéro et t’appelle s’il ne te trouve pas.</p></details>
+          <details class="reveal"><summary>La livraison est payante&nbsp;? <i data-icon="plus"></i></summary><p data-fees>Non, elle est offerte dès le minimum de commande.</p></details>
+          <details class="reveal"><summary>Vous livrez d’autres plages&nbsp;? <i data-icon="plus"></i></summary><p>Pour l’instant, uniquement la plage de la Caravelle. Le site vérifie ta position avant la commande.</p></details>
+        </div>
+      </div>
+    </section>
+
+    <section class="section section--tight">
+      <div class="container">
+        <div class="cta-block on-terra reveal">
+          <h2 class="h2">Une petite soif&nbsp;?</h2>
+          <p class="lead" style="margin:0">Iced latte, matcha, cold brew… et un cookie, tant qu’à faire.</p>
+          <a class="btn btn--light btn--lg" href="carte">Voir la carte <i data-icon="arrow" class="icon--arrow"></i></a>
+          <svg class="cta-block__deco" viewBox="0 0 728 584" aria-hidden="true" style="--st-bg:var(--cream);--st-ink:var(--terra)"><use href="assets/brand.svg#st-head"/></svg>
+        </div>
+      </div>
+    </section>
+  </main>
+  <footer class="site-footer">
+    <div class="container site-footer__top">
+      <a class="site-footer__logo" href="./" aria-label="Accueil"><svg viewBox="0 0 1440 1208" aria-hidden="true"><use href="assets/brand.svg#logo"/></svg></a>
+      <div class="site-footer__cols">
+        <div>
+          <h3>Le shop</h3>
+          <p data-address>Durivage, 97180 Sainte-Anne, Guadeloupe</p>
+          <p><span class="status" data-status hidden></span></p>
+          <p><a data-directions href="#" target="_blank" rel="noopener">Itinéraire</a></p>
+        </div>
+        <div>
+          <h3>Explorer</h3>
+          <ul>
+            <li><a href="carte">La carte</a></li>
+            <li><a href="livraison">Livraison plage</a></li>
+            <li><a href="fidelite">Carte fidélité</a></li>
+            <li><a href="le-shop">Le shop</a></li>
+          </ul>
+        </div>
+        <div>
+          <h3>Infos</h3>
+          <ul>
+            <li><a href="cgv">Conditions de vente</a></li>
+            <li><a href="mentions-legales">Mentions légales</a></li>
+            <li data-insta></li>
+          </ul>
+        </div>
+      </div>
+    </div>
+    <div class="container site-footer__bottom">
+      <p>© <span data-year>2026</span> Ady Coffee Shop · Sainte-Anne, Guadeloupe</p>
+      <p class="site-footer__slogan">Une véritable Adyction.</p>
+    </div>
+  </footer>
+</body>
+</html>

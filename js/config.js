@@ -26,14 +26,15 @@ export const CONFIG = {
     { id: 'carte', label: 'Carte bancaire (TPE)' },
   ],
 
-  // Zone de livraison : cercle autour de la plage de la Caravelle (À VÉRIFIER sur place)
+  // Zone de livraison : cercle autour de la plage de la Caravelle.
+  // Centre et rayon calés sur le contour de la plage dans OpenStreetMap (à confirmer sur place).
   zone: {
     nom: 'Plage de la Caravelle',
-    centre: { lat: 16.2207, lng: -61.3962 },
-    rayonMetres: 900,
+    centre: { lat: 16.2181, lng: -61.3965 },
+    rayonMetres: 420,
   },
-  // Position du coffee shop sur la carte (À VÉRIFIER)
-  shop: { lat: 16.2236, lng: -61.3935 },
+  // Position du coffee shop sur la carte (quartier Durivage, À VÉRIFIER : clic droit sur Google Maps → coordonnées)
+  shop: { lat: 16.2234, lng: -61.3978 },
 
   // Horaires, heure de Guadeloupe (À CONFIRMER). 0 = dimanche … 6 = samedi. null = fermé.
   horaires: {

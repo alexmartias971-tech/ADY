@@ -9,8 +9,10 @@
 //    prix     en euros (5.5 = 5,50 €)
 //    options  groupes d'options proposés (voir OPTIONS)
 //    dispo    false = affiché « Bientôt » et non commandable
-//    visuel   illustration animée générée (type : iced, hot, espresso, frappe,
-//             can, cookie, cake, croissant, bowl, toast)
+//    visuel   illustration générée (type : iced, hot, espresso, can, cookie, cake,
+//             croissant, bowl, toast ; pour iced, style : latte, layer, solid,
+//             smoothie, limonade, frappe)
+//    signature  true = mis en avant sur la page d'accueil
 //    photo    (facultatif) chemin d'une photo, ex. 'assets/produits/iced-latte.jpg'
 // ─────────────────────────────────────────────────────────────
 
@@ -45,30 +47,30 @@ export const OPTIONS = {
 };
 
 export const CATEGORIES = [
-  { id: 'iced', label: 'Iced & cold' },
-  { id: 'hot', label: 'Cafés chauds' },
-  { id: 'matcha', label: 'Matcha & co' },
-  { id: 'fresh', label: 'Fraîcheur' },
-  { id: 'food', label: 'À grignoter' },
+  { id: 'iced', label: 'Iced & cold', accroche: 'Glacés, généreux, faits pour 30 °C à l’ombre.' },
+  { id: 'hot', label: 'Cafés chauds', accroche: 'Pour ceux qui boivent chaud, même en plein soleil.' },
+  { id: 'matcha', label: 'Matcha & co', accroche: 'Le vert qui réveille, chaud ou glacé.' },
+  { id: 'fresh', label: 'Fraîcheur', accroche: 'Fruits pressés et mixés à la minute.' },
+  { id: 'food', label: 'À grignoter', accroche: 'Sucré ou salé, pour accompagner.' },
 ];
 
 export const PRODUITS = [
   // Iced & cold
-  { id: 'iced-latte', cat: 'iced', nom: 'Iced latte', prix: 5, tag: 'Best-seller',
+  { id: 'iced-latte', signature: true, cat: 'iced', nom: 'Iced latte', prix: 5, tag: 'Best-seller',
     desc: 'Double espresso, lait frais et beaucoup de glaçons. Le classique de la plage.',
-    options: ['lait', 'sirop'], visuel: { type: 'iced', bas: '#ead2b0', haut: '#7a4526' } },
+    options: ['lait', 'sirop'], visuel: { type: 'iced', style: 'latte', haut: '#7a4526', bas: '#ecd3b0' } },
   { id: 'iced-caramel', cat: 'iced', nom: 'Iced caramel latte', prix: 5.5,
     desc: 'Espresso, lait, sirop caramel et un filet de caramel sur les parois.',
-    options: ['lait'], visuel: { type: 'iced', bas: '#efcf9c', haut: '#9a5a2c', filet: '#b8692a' } },
-  { id: 'cold-brew', cat: 'iced', nom: 'Cold brew', prix: 4.5, tag: 'Infusé 18 h',
+    options: ['lait'], visuel: { type: 'iced', style: 'latte', haut: '#9a5a2c', bas: '#f0d29e', filet: '#b8692a' } },
+  { id: 'cold-brew', signature: true, cat: 'iced', nom: 'Cold brew', prix: 4.5, tag: 'Infusé 18 h',
     desc: 'Café infusé à froid toute une nuit. Doux, intense, servi en canette bien fraîche.',
     visuel: { type: 'can' } },
   { id: 'iced-americano', cat: 'iced', nom: 'Iced americano', prix: 4,
     desc: 'Espresso allongé d’eau fraîche, sur glace. Simple et efficace.',
-    options: ['sirop'], visuel: { type: 'iced', bas: '#3b2014', haut: '#5a301b' } },
+    options: ['sirop'], visuel: { type: 'iced', style: 'solid', haut: '#4a2716', bas: '#2e170d' } },
   { id: 'frappe-caramel', cat: 'iced', nom: 'Frappé caramel', prix: 6,
     desc: 'Café mixé avec glace et lait, chantilly et sauce caramel.',
-    options: ['lait'], visuel: { type: 'frappe', bas: '#e3c09a', haut: '#c99566', filet: '#a95a22' } },
+    options: ['lait'], visuel: { type: 'iced', style: 'frappe', haut: '#c99566', bas: '#e6c49d', filet: '#a95a22' } },
 
   // Cafés chauds
   { id: 'espresso', cat: 'hot', nom: 'Espresso', prix: 2,
@@ -76,35 +78,35 @@ export const PRODUITS = [
     visuel: { type: 'espresso' } },
   { id: 'americano', cat: 'hot', nom: 'Americano', prix: 3,
     desc: 'Espresso allongé à l’eau chaude.',
-    options: ['sirop'], visuel: { type: 'hot', couvercle: '#2a1810' } },
+    options: ['sirop'], visuel: { type: 'hot', couvercle: '#2a1810', manchon: '#bf472c' } },
   { id: 'cappuccino', cat: 'hot', nom: 'Cappuccino', prix: 4,
     desc: 'Espresso, lait chaud et mousse de lait onctueuse.',
-    options: ['lait', 'sirop'], visuel: { type: 'hot', couvercle: '#bf472c' } },
+    options: ['lait', 'sirop'], visuel: { type: 'hot', couvercle: '#bf472c', manchon: '#fbe9d6' } },
   { id: 'latte', cat: 'hot', nom: 'Latte', prix: 4.5,
     desc: 'Espresso et beaucoup de lait velouté.',
-    options: ['lait', 'sirop'], visuel: { type: 'hot', couvercle: '#fbe9d6' } },
+    options: ['lait', 'sirop'], visuel: { type: 'hot', couvercle: '#fbe9d6', manchon: '#bf472c' } },
   { id: 'flat-white', cat: 'hot', nom: 'Flat white', prix: 4.5,
     desc: 'Double ristretto et lait micro-moussé, plus serré qu’un latte.',
-    options: ['lait'], visuel: { type: 'hot', couvercle: '#9ccbe0' } },
+    options: ['lait'], visuel: { type: 'hot', couvercle: '#2a1810', manchon: '#c99566' } },
 
   // Matcha & co
-  { id: 'iced-matcha', cat: 'matcha', nom: 'Iced matcha latte', prix: 5.5, tag: 'Coup de cœur',
+  { id: 'iced-matcha', signature: true, cat: 'matcha', nom: 'Iced matcha latte', prix: 5.5, tag: 'Coup de cœur',
     desc: 'Matcha fouetté, lait frais, glaçons. Vert, frais, addictif.',
-    options: ['lait', 'sucre'], visuel: { type: 'iced', bas: '#e6efd2', haut: '#8fb651' } },
+    options: ['lait', 'sucre'], visuel: { type: 'iced', style: 'layer', haut: '#8db255', bas: '#eef0d8' } },
   { id: 'matcha-latte', cat: 'matcha', nom: 'Matcha latte chaud', prix: 5,
     desc: 'Matcha et lait chaud mousseux.',
-    options: ['lait', 'sucre'], visuel: { type: 'hot', couvercle: '#8fb651' } },
+    options: ['lait', 'sucre'], visuel: { type: 'hot', couvercle: '#8db255', manchon: '#fbe9d6' } },
   { id: 'iced-chai', cat: 'matcha', nom: 'Iced chaï latte', prix: 5,
     desc: 'Thé noir aux épices (cannelle, cardamome, gingembre), lait et glace.',
-    options: ['lait'], visuel: { type: 'iced', bas: '#ecd0ab', haut: '#b47a4b' } },
+    options: ['lait'], visuel: { type: 'iced', style: 'latte', haut: '#a8693c', bas: '#efd2aa', paille: 'cinnamon' } },
 
   // Fraîcheur
   { id: 'smoothie-mangue', cat: 'fresh', nom: 'Smoothie mangue passion', prix: 6,
     desc: 'Mangue, fruit de la passion et banane, mixés minute.',
-    visuel: { type: 'iced', bas: '#f0a03a', haut: '#f6c255', sansGlace: true, fruit: '#f6c255' } },
+    visuel: { type: 'iced', style: 'smoothie', haut: '#f6b84a', bas: '#ef9631', glace: false, fruit: '#f6c255' } },
   { id: 'limonade', cat: 'fresh', nom: 'Limonade citron vert', prix: 4,
     desc: 'Citron vert pressé, menthe, eau pétillante. La meilleure contre le soleil.',
-    options: ['sucre'], visuel: { type: 'iced', bas: '#e7efb6', haut: '#d6e58a', fruit: '#a8c94a' } },
+    options: ['sucre'], visuel: { type: 'iced', style: 'limonade', haut: '#eef3c4', bas: '#dfeaa0', fruit: '#a8c94a' } },
 
   // À grignoter
   { id: 'cookie', cat: 'food', nom: 'Cookie choco', prix: 3,
@@ -116,7 +118,7 @@ export const PRODUITS = [
   { id: 'croissant', cat: 'food', nom: 'Croissant', prix: 2,
     desc: 'Pur beurre, doré comme il faut.',
     visuel: { type: 'croissant' } },
-  { id: 'acai-bowl', cat: 'food', nom: 'Açaí bowl', prix: 9,
+  { id: 'acai-bowl', signature: true, cat: 'food', nom: 'Açaí bowl', prix: 9,
     desc: 'Açaí, banane, granola, fruits frais et miel. Californian style.',
     visuel: { type: 'bowl' } },
   { id: 'avocado-toast', cat: 'food', nom: 'Avocado toast', prix: 8.5,

@@ -1,0 +1,128 @@
+<!doctype html>
+<html lang="fr" class="no-js">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <title>Carte fidélité · Ady Coffee Shop</title>
+  <meta name="description" content="Un tampon par boisson, le 10e café est offert. La carte fidélité Ady s’ajoute à Apple Wallet et Google Wallet.">
+  <meta name="theme-color" content="#BF472C">
+  <link rel="icon" href="assets/favicon.svg" type="image/svg+xml">
+  <link rel="apple-touch-icon" href="assets/apple-touch-icon.png">
+  <meta property="og:type" content="website">
+  <meta property="og:locale" content="fr_FR">
+  <meta property="og:site_name" content="Ady Coffee Shop">
+  <meta property="og:title" content="Carte fidélité · Ady Coffee Shop">
+  <meta property="og:description" content="Un tampon par boisson, le 10e café est offert. La carte fidélité Ady s’ajoute à Apple Wallet et Google Wallet.">
+  <meta property="og:image" content="assets/og-image.jpg">
+  <meta name="twitter:card" content="summary_large_image">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Big+Shoulders+Stencil:wght@700;800&family=DM+Sans:opsz,wght@9..40,400;9..40,500;9..40,600;9..40,700&family=Londrina+Solid:wght@400;900&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="css/style.css">
+  <script type="module" src="js/main.js"></script>
+</head>
+<body data-page="fidelite" data-hero="terra">
+  <a class="skip" href="#contenu">Aller au contenu</a>
+  <header class="site-header" id="site-header">
+    <div class="site-header__inner">
+      <a class="brand" href="./" aria-label="Ady Coffee Shop, accueil"><svg viewBox="0 0 944 496" aria-hidden="true"><use href="assets/brand.svg#st-oval"/></svg></a>
+      <nav class="mainnav" aria-label="Navigation principale">
+        <a href="carte">La carte</a>
+        <a href="livraison">Livraison plage</a>
+        <a href="fidelite" aria-current="page">Fidélité</a>
+        <a href="le-shop">Le shop</a>
+      </nav>
+      <div class="site-header__actions">
+        <span class="status" data-status hidden></span>
+        <button class="cart-btn" type="button" data-open-cart aria-label="Ouvrir le panier"><i data-icon="bag"></i><span class="cart-btn__label">Panier</span><span class="cart-btn__count" data-cart-count>0</span></button>
+        <button class="burger" type="button" data-burger aria-expanded="false" aria-controls="mobile-menu" aria-label="Ouvrir le menu"><span></span><span></span></button>
+      </div>
+    </div>
+  </header>
+  <div class="mobile-menu" id="mobile-menu" hidden>
+    <nav aria-label="Menu mobile">
+      <a href="./" style="--i:0">Accueil<i data-picto="hat"></i></a>
+      <a href="carte" style="--i:1">La carte<i data-picto="cup"></i></a>
+      <a href="livraison" style="--i:2">Livraison plage<i data-picto="wave"></i></a>
+      <a href="fidelite" style="--i:3" aria-current="page">Fidélité<i data-picto="bean"></i></a>
+      <a href="le-shop" style="--i:4">Le shop<i data-picto="sun"></i></a>
+    </nav>
+    <div class="mobile-menu__foot">
+      <span class="status" data-status hidden></span>
+      <a class="btn btn--light btn--lg btn--block" href="carte">Commander sur la plage</a>
+    </div>
+  </div>
+  <main id="contenu">
+    <section class="page-hero on-terra">
+      <div class="container split">
+        <div>
+          <p class="kicker">Carte fidélité</p>
+          <h1 class="h1" style="font-size:clamp(60px,8.4vw,130px)">Le 10ᵉ est pour nous</h1>
+          <p class="lead">Ta carte fidélité Ady tient dans ton téléphone. Un tampon par boisson et, au dixième, ton café est offert.</p>
+          <div class="actions" style="margin-top:32px" data-loyalty-cta></div>
+        </div>
+        <div class="wallet-stage" data-wallet-stage></div>
+      </div>
+    </section>
+
+    <section class="section" aria-labelledby="titre-fid">
+      <div class="container">
+        <div class="section-head">
+          <p class="kicker reveal">Simple comme bonjour</p>
+          <h2 class="h2 reveal" id="titre-fid">Comment ça marche</h2>
+        </div>
+        <ol class="how">
+          <li class="reveal"><i data-picto="card"></i><span class="label">Étape 1</span><h3>Récupère ta carte</h3><p>Demande-la au comptoir&nbsp;: elle s’ajoute à Apple Wallet ou Google Wallet en un geste.</p></li>
+          <li class="reveal"><i data-picto="bean"></i><span class="label">Étape 2</span><h3>Un tampon par boisson</h3><p>On scanne ta carte à chaque commande. Tes tampons s’affichent directement dessus.</p></li>
+          <li class="reveal"><i data-picto="gift"></i><span class="label">Étape 3</span><h3>Le 10ᵉ est offert</h3><p>Au dixième tampon, ta récompense apparaît sur la carte&nbsp;: un café offert.</p></li>
+        </ol>
+      </div>
+    </section>
+
+    <section class="section section--tight">
+      <div class="container">
+        <div class="cta-block on-terra reveal">
+          <h2 class="h2">On commence quand&nbsp;?</h2>
+          <p class="lead" style="margin:0">Ton premier tampon t’attend au shop, ou sur la plage.</p>
+          <a class="btn btn--light btn--lg" href="carte">Voir la carte <i data-icon="arrow" class="icon--arrow"></i></a>
+          <svg class="cta-block__deco" viewBox="0 0 680 800" aria-hidden="true" style="--st-bg:var(--cream);--st-ink:var(--terra);width:min(200px,32%)"><use href="assets/brand.svg#st-can"/></svg>
+        </div>
+      </div>
+    </section>
+  </main>
+  <footer class="site-footer">
+    <div class="container site-footer__top">
+      <a class="site-footer__logo" href="./" aria-label="Accueil"><svg viewBox="0 0 1440 1208" aria-hidden="true"><use href="assets/brand.svg#logo"/></svg></a>
+      <div class="site-footer__cols">
+        <div>
+          <h3>Le shop</h3>
+          <p data-address>Durivage, 97180 Sainte-Anne, Guadeloupe</p>
+          <p><span class="status" data-status hidden></span></p>
+          <p><a data-directions href="#" target="_blank" rel="noopener">Itinéraire</a></p>
+        </div>
+        <div>
+          <h3>Explorer</h3>
+          <ul>
+            <li><a href="carte">La carte</a></li>
+            <li><a href="livraison">Livraison plage</a></li>
+            <li><a href="fidelite">Carte fidélité</a></li>
+            <li><a href="le-shop">Le shop</a></li>
+          </ul>
+        </div>
+        <div>
+          <h3>Infos</h3>
+          <ul>
+            <li><a href="cgv">Conditions de vente</a></li>
+            <li><a href="mentions-legales">Mentions légales</a></li>
+            <li data-insta></li>
+          </ul>
+        </div>
+      </div>
+    </div>
+    <div class="container site-footer__bottom">
+      <p>© <span data-year>2026</span> Ady Coffee Shop · Sainte-Anne, Guadeloupe</p>
+      <p class="site-footer__slogan">Une véritable Adyction.</p>
+    </div>
+  </footer>
+</body>
+</html>

@@ -1,0 +1,128 @@
+<!doctype html>
+<html lang="fr" class="no-js">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <title>Le shop · Ady Coffee Shop, Sainte-Anne</title>
+  <meta name="description" content="Adresse, horaires et contact du coffee shop Ady à Sainte-Anne, à 5 minutes à pied de la plage de la Caravelle.">
+  <meta name="theme-color" content="#BF472C">
+  <link rel="icon" href="assets/favicon.svg" type="image/svg+xml">
+  <link rel="apple-touch-icon" href="assets/apple-touch-icon.png">
+  <meta property="og:type" content="website">
+  <meta property="og:locale" content="fr_FR">
+  <meta property="og:site_name" content="Ady Coffee Shop">
+  <meta property="og:title" content="Le shop · Ady Coffee Shop, Sainte-Anne">
+  <meta property="og:description" content="Adresse, horaires et contact du coffee shop Ady à Sainte-Anne, à 5 minutes à pied de la plage de la Caravelle.">
+  <meta property="og:image" content="assets/og-image.jpg">
+  <meta name="twitter:card" content="summary_large_image">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Big+Shoulders+Stencil:wght@700;800&family=DM+Sans:opsz,wght@9..40,400;9..40,500;9..40,600;9..40,700&family=Londrina+Solid:wght@400;900&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="css/style.css">
+  <script type="module" src="js/main.js"></script>
+</head>
+<body data-page="le-shop" data-hero="cream">
+  <a class="skip" href="#contenu">Aller au contenu</a>
+  <header class="site-header" id="site-header">
+    <div class="site-header__inner">
+      <a class="brand" href="./" aria-label="Ady Coffee Shop, accueil"><svg viewBox="0 0 944 496" aria-hidden="true"><use href="assets/brand.svg#st-oval"/></svg></a>
+      <nav class="mainnav" aria-label="Navigation principale">
+        <a href="carte">La carte</a>
+        <a href="livraison">Livraison plage</a>
+        <a href="fidelite">Fidélité</a>
+        <a href="le-shop" aria-current="page">Le shop</a>
+      </nav>
+      <div class="site-header__actions">
+        <span class="status" data-status hidden></span>
+        <button class="cart-btn" type="button" data-open-cart aria-label="Ouvrir le panier"><i data-icon="bag"></i><span class="cart-btn__label">Panier</span><span class="cart-btn__count" data-cart-count>0</span></button>
+        <button class="burger" type="button" data-burger aria-expanded="false" aria-controls="mobile-menu" aria-label="Ouvrir le menu"><span></span><span></span></button>
+      </div>
+    </div>
+  </header>
+  <div class="mobile-menu" id="mobile-menu" hidden>
+    <nav aria-label="Menu mobile">
+      <a href="./" style="--i:0">Accueil<i data-picto="hat"></i></a>
+      <a href="carte" style="--i:1">La carte<i data-picto="cup"></i></a>
+      <a href="livraison" style="--i:2">Livraison plage<i data-picto="wave"></i></a>
+      <a href="fidelite" style="--i:3">Fidélité<i data-picto="bean"></i></a>
+      <a href="le-shop" style="--i:4" aria-current="page">Le shop<i data-picto="sun"></i></a>
+    </nav>
+    <div class="mobile-menu__foot">
+      <span class="status" data-status hidden></span>
+      <a class="btn btn--light btn--lg btn--block" href="carte">Commander sur la plage</a>
+    </div>
+  </div>
+  <main id="contenu">
+    <section class="page-hero">
+      <div class="container split">
+        <div>
+          <p class="kicker">Le shop</p>
+          <h1 class="h1">Passe nous voir</h1>
+          <p class="lead">Un coffee shop à l’esprit californien, posé à Sainte-Anne, à 5 minutes à pied de la plage de la Caravelle.</p>
+          <div class="actions" style="margin-top:32px">
+            <a class="btn btn--lg" data-directions href="#" target="_blank" rel="noopener"><i data-icon="route"></i> Itinéraire</a>
+            <a class="btn btn--ghost btn--lg" href="carte">La carte</a>
+          </div>
+        </div>
+        <div class="visit__art" data-shop-vignette></div>
+      </div>
+    </section>
+
+    <section class="section section--tight" aria-label="Infos pratiques">
+      <div class="container">
+        <div class="info-cards">
+          <article class="info-card reveal"><h3>Adresse</h3><p data-address>Durivage, 97180 Sainte-Anne, Guadeloupe</p><p class="muted">À 5 minutes à pied de la plage de la Caravelle.</p><a class="link-arrow" data-directions href="#" target="_blank" rel="noopener">Itinéraire <i data-icon="arrow"></i></a></article>
+          <article class="info-card reveal"><h3>Horaires <span class="status" data-status hidden></span></h3><ul class="hours" data-hours></ul></article>
+          <article class="info-card reveal"><h3>Contact</h3><div class="actions" data-contact></div></article>
+        </div>
+      </div>
+    </section>
+
+    <section class="section" aria-labelledby="titre-esprit">
+      <div class="container split split--wide">
+        <div class="prose">
+          <p class="kicker reveal">L’esprit Ady</p>
+          <h2 class="h2 reveal" id="titre-esprit">Californie, version Guadeloupe</h2>
+          <p class="lead reveal">Des boissons glacées généreuses, du bon café et une carte pensée pour le soleil.</p>
+          <p class="reveal">Ady, c’est l’envie d’un coffee shop qui a le goût des matins de la West Coast&nbsp;: un iced latte bien frais, un matcha qui réveille, un cookie pour accompagner, et la mer à deux pas. On prend le temps de bien faire les choses, et on te les apporte jusque sur le sable.</p>
+        </div>
+        <div class="map-box reveal" data-shop-map aria-label="Carte du shop et de la plage"></div>
+      </div>
+    </section>
+  </main>
+  <footer class="site-footer">
+    <div class="container site-footer__top">
+      <a class="site-footer__logo" href="./" aria-label="Accueil"><svg viewBox="0 0 1440 1208" aria-hidden="true"><use href="assets/brand.svg#logo"/></svg></a>
+      <div class="site-footer__cols">
+        <div>
+          <h3>Le shop</h3>
+          <p data-address>Durivage, 97180 Sainte-Anne, Guadeloupe</p>
+          <p><span class="status" data-status hidden></span></p>
+          <p><a data-directions href="#" target="_blank" rel="noopener">Itinéraire</a></p>
+        </div>
+        <div>
+          <h3>Explorer</h3>
+          <ul>
+            <li><a href="carte">La carte</a></li>
+            <li><a href="livraison">Livraison plage</a></li>
+            <li><a href="fidelite">Carte fidélité</a></li>
+            <li><a href="le-shop">Le shop</a></li>
+          </ul>
+        </div>
+        <div>
+          <h3>Infos</h3>
+          <ul>
+            <li><a href="cgv">Conditions de vente</a></li>
+            <li><a href="mentions-legales">Mentions légales</a></li>
+            <li data-insta></li>
+          </ul>
+        </div>
+      </div>
+    </div>
+    <div class="container site-footer__bottom">
+      <p>© <span data-year>2026</span> Ady Coffee Shop · Sainte-Anne, Guadeloupe</p>
+      <p class="site-footer__slogan">Une véritable Adyction.</p>
+    </div>
+  </footer>
+</body>
+</html>

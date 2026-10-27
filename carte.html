@@ -1,0 +1,115 @@
+<!doctype html>
+<html lang="fr" class="no-js">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <title>La carte · Ady Coffee Shop</title>
+  <meta name="description" content="Iced latte, matcha, cold brew, smoothies et douceurs. Commande en ligne, livraison sur la plage de la Caravelle.">
+  <meta name="theme-color" content="#BF472C">
+  <link rel="icon" href="assets/favicon.svg" type="image/svg+xml">
+  <link rel="apple-touch-icon" href="assets/apple-touch-icon.png">
+  <meta property="og:type" content="website">
+  <meta property="og:locale" content="fr_FR">
+  <meta property="og:site_name" content="Ady Coffee Shop">
+  <meta property="og:title" content="La carte · Ady Coffee Shop">
+  <meta property="og:description" content="Iced latte, matcha, cold brew, smoothies et douceurs. Commande en ligne, livraison sur la plage de la Caravelle.">
+  <meta property="og:image" content="assets/og-image.jpg">
+  <meta name="twitter:card" content="summary_large_image">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Big+Shoulders+Stencil:wght@700;800&family=DM+Sans:opsz,wght@9..40,400;9..40,500;9..40,600;9..40,700&family=Londrina+Solid:wght@400;900&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="css/style.css">
+  <script type="module" src="js/main.js"></script>
+</head>
+<body data-page="carte" data-hero="cream">
+  <a class="skip" href="#contenu">Aller au contenu</a>
+  <header class="site-header" id="site-header">
+    <div class="site-header__inner">
+      <a class="brand" href="./" aria-label="Ady Coffee Shop, accueil"><svg viewBox="0 0 944 496" aria-hidden="true"><use href="assets/brand.svg#st-oval"/></svg></a>
+      <nav class="mainnav" aria-label="Navigation principale">
+        <a href="carte" aria-current="page">La carte</a>
+        <a href="livraison">Livraison plage</a>
+        <a href="fidelite">Fidélité</a>
+        <a href="le-shop">Le shop</a>
+      </nav>
+      <div class="site-header__actions">
+        <span class="status" data-status hidden></span>
+        <button class="cart-btn" type="button" data-open-cart aria-label="Ouvrir le panier"><i data-icon="bag"></i><span class="cart-btn__label">Panier</span><span class="cart-btn__count" data-cart-count>0</span></button>
+        <button class="burger" type="button" data-burger aria-expanded="false" aria-controls="mobile-menu" aria-label="Ouvrir le menu"><span></span><span></span></button>
+      </div>
+    </div>
+  </header>
+  <div class="mobile-menu" id="mobile-menu" hidden>
+    <nav aria-label="Menu mobile">
+      <a href="./" style="--i:0">Accueil<i data-picto="hat"></i></a>
+      <a href="carte" style="--i:1" aria-current="page">La carte<i data-picto="cup"></i></a>
+      <a href="livraison" style="--i:2">Livraison plage<i data-picto="wave"></i></a>
+      <a href="fidelite" style="--i:3">Fidélité<i data-picto="bean"></i></a>
+      <a href="le-shop" style="--i:4">Le shop<i data-picto="sun"></i></a>
+    </nav>
+    <div class="mobile-menu__foot">
+      <span class="status" data-status hidden></span>
+      <a class="btn btn--light btn--lg btn--block" href="carte">Commander sur la plage</a>
+    </div>
+  </div>
+  <main id="contenu">
+    <section class="page-hero">
+      <div class="container">
+        <p class="kicker">Commande en ligne</p>
+        <h1 class="h1">La carte</h1>
+        <p class="lead">Tout est préparé à la commande et livré sur la plage de la Caravelle, à pied, depuis le shop.</p>
+        <ul class="pills">
+          <li><i data-icon="pin"></i>Plage de la Caravelle</li>
+          <li><i data-icon="clock"></i><span data-delay>15 à 20 min</span></li>
+          <li><i data-icon="bag"></i>Dès <span data-min-order>5 €</span></li>
+          <li><i data-icon="card"></i>Paiement à la livraison</li>
+          <li><span class="status" data-status hidden></span></li>
+        </ul>
+      </div>
+    </section>
+    <section class="menu-page" aria-label="Produits">
+      <div class="container menu-layout">
+        <div>
+          <nav class="catnav" aria-label="Catégories"><div class="catnav__list" data-catnav></div></nav>
+          <div data-menu></div>
+        </div>
+        <aside class="cart-aside" aria-label="Ton panier"><div class="cart-aside__box" data-cart-aside></div></aside>
+      </div>
+    </section>
+  </main>
+  <footer class="site-footer">
+    <div class="container site-footer__top">
+      <a class="site-footer__logo" href="./" aria-label="Accueil"><svg viewBox="0 0 1440 1208" aria-hidden="true"><use href="assets/brand.svg#logo"/></svg></a>
+      <div class="site-footer__cols">
+        <div>
+          <h3>Le shop</h3>
+          <p data-address>Durivage, 97180 Sainte-Anne, Guadeloupe</p>
+          <p><span class="status" data-status hidden></span></p>
+          <p><a data-directions href="#" target="_blank" rel="noopener">Itinéraire</a></p>
+        </div>
+        <div>
+          <h3>Explorer</h3>
+          <ul>
+            <li><a href="carte">La carte</a></li>
+            <li><a href="livraison">Livraison plage</a></li>
+            <li><a href="fidelite">Carte fidélité</a></li>
+            <li><a href="le-shop">Le shop</a></li>
+          </ul>
+        </div>
+        <div>
+          <h3>Infos</h3>
+          <ul>
+            <li><a href="cgv">Conditions de vente</a></li>
+            <li><a href="mentions-legales">Mentions légales</a></li>
+            <li data-insta></li>
+          </ul>
+        </div>
+      </div>
+    </div>
+    <div class="container site-footer__bottom">
+      <p>© <span data-year>2026</span> Ady Coffee Shop · Sainte-Anne, Guadeloupe</p>
+      <p class="site-footer__slogan">Une véritable Adyction.</p>
+    </div>
+  </footer>
+</body>
+</html>
