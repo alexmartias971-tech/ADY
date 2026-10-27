@@ -1,0 +1,120 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="robots" content="noindex, nofollow">
+<title>Back-office · ADY Coffee Shop</title>
+<meta name="theme-color" content="#2A1A14">
+<link rel="icon" href="assets/favicon.svg" type="image/svg+xml">
+<link rel="apple-touch-icon" href="assets/apple-touch-icon.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Big+Shoulders+Stencil+Display:wght@700;800&family=DM+Sans:opsz,wght@9..40,400;9..40,500;9..40,700&family=Londrina+Solid:wght@400;900&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="admin.css">
+</head>
+<body>
+
+<!-- Connexion -->
+<main class="login" data-login hidden>
+  <form class="login__box" data-login-form>
+    <img src="assets/mark-red.webp" alt="ADY Coffee Shop" width="120" height="125">
+    <h1>Back-office</h1>
+    <label>E-mail<input type="email" name="email" autocomplete="username" required></label>
+    <label>Mot de passe<input type="password" name="password" autocomplete="current-password" required></label>
+    <button class="btn" type="submit">Se connecter</button>
+    <p class="login__err" data-login-err></p>
+    <p class="login__demo" data-demo-hint hidden>Accès démo : <b>demo.com@gmail.com</b> / <b>demo</b></p>
+  </form>
+</main>
+
+<!-- Application -->
+<div class="app" data-app hidden>
+  <header class="top">
+    <img src="assets/logo.webp" alt="" width="40" height="40"><span class="demo-pill" data-demo-pill hidden>Démo</span>
+    <nav class="tabs" role="tablist" aria-label="Sections">
+      <button role="tab" aria-selected="true" data-view="orders">Commandes <span class="badge" data-new-count hidden></span></button>
+      <button role="tab" aria-selected="false" data-view="menu">Carte &amp; prix</button>
+      <button role="tab" aria-selected="false" data-view="stock">Stock</button>
+      <button role="tab" aria-selected="false" data-view="settings">Réglages</button>
+    </nav>
+    <div class="top__right">
+      <label class="switch" title="Commandes en ligne"><input type="checkbox" data-quick="orders_open"><span></span>Commandes</label>
+      <label class="switch" title="Livraison plage"><input type="checkbox" data-quick="beach_open"><span></span>Plage</label>
+      <button class="iconbtn" type="button" data-sound aria-pressed="false" title="Son des nouvelles commandes">🔕</button>
+      <button class="iconbtn" type="button" data-logout>Déconnexion</button>
+    </div>
+  </header>
+
+  <!-- COMMANDES -->
+  <section class="view" data-view-panel="orders">
+    <div class="kpis">
+      <div><b data-kpi="count">0</b><span>commandes aujourd'hui</span></div>
+      <div><b data-kpi="revenue">0,00 €</b><span>encaissé (terminées)</span></div>
+      <div><b data-kpi="open">0</b><span>en cours</span></div>
+      <div><b data-kpi="beach">0</b><span>livraisons plage</span></div>
+      <label class="day">Jour<input type="date" data-day></label>
+    </div>
+    <p class="live" data-live>Connexion au direct…</p>
+    <div class="board">
+      <div class="col" data-col="new"><h2>Nouvelles</h2><div class="col__list"></div></div>
+      <div class="col" data-col="preparing"><h2>En préparation</h2><div class="col__list"></div></div>
+      <div class="col" data-col="ready"><h2>Prêtes · en route</h2><div class="col__list"></div></div>
+      <div class="col" data-col="done"><h2>Terminées</h2><div class="col__list"></div></div>
+    </div>
+  </section>
+
+  <!-- CARTE & PRIX -->
+  <section class="view" data-view-panel="menu" hidden>
+    <div class="view__head">
+      <h1>Carte &amp; prix</h1>
+      <p>Chaque modification est enregistrée tout de suite et visible sur le site au prochain chargement.</p>
+    </div>
+    <div data-menu-editor></div>
+    <button class="btn btn--ghost" type="button" data-add-cat>Ajouter une catégorie</button>
+  </section>
+
+  <!-- STOCK -->
+  <section class="view" data-view-panel="stock" hidden>
+    <div class="view__head">
+      <h1>Stock</h1>
+      <p>« Non suivi » = jamais en rupture automatique. Un stock à 0 affiche « Épuisé » sur le site. Chaque commande retire le stock, une annulation le remet.</p>
+      <button class="btn btn--ghost btn--small" type="button" data-restore-all>Tout remettre en vente</button>
+    </div>
+    <div data-stock></div>
+  </section>
+
+  <!-- REGLAGES -->
+  <section class="view" data-view-panel="settings" hidden>
+    <div class="view__head"><h1>Réglages</h1></div>
+    <form class="settings" data-settings>
+      <label class="switch switch--big"><input type="checkbox" name="orders_open"><span></span>Commandes en ligne ouvertes</label>
+      <label class="switch switch--big"><input type="checkbox" name="beach_open"><span></span>Livraison plage ouverte</label>
+      <label>Minimum de commande plage (€)<input type="number" name="beach_min" min="0" step="0.5"></label>
+      <label>Plats salés servis à partir de<input type="time" name="food_from"></label>
+      <label>Plats salés servis jusqu'à<input type="time" name="food_to"></label>
+      <label>Tampons avant la boisson offerte<input type="number" name="stamps_goal" min="1" max="30"></label>
+      <label class="switch switch--big"><input type="checkbox" name="beach_photo_required"><span></span>Photo du spot obligatoire (livraison plage)</label>
+      <label>Rayon de la zone de livraison (m)<input type="number" name="beach_radius" min="50" max="3000" step="10"></label>
+      <label>Centre de la zone : latitude<input type="number" name="beach_lat" step="0.0001"></label>
+      <label>Centre de la zone : longitude<input type="number" name="beach_lng" step="0.0001"></label>
+      <button class="btn" type="submit">Enregistrer les réglages</button>
+    </form>
+    <div class="demo-box" data-demo-box hidden>
+      <h2>Mode démo</h2>
+      <p>Les données de la démo sont gardées dans ce navigateur. Les commandes passées sur le site depuis ce même navigateur arrivent ici en direct.</p>
+      <button class="btn btn--ghost" type="button" data-demo-reset>Réinitialiser la démo</button>
+    </div>
+  </section>
+</div>
+
+<div class="lightbox" data-lightbox hidden><button class="iconbtn" type="button" data-lightbox-close>Fermer</button><img alt="Photo du spot envoyée par le client"></div>
+<div class="toast" role="status" aria-live="polite"></div>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.js"></script>
+<script src="config.js"></script>
+<script src="js/demo-seed.js"></script>
+<script src="js/demo-db.js"></script>
+<script src="admin.js"></script>
+</body>
+</html>

@@ -19,6 +19,9 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Big+Shoulders+Stencil:wght@700;800&family=DM+Sans:opsz,wght@9..40,400;9..40,500;9..40,600;9..40,700&family=Londrina+Solid:wght@400;900&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="css/style.css">
+  <script src="config.js" defer></script>
+  <script src="js/demo-seed.js" defer></script>
+  <script src="js/demo-db.js" defer></script>
   <script type="module" src="js/main.js"></script>
   <meta name="robots" content="noindex">
 </head>
@@ -50,7 +53,8 @@
     </nav>
     <div class="mobile-menu__foot">
       <span class="status" data-status hidden></span>
-      <a class="btn btn--light btn--lg btn--block" href="carte">Commander sur la plage</a>
+      <a class="btn btn--light btn--lg btn--block" href="carte" data-set-mode="plage">Livré sur la plage</a>
+      <a class="btn btn--ghost btn--lg btn--block" href="carte" data-set-mode="shop">Je passe au shop</a>
     </div>
   </div>
   <main id="contenu">
@@ -67,20 +71,21 @@
           Contact&nbsp;: <span class="todo">e-mail / téléphone</span></p>
 
         <h2>Hébergement</h2>
-        <p>Vercel Inc., 440 N Barranca Ave #4133, Covina, CA 91723, États-Unis — vercel.com</p>
+        <p>Site&nbsp;: Vercel Inc., 440 N Barranca Ave #4133, Covina, CA 91723, États-Unis — vercel.com<br>
+          Base de données des commandes&nbsp;: Supabase Inc. — supabase.com <span class="todo">région de stockage choisie à la création du projet</span></p>
 
         <h2>Propriété intellectuelle</h2>
-        <p>Le logo, les illustrations et l’identité visuelle d’Ady Coffee Shop sont la propriété exclusive de leurs auteurs. Toute reproduction sans autorisation est interdite.</p>
+        <p>Le logo, les illustrations, les photos et l’identité visuelle d’Ady Coffee Shop sont la propriété exclusive de leurs auteurs. Toute reproduction sans autorisation est interdite.</p>
 
         <h2 id="donnees">Données personnelles</h2>
-        <p>Quand tu passes une commande avec livraison sur la plage, nous recevons&nbsp;: ton prénom, ton numéro de téléphone, ta position sur la plage, la photo de ton spot, ta commande et ton éventuelle note.</p>
+        <p>Quand tu passes une commande, nous recevons&nbsp;: ton prénom, ta commande et ton éventuelle note&nbsp;; pour une livraison sur la plage, aussi ton numéro de téléphone, ta position et la photo de ton spot&nbsp;; et, si tu l’indiques, ton numéro de carte fidélité.</p>
         <ul>
-          <li><b>Pourquoi&nbsp;?</b> Uniquement pour préparer ta commande, te trouver sur la plage et te contacter si besoin (exécution de la commande).</li>
-          <li><b>Où&nbsp;?</b> Les informations sont transmises directement au shop (messagerie et/ou e-mail). Le site lui-même ne les enregistre dans aucune base de données.</li>
-          <li><b>Combien de temps&nbsp;?</b> Le temps de la livraison et du traitement de la commande <span class="todo">durée à préciser par le shop</span>.</li>
+          <li><b>Pourquoi&nbsp;?</b> Uniquement pour préparer ta commande, te trouver sur la plage, te contacter si besoin et appliquer ta fidélité (exécution de la commande).</li>
+          <li><b>Où&nbsp;?</b> Dans la base de données du shop (Supabase), accessible seulement à l’équipe, depuis l’espace équipe protégé par mot de passe. La photo est stockée dans un espace privé.</li>
+          <li><b>Combien de temps&nbsp;?</b> Le temps de la livraison et du traitement de la commande <span class="todo">durée à préciser par le shop (ex. photos supprimées après 7 jours)</span>.</li>
           <li><b>Tes droits&nbsp;:</b> accès, rectification et suppression, en nous contactant à <span class="todo">e-mail</span>. Tu peux aussi saisir la CNIL (cnil.fr).</li>
         </ul>
-        <p>Ton panier, et si tu le souhaites ton prénom et ton téléphone, sont mémorisés dans ton navigateur (stockage local) pour aller plus vite la prochaine fois. Le site n’utilise pas de cookies publicitaires.</p>
+        <p>Ton panier, ton mode de commande, le suivi de ta dernière commande et, si tu le souhaites, ton prénom et ton téléphone sont mémorisés dans ton navigateur (stockage local) pour aller plus vite la prochaine fois. Le site n’utilise pas de cookies publicitaires.</p>
 
         <h2>Cartographie</h2>
         <p>Les cartes utilisent les données © contributeurs OpenStreetMap et la bibliothèque Leaflet.</p>
@@ -110,6 +115,7 @@
           <h3>Infos</h3>
           <ul>
             <li><a href="cgv">Conditions de vente</a></li>
+            <li><a href="admin" rel="nofollow">Espace équipe</a></li>
             <li><a href="mentions-legales">Mentions légales</a></li>
             <li data-insta></li>
           </ul>

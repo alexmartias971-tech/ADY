@@ -1,5 +1,6 @@
 // Carte interactive (Leaflet + OpenStreetMap), chargée seulement quand on en a besoin
 import { CONFIG } from './config.js';
+import { zone } from './data.js';
 
 let chargement = null;
 
@@ -45,7 +46,7 @@ export async function carteVitrine(el, { centrer = 'zone' } = {}) {
     el.innerHTML = '<p style="padding:20px">La carte n’a pas pu se charger.</p>';
     return null;
   }
-  const z = CONFIG.zone;
+  const z = zone();
   const map = L.map(el, { scrollWheelZoom: false, zoomControl: true }).setView([z.centre.lat, z.centre.lng], 15);
   map.attributionControl.setPrefix('<a href="https://leafletjs.com" target="_blank" rel="noopener">Leaflet</a>');
   L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', {

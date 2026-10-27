@@ -4,7 +4,7 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
   <title>Ady Coffee Shop · Californian coffee shop à Sainte-Anne, livré sur la plage de la Caravelle</title>
-  <meta name="description" content="Ady, le Californian coffee shop de Sainte-Anne (Guadeloupe). Iced latte, matcha, cold brew, livrés sur la plage de la Caravelle dès 5 €.">
+  <meta name="description" content="Ady, le Californian coffee shop de Sainte-Anne (Guadeloupe). Iced latte, matcha, citronnade gwozey : livrés sur la plage de la Caravelle dès 5 €, ou prêts au shop.">
   <meta name="theme-color" content="#BF472C">
   <link rel="icon" href="assets/favicon.svg" type="image/svg+xml">
   <link rel="apple-touch-icon" href="assets/apple-touch-icon.png">
@@ -12,13 +12,16 @@
   <meta property="og:locale" content="fr_FR">
   <meta property="og:site_name" content="Ady Coffee Shop">
   <meta property="og:title" content="Ady Coffee Shop · Californian coffee shop à Sainte-Anne, livré sur la plage de la Caravelle">
-  <meta property="og:description" content="Ady, le Californian coffee shop de Sainte-Anne (Guadeloupe). Iced latte, matcha, cold brew, livrés sur la plage de la Caravelle dès 5 €.">
+  <meta property="og:description" content="Ady, le Californian coffee shop de Sainte-Anne (Guadeloupe). Iced latte, matcha, citronnade gwozey : livrés sur la plage de la Caravelle dès 5 €, ou prêts au shop.">
   <meta property="og:image" content="assets/og-image.jpg">
   <meta name="twitter:card" content="summary_large_image">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Big+Shoulders+Stencil:wght@700;800&family=DM+Sans:opsz,wght@9..40,400;9..40,500;9..40,600;9..40,700&family=Londrina+Solid:wght@400;900&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="css/style.css">
+  <script src="config.js" defer></script>
+  <script src="js/demo-seed.js" defer></script>
+  <script src="js/demo-db.js" defer></script>
   <script type="module" src="js/main.js"></script>
 </head>
 <body data-page="home" data-hero="terra">
@@ -49,7 +52,8 @@
     </nav>
     <div class="mobile-menu__foot">
       <span class="status" data-status hidden></span>
-      <a class="btn btn--light btn--lg btn--block" href="carte">Commander sur la plage</a>
+      <a class="btn btn--light btn--lg btn--block" href="carte" data-set-mode="plage">Livré sur la plage</a>
+      <a class="btn btn--ghost btn--lg btn--block" href="carte" data-set-mode="shop">Je passe au shop</a>
     </div>
   </div>
   <main id="contenu">
@@ -58,29 +62,36 @@
         <div class="hero__text">
           <p class="kicker">Californian coffee shop · Sainte-Anne</p>
           <h1 class="hero__title h1"><span class="line"><span class="hero__title-small">Une véritable</span></span><span class="line"><span>Adyction</span></span></h1>
-          <p class="hero__lead lead">Iced latte, matcha, cold brew. À boire au shop, ou livré sur ta serviette, plage de la Caravelle.</p>
-          <div class="hero__cta">
-            <a class="btn btn--light btn--lg" href="carte">Commander <i data-icon="arrow" class="icon--arrow"></i></a>
-            <a class="btn btn--ghost btn--lg" href="#livraison">Comment ça marche</a>
+          <p class="hero__lead lead">Iced latte, matcha, citronnade gwozey. Au shop, ou livrés sur ta serviette à la plage de la Caravelle.</p>
+          <div class="hero__modes" role="group" aria-label="Comment veux-tu commander ?">
+            <a class="modecard modecard--plage" href="carte" data-set-mode="plage">
+              <i data-picto="wave"></i>
+              <span><b>Livré sur la plage</b><small>Caravelle · dès <span data-min-order>5 €</span> · <span data-delay>15 à 20 min</span></small></span>
+              <i data-icon="arrow" class="icon--arrow"></i>
+            </a>
+            <a class="modecard" href="carte" data-set-mode="shop">
+              <i data-picto="cup"></i>
+              <span><b>Je passe au shop</b><small>Commande avant, c’est prêt à ton arrivée</small></span>
+              <i data-icon="arrow" class="icon--arrow"></i>
+            </a>
           </div>
-          <ul class="facts">
-            <li><i data-picto="wave"></i><span><b>Plage de la Caravelle</b>livré à pied</span></li>
-            <li><i data-picto="sun"></i><span><b data-delay>15 à 20 min</b>en moyenne</span></li>
-            <li><i data-picto="bean"></i><span><b>Dès <span data-min-order>5 €</span></b>paiement sur place</span></li>
-          </ul>
+          <p class="hero__meta"><span class="status" data-status hidden></span><span>Paiement sur place&nbsp;: espèces ou carte</span></p>
         </div>
-        <div class="poster" data-poster aria-hidden="true">
-          <div class="poster__sun poster__layer"><svg viewBox="0 0 400 400" aria-hidden="true">
+        <div class="poster" data-poster>
+          <div class="poster__3d">
+            <div class="poster__sun poster__layer" style="--z:-90" aria-hidden="true"><svg viewBox="0 0 400 400" aria-hidden="true">
             <defs><mask id="poster-mask"><rect width="400" height="400" fill="#fff"/><rect y="238" width="400" height="9" fill="#000"/><rect y="270" width="400" height="13" fill="#000"/><rect y="306" width="400" height="17" fill="#000"/><rect y="346" width="400" height="22" fill="#000"/></mask>
             <pattern id="poster-ht" width="7" height="7" patternUnits="userSpaceOnUse" patternTransform="rotate(30)"><circle cx="3.5" cy="3.5" r="1.4" fill="#7e2c18"/></pattern></defs>
             <g mask="url(#poster-mask)"><circle cx="200" cy="200" r="196" fill="#d45e41"/><circle cx="200" cy="200" r="196" fill="url(#poster-ht)" opacity=".35"/></g>
           </svg></div>
-          <div class="poster__palm poster__palm--l poster__layer"><svg viewBox="0 0 928 920"><use href="assets/brand.svg#st-palms"/></svg></div>
-          <div class="poster__palm poster__palm--r poster__layer"><svg viewBox="0 0 928 920"><use href="assets/brand.svg#st-palms"/></svg></div>
-          <svg class="poster__logo poster__layer" viewBox="0 0 1440 1208"><use href="assets/brand.svg#logo"/></svg>
-          <div class="poster__sticker poster__layer"><div><svg viewBox="0 0 680 800"><use href="assets/brand.svg#st-can"/></svg></div></div>
-          <div class="poster__drink poster__drink--a poster__layer"><div data-ill="iced-latte"></div></div>
-          <div class="poster__drink poster__drink--b poster__layer"><div data-ill="iced-matcha"></div></div>
+            <div class="poster__palm poster__palm--l poster__layer" style="--z:-40" aria-hidden="true"><svg viewBox="0 0 928 920"><use href="assets/brand.svg#st-palms"/></svg></div>
+            <div class="poster__palm poster__palm--r poster__layer" style="--z:-40" aria-hidden="true"><svg viewBox="0 0 928 920"><use href="assets/brand.svg#st-palms"/></svg></div>
+            <svg class="poster__logo poster__layer" style="--z:0" viewBox="0 0 1440 1208" aria-hidden="true"><use href="assets/brand.svg#logo"/></svg>
+            <div class="poster__sticker poster__sticker--can poster__layer" style="--z:70" aria-hidden="true"><div class="sticker"><svg viewBox="0 0 680 800"><use href="assets/brand.svg#st-can"/></svg></div></div>
+            <div class="poster__sticker poster__sticker--moka poster__layer" style="--z:50" aria-hidden="true"><div class="sticker"><svg viewBox="0 0 608 752"><use href="assets/brand.svg#st-moka"/></svg></div></div>
+            <button class="poster__drink poster__drink--a poster__layer" style="--z:120" type="button" data-open-name="Iced latte tiramisu" aria-label="Voir l’iced latte tiramisu"><span class="poster__float" data-ill="Iced latte tiramisu"></span><span class="poster__badge" aria-hidden="true">Best-<br>seller</span></button>
+            <button class="poster__drink poster__drink--b poster__layer" style="--z:95" type="button" data-open-name="Maracudja matcha tonic" aria-label="Voir le maracudja matcha tonic"><span class="poster__float" data-ill="Maracudja matcha tonic"></span><span class="poster__badge poster__badge--b" aria-hidden="true">Coup<br>de cœur</span></button>
+          </div>
         </div>
       </div>
     </section>
@@ -111,8 +122,8 @@
           <div class="scene" data-scene></div>
           <div class="story__panel">
             <ol class="story__steps">
-              <li class="story__step is-active"><span class="story__num">01 / 04</span><h3>Tu commandes</h3><p>Depuis ta serviette&nbsp;: tes boissons, ton épingle GPS et une photo de ton spot. Dès <span data-min-order>5 €</span>.</p></li>
-              <li class="story__step"><span class="story__num">02 / 04</span><h3>On prépare, on file</h3><p>Ta commande est préparée au shop et part aussitôt vers la plage, à pied.</p></li>
+              <li class="story__step is-active"><span class="story__num">01 / 04</span><h3>Tu commandes</h3><p>Depuis ta serviette&nbsp;: tes boissons, ta position (le site te localise tout seul) et une photo de ton spot. Dès <span data-min-order>5 €</span>.</p></li>
+              <li class="story__step"><span class="story__num">02 / 04</span><h3>On prépare, on file</h3><p>Ta commande est préparée au shop et part aussitôt vers la plage, à pied. Tu suis chaque étape en direct.</p></li>
               <li class="story__step story__step--photo"><div><span class="story__num">03 / 04</span><h3>On te trouve</h3><p>Pas besoin de crier ton prénom&nbsp;: avec ta photo, le livreur repère ton parasol du premier coup.</p></div><svg viewBox="-6 -6 136 156" aria-hidden="true"><g transform="rotate(-5 60 70)">
               <rect x="3" y="4" width="120" height="140" rx="4" fill="#2a1810" opacity=".18"/><rect width="120" height="140" rx="4" fill="#fffaf2" stroke="#2a1810" stroke-width="3"/>
               <rect x="9" y="9" width="102" height="44" fill="#a9d3e3"/><rect x="9" y="50" width="102" height="18" fill="#3f97ae"/><rect x="9" y="66" width="102" height="39" fill="#f2cfa6"/>
@@ -127,8 +138,46 @@
         </div>
       </div>
       <div class="container story__end">
-        <a class="btn btn--lg" href="carte">Commander maintenant <i data-icon="arrow" class="icon--arrow"></i></a>
+        <a class="btn btn--lg" href="carte" data-set-mode="plage">Commander sur la plage <i data-icon="arrow" class="icon--arrow"></i></a>
         <a class="link-arrow" href="livraison">Tout savoir sur la livraison <i data-icon="arrow"></i></a>
+      </div>
+    </section>
+
+    <section class="section reel-sec" aria-labelledby="titre-reel">
+      <div class="container">
+        <div class="section-head section-head--split">
+          <div>
+            <p class="kicker reveal">Le shop en vrai</p>
+            <h2 class="h2 reveal" id="titre-reel">Un coin de Californie, posé en Guadeloupe</h2>
+          </div>
+          <div class="reel__nav reveal"><button class="round-btn" type="button" data-reel-prev aria-label="Photo précédente"><i data-icon="back"></i></button><button class="round-btn" type="button" data-reel-next aria-label="Photo suivante"><i data-icon="arrow"></i></button></div>
+        </div>
+      </div>
+      <div class="reel" data-reel tabindex="0" role="region" aria-label="Photos du shop, à faire défiler">
+        <figure class="reel__card"><div class="photo"><img src="assets/photos/espresso.webp" alt="Un espresso qui coule dans un gobelet ADY" width="900" height="930" loading="lazy" decoding="async"></div><figcaption><b>Extraction lente</b>Un espresso net, servi dans nos gobelets.</figcaption></figure>
+        <figure class="reel__card"><div class="photo"><img src="assets/photos/grains.webp" alt="Grains de café torréfiés et logo ADY" width="900" height="930" loading="lazy" decoding="async"></div><figcaption><b>Café de spécialité</b>Des grains choisis, une machine bien réglée.</figcaption></figure>
+        <figure class="reel__card"><div class="photo"><img src="assets/photos/stickers.webp" alt="Les stickers ADY sur une plage de Guadeloupe" width="900" height="930" loading="lazy" decoding="async"></div><figcaption><b>Jusqu’à ta serviette</b>Livré à pied sur la plage de la Caravelle.</figcaption></figure>
+        <div class="reel__card reel__card--text"><p>Maracudja, goyave, gwozey&nbsp;: les fruits d’ici, dans nos verres.</p><a class="btn btn--light" href="carte">Voir la carte <i data-icon="arrow" class="icon--arrow"></i></a></div>
+      </div>
+    </section>
+
+    <section class="build" aria-labelledby="titre-build">
+      <div class="build__track" data-build>
+        <div class="build__sticky">
+          <div class="build__stage"><div class="build__scene" data-build-scene></div></div>
+          <div class="build__text">
+            <p class="kicker">Coup de cœur</p>
+            <h2 class="build__title" id="titre-build">Le maracudja matcha tonic, monté face à la mer</h2>
+            <ol class="build__steps">
+              <li class="is-active"><span>1</span>Des glaçons, beaucoup.</li>
+              <li><span>2</span>Le sirop de maracudja.</li>
+              <li><span>3</span>Le tonic, bien pétillant.</li>
+              <li><span>4</span>Le matcha, versé doucement par-dessus.</li>
+              <li><span>5</span>La paille, le demi-maracudja, direction la plage.</li>
+            </ol>
+            <button class="btn btn--lg build__add" type="button" data-build-add>Je le veux · <span data-build-price>6,50 €</span></button>
+          </div>
+        </div>
       </div>
     </section>
 
@@ -137,10 +186,27 @@
         <div>
           <p class="kicker reveal">Carte fidélité</p>
           <h2 class="h2 reveal" id="titre-fidelite">Le 10ᵉ est pour nous</h2>
-          <p class="lead reveal">Un tampon par boisson. Au dixième, ton café est offert. La carte vit dans ton Apple Wallet ou Google Wallet&nbsp;: impossible de l’oublier au fond du sac de plage.</p>
-          <div class="actions reveal" style="margin-top:30px"><a class="btn btn--light btn--lg" href="fidelite">Comment ça marche <i data-icon="arrow" class="icon--arrow"></i></a></div>
+          <p class="lead reveal">Un tampon par boisson, au shop comme sur la plage. Au dixième, ta boisson est offerte.</p>
+          <ul class="check-list reveal">
+            <li><i data-picto="card"></i><span><b>Dans ton téléphone.</b> La carte s’ajoute à Apple Wallet ou Google Wallet&nbsp;: impossible de l’oublier au fond du sac de plage.</span></li>
+            <li><i data-picto="wave"></i><span><b>Même livré sur la plage.</b> Entre ton numéro de carte, écrit sous le QR code, au moment de commander.</span></li>
+            <li><i data-picto="gift"></i><span><b>La récompense en un geste.</b> Coche «&nbsp;j’utilise ma récompense&nbsp;», on la valide avec ta carte.</span></li>
+          </ul>
+          <div class="actions reveal"><a class="btn btn--light btn--lg" href="fidelite">Comment ça marche <i data-icon="arrow" class="icon--arrow"></i></a></div>
         </div>
         <div class="wallet-stage reveal" data-wallet-stage></div>
+      </div>
+    </section>
+
+    <section class="section merch" id="merch" aria-labelledby="titre-merch">
+      <div class="container merch__grid">
+        <figure class="merch__photo reveal"><div class="photo"><img src="assets/photos/merch-portant.webp" alt="Le portant de t-shirts ADY dans le coffee shop, à côté des chaises rouges" width="1022" height="1000" loading="lazy" decoding="async"></div><span class="merch__stamp">En vrai au shop</span></figure>
+        <div class="merch__body">
+          <p class="kicker reveal">Merch</p>
+          <h2 class="h2 reveal" id="titre-merch">Les t-shirts sont arrivés</h2>
+          <p class="lead reveal">Le maillot Californian et les t-shirts ADY Coffee Club. Réserve ta taille ici&nbsp;: tu le récupères au comptoir, ou il arrive sur la plage avec ton iced latte.</p>
+          <div class="merch__list" data-merch></div>
+        </div>
       </div>
     </section>
 
@@ -152,12 +218,13 @@
             <p class="kicker reveal">Le shop</p>
             <h2 class="h2 reveal" id="titre-visite">Passe nous voir</h2>
           </div>
-          <p class="visit__address reveal"><span data-address>Durivage, 97180 Sainte-Anne, Guadeloupe</span><br><span class="muted">À 5 minutes à pied de la plage de la Caravelle.</span></p>
+          <p class="visit__address reveal"><span data-address>Durivage, 97180 Sainte-Anne, Guadeloupe</span><br><span class="muted">À 5 minutes à pied de la plage de la Caravelle. Sur place, à emporter, ou livré sur ta serviette.</span></p>
+          <p class="visit__proof reveal"><i data-picto="star"></i><span data-proof>2 300+ personnes nous suivent déjà sur Instagram</span></p>
           <div class="reveal"><span class="status" data-status hidden></span></div>
           <ul class="hours reveal" data-hours></ul>
           <div class="actions reveal">
             <a class="btn" data-directions href="#" target="_blank" rel="noopener"><i data-icon="route"></i> Itinéraire</a>
-            <a class="btn btn--ghost" href="le-shop">Infos & contact</a>
+            <a class="btn btn--ghost" data-insta-link href="#" target="_blank" rel="noopener"><i data-icon="insta"></i> <span data-insta-pseudo>Instagram</span></a>
           </div>
         </div>
       </div>
@@ -186,6 +253,7 @@
           <h3>Infos</h3>
           <ul>
             <li><a href="cgv">Conditions de vente</a></li>
+            <li><a href="admin" rel="nofollow">Espace équipe</a></li>
             <li><a href="mentions-legales">Mentions légales</a></li>
             <li data-insta></li>
           </ul>

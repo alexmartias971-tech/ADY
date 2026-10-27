@@ -1,106 +1,100 @@
-# Ady Coffee Shop — site vitrine + commande livraison plage
+# Ady Coffee Shop — site + commande (plage ou à emporter) + back-office
 
-Site du **Californian coffee shop Ady** (Sainte-Anne, Guadeloupe).
+Site du **Californian coffee shop Ady** (Durivage, Sainte-Anne, Guadeloupe).
+HTML/CSS/JS **sans étape de build**. Les commandes, la carte et les réglages vivent dans **Supabase** ; l’équipe gère tout depuis **`/admin`**.
 
 | Page | Fichier | Rôle |
 |---|---|---|
-| Accueil | `index.html` | Affiche, signatures, scène animée « Livré les pieds dans le sable », fidélité, « Passe nous voir » |
-| La carte | `carte.html` | Toute la carte par catégorie, panier latéral, commande |
-| Livraison plage | `livraison.html` | Fonctionnement, zone sur carte, questions fréquentes |
-| Fidélité | `fidelite.html` | Carte fidélité Wallet (démo interactive) |
-| Le shop | `le-shop.html` | Adresse, horaires, contact, carte |
-| CGV, mentions légales, 404 | `cgv.html`, `mentions-legales.html`, `404.html` | Pages légales (champs à compléter surlignés) |
+| Accueil | `index.html` | Le parcours complet, voir ci-dessous |
+| La carte | `carte.html` | Carte façon ardoise du shop, choix plage / shop, panier latéral |
+| Livraison plage | `livraison.html` | Fonctionnement, zone sur la carte, questions fréquentes |
+| Fidélité | `fidelite.html` | Carte Wallet interactive, comment l’utiliser en ligne |
+| Le shop | `le-shop.html` | Photos, adresse, horaires, contact, carte |
+| Back-office | `admin.html` | Commandes en direct, carte & prix, stock, réglages |
+| CGV, mentions, 404 | `cgv.html`, `mentions-legales.html`, `404.html` | Champs à compléter surlignés en rose |
 
-**Commande avec livraison sur la plage de la Caravelle** (accessible depuis toutes les pages via le panier) :
-1. panier, avec un minimum de commande (5 € par défaut) et des suggestions ;
-2. position GPS ajustable sur la carte de la plage, puis **photo du spot obligatoire** ;
-3. prénom, téléphone, paiement à la livraison (espèces / carte). Les coordonnées peuvent être mémorisées sur le téléphone ;
-4. confirmation avec un numéro de commande. La commande arrive au shop sur Telegram, avec la photo et l’épingle GPS.
+## Le parcours client (pourquoi chaque bloc est à sa place)
 
-Le site est en HTML/CSS/JS **sans étape de build ni dépendance**. La seule partie serveur est `api/order.js`, une fonction Vercel qui vérifie la commande et la transmet au shop.
+Les gens sont sur la plage, au soleil, avec un téléphone : tout est pensé pour commander en quelques gestes.
 
----
+1. **Affiche + deux grosses entrées** « Livré sur la plage » / « Je passe au shop ». C’est la première décision, elle règle tout le reste (minimum, photo, paiement). Elle est visible sans défiler sur un téléphone.
+2. **Les signatures** (gérées dans le back-office, « mise en avant ») : la plupart des commandes, ajoutables en un geste.
+3. **« Livré les pieds dans le sable »** raconté au défilement : répond à la vraie inquiétude (« comment ils vont me trouver ? ») avant le passage en caisse.
+4. **Le shop en vrai** : les photos (avec le grain), pour la confiance et l’envie.
+5. **Le maracudja matcha tonic monté couche par couche** au défilement, avec son bouton « Je le veux » : le désir, puis l’action.
+6. **Fidélité** : un tampon par boisson, même livré sur la plage (numéro de carte saisi à la commande).
+7. **T-shirts** : vente additionnelle, taille à choisir, récupérée au comptoir ou livrée avec la boisson.
+8. **Passe nous voir** : adresse, horaires, preuve sociale Instagram.
 
-## 1. Mettre en ligne (GitHub → Vercel)
+**Le tunnel de commande** (panneau qui s’ouvre depuis le panier, sur toutes les pages) :
+- *Plage* : panier (minimum 5 €, suggestions) → position GPS automatique, ajustable, puis **photo du spot obligatoire** → prénom, téléphone, paiement (espèces / carte), carte fidélité → **suivi en direct** (reçue, en préparation, en route, livrée).
+- *Shop* : panier (pas de minimum) → heure de passage → prénom, paiement au comptoir → suivi (reçue, en préparation, prête au comptoir).
+- On peut fermer la page : la pastille en haut de l’écran ramène au suivi.
 
-**Première mise en ligne**
-1. Sur GitHub, ouvre le dépôt, fais *Add file → Upload files* et glisse **le contenu** du dossier : `index.html` doit être à la racine. Termine avec *Commit changes*.
-2. Sur Vercel, fais *Add New… → Project → Import* sur le dépôt.
-   - Project Name : en **minuscules** (ex. `ady-coffee-shop`).
-   - Application Preset : **Other**. Ne touche ni à Build ni à Output.
-   - Clique sur **Deploy**.
+## 0. Mode démo (rien à configurer)
 
-**Mise à jour depuis une version précédente**
-Supprime d’abord sur GitHub les anciens fichiers qui n’existent plus : `js/app.js` et le dossier `assets/insta/`. Envoie ensuite les nouveaux fichiers par-dessus. Vercel redéploie tout seul à chaque *commit*.
+Tant que `config.js` est vide, le site et le back-office tournent en démo, dans le navigateur :
+- passe une commande sur le site, puis ouvre **`/admin`** dans le **même navigateur** : identifiant **demo.com@gmail.com**, mot de passe **demo** ;
+- fais avancer la commande : le client voit l’étape changer en direct sur le site (toutes les 6 s) ;
+- bouton « Réinitialiser la démo » dans Réglages.
 
-> Tant que Telegram n’est pas configuré, le tunnel tourne en **mode démo** : le client voit la confirmation, mais la commande n’est transmise à personne (un message le précise). Si un numéro WhatsApp est renseigné dans `js/config.js`, le client est plutôt invité à envoyer sa commande sur WhatsApp.
+Dès que `config.js` est rempli, la démo se coupe toute seule et tout passe par Supabase.
 
-## 2. Recevoir les commandes sur Telegram (gratuit)
+## 1. Supabase (10 min)
 
-Chaque commande arrive dans un groupe Telegram avec : la **photo du spot**, le récap, le téléphone du client, un bouton « Itinéraire » et l’**épingle GPS**.
+1. Crée un projet sur supabase.com. Région : **eu-west-3 (Paris)** conseillée pour le RGPD (`us-east-1` est un peu plus rapide depuis la Guadeloupe).
+2. **SQL Editor** : colle `supabase/schema.sql`, *Run*. Puis `supabase/seed.sql`, *Run* (la carte actuelle, une seule fois).
+3. **Authentication → Providers → Email** : désactive « Allow new users to sign up ».
+4. **Authentication → Users → Add user** : crée le compte du gérant (e-mail + mot de passe).
+5. Donne-lui l’accès au back-office (SQL Editor) :
+   ```sql
+   insert into public.admins (user_id)
+   select id from auth.users where email = 'email-du-gerant@exemple.com';
+   ```
+6. **Project Settings → API** : copie `Project URL` et la clé `anon public` dans `config.js` :
+   ```js
+   window.ADY_CONFIG = { supabaseUrl: "https://xxxx.supabase.co", supabaseAnonKey: "eyJ..." };
+   ```
+   La clé *anon* est faite pour être publique : la sécurité repose sur les règles de la base (voir plus bas). Ne mets **jamais** la clé `service_role` dans le site.
 
-1. Dans Telegram, ouvre **@BotFather**, tape `/newbot` et donne un nom (ex. *Ady Commandes*). Il te donne un **token**.
-2. Crée un groupe *Commandes Ady* avec l’équipe, **ajoute-y le bot**, puis écris `/start` dans le groupe.
-3. Ouvre `https://api.telegram.org/bot<TON_TOKEN>/getUpdates` dans un navigateur. Repère `"chat":{"id":-100…` : ce nombre, signe moins compris, est le **chat id**.
-4. Dans Vercel, va dans *Settings → Environment Variables* et ajoute `TELEGRAM_BOT_TOKEN` et `TELEGRAM_CHAT_ID`.
-5. Va dans *Deployments*, puis **⋯ → Redeploy**, et passe une commande test.
+## 2. Mise en ligne (GitHub → Vercel)
 
-En plus, tu peux recevoir la commande **par e-mail** avec Resend : ajoute `RESEND_API_KEY`, `ORDER_EMAIL_TO` et, une fois le domaine vérifié chez Resend, `ORDER_EMAIL_FROM`.
+1. Sur GitHub, *Add file → Upload files* et glisse **le contenu** du dossier (`index.html` à la racine), puis *Commit changes*.
+   Si le dépôt contient une ancienne version, supprime d’abord les fichiers qui n’existent plus : `api/`, `js/app.js`, `js/menu.js`, `assets/insta/`.
+2. Sur Vercel : *Add New… → Project → Import* le dépôt. Nom du projet **en minuscules** (ex. `ady-coffee-shop`), *Application Preset* : **Other**, ne touche ni à Build ni à Output, *Deploy*.
+3. Vercel redéploie tout seul à chaque *commit*. Le back-office est sur `https://ton-site/admin`.
 
-## 3. Personnaliser
+## 3. Le back-office (`/admin`)
 
-Presque tout se règle dans deux fichiers :
+- **Commandes** : arrivent en direct (son + notification). Un bouton fait avancer chaque commande ; le client le voit sur son téléphone. Pour la plage : position sur Google Maps, photo du spot, repère, numéro de carte fidélité. Annuler remet le stock.
+- **Carte & prix** : nom, prix, description, options (chaud/glacé, lait, sirop, format), mise en avant (« Commence par celles-là ») avec étiquette, ordre, en vente / épuisé.
+- **Stock** : optionnel, par produit et par taille de t-shirt. À 0, le site affiche « Épuisé ».
+- **Réglages** : couper les commandes en ligne ou la livraison plage d’un clic, minimum plage, horaires du salé, tampons fidélité, **photo obligatoire, rayon et centre de la zone de livraison**.
+
+## 4. Ce qui est vérifié côté base (le client ne peut pas tricher)
+
+- Prix et total recalculés par la base ; stock vérifié et décrémenté dans la même opération.
+- Plats salés refusés hors horaires (heure de Guadeloupe).
+- Livraison plage refusée hors zone ou sans photo (si la photo est obligatoire).
+- Commandes, téléphones et photos lisibles uniquement par les comptes admins ; les photos sont dans un espace privé.
+
+## 5. À compléter avant l’ouverture
+
+- `js/config.js` : **téléphone**, **WhatsApp**, **horaires réels** (ceux du site sont provisoires), lien de la carte fidélité Wallet si vous en avez un, position exacte du shop (`shop`).
+- Zone de livraison : centre et rayon à vérifier sur place (Réglages du back-office).
+- `cgv.html` et `mentions-legales.html` : forme juridique, SIREN, gérant, contact, médiateur, durée de conservation des photos (surlignés en rose).
+- Allergènes : liste à fournir (mentionnée sur la carte et dans les CGV).
+
+## 6. Fichiers utiles
 
 | Fichier | Contenu |
 |---|---|
-| `js/config.js` | Minimum de commande, frais, délai, moyens de paiement, **zone de livraison**, position du shop, **horaires**, téléphone, WhatsApp, Instagram, lien de la carte fidélité |
-| `js/menu.js` | **Produits, prix, descriptions, options** (lait, sirop, sucre), catégories et leurs accroches, produits mis en avant sur l’accueil (`signature: true`) |
+| `config.js` | Connexion Supabase (vide = démo) |
+| `js/config.js` | Textes, contact, horaires, paiements, zone par défaut |
+| `js/data.js` | Lecture de la carte, envoi de la commande, suivi |
+| `js/checkout.js` | Tunnel de commande et suivi en direct |
+| `js/illustrations.js`, `js/scene.js`, `js/build.js` | Illustrations et animations (dessinées en SVG, rien à télécharger) |
+| `supabase/schema.sql`, `supabase/seed.sql` | Base de données et carte de départ |
+| `assets/photos/`, `assets/merch/` | Photos du shop et des t-shirts (remplaçables, mêmes noms) |
 
-- **Zone de livraison** : elle est calée sur le contour de la plage « La Caravelle » dans OpenStreetMap (centre 16.2181, -61.3965, rayon 420 m). La position du shop (quartier Durivage) est **approximative** : sur Google Maps, fais un clic droit sur le shop pour copier ses coordonnées.
-- **Horaires** : une fois confirmés, passe `bloquerHorsHoraires: true` pour refuser les commandes quand le shop est fermé.
-- **Photos de produits** (facultatif) : dépose-les dans `assets/produits/` et ajoute `photo: 'assets/produits/iced-latte.jpg'` au produit. Elles remplacent alors l’illustration.
-- **Menu de navigation et pied de page** : ils sont présents dans chaque fichier `.html`. Si tu ajoutes une page, mets les liens à jour dans chacun.
-
-### Logo et illustrations
-- `assets/brand.svg` contient le logo et les stickers Ady, vectorisés à partir des visuels de la marque. Si tu as les fichiers vectoriels officiels, remplace le contenu de chaque `<symbol>` en gardant son `id` (`logo`, `st-head`, `st-can`, `st-moka`, `st-palms`, `st-oval`).
-- Les boissons et douceurs sont dessinées en code dans `js/illustrations.js` (style sérigraphie : aplats décalés, trame, grain).
-- La scène de la plage est dans `js/scene.js` et les pictogrammes de la marque dans `js/icons.js`.
-
-## 4. À compléter avant le lancement
-- [ ] Vraie carte et vrais prix (`js/menu.js`) : **les produits et prix actuels sont provisoires**
-- [ ] Horaires, téléphone, WhatsApp, Instagram, lien de la carte fidélité (`js/config.js`)
-- [ ] Position exacte du shop, et vérification de la zone sur place
-- [ ] Mentions légales et CGV : champs surlignés (forme juridique, gérant, médiateur, allergènes…)
-- [ ] Une fois le domaine connu, mettre l’URL complète de l’image de partage dans chaque page :
-      `<meta property="og:image" content="https://ton-domaine/assets/og-image.jpg">`
-- [ ] Variables Telegram dans Vercel, puis une commande test depuis la plage
-
-## 5. Structure
-
-```
-*.html                  pages du site
-css/style.css           design system (couleurs, typo, composants) — variables en haut du fichier
-js/main.js              point d’entrée (charge le module de la page)
-js/config.js            ⚙️ réglages du shop
-js/menu.js              ☕ la carte
-js/ui.js                en-tête, menu mobile, statut ouvert/fermé, panier
-js/produits.js          cartes produit + ajout au panier
-js/sheet.js             fiche produit (options, quantité)
-js/checkout.js          tunnel de commande (carte de la plage, GPS, photo, envoi)
-js/scene.js             scène animée de la livraison + vignette du shop
-js/loyalty.js           carte fidélité 3D
-js/illustrations.js     illustrations des produits
-js/icons.js             pictogrammes de la marque et icônes
-js/map.js               cartes Leaflet / OpenStreetMap
-js/pages/*.js           code propre à chaque page
-api/order.js            fonction Vercel : vérifie et transmet la commande
-assets/                 logo, stickers, textures de grain, favicon, image de partage
-vendor/leaflet/         Leaflet 1.9.4 (licence BSD)
-```
-
-## Notes techniques
-- Les prix sont **toujours recalculés côté serveur** à partir de `js/menu.js`. Le minimum, la zone et la photo y sont aussi vérifiés.
-- La photo est compressée dans le navigateur (~200-400 Ko) avant l’envoi. Aucune donnée client n’est stockée par le site.
-- Animations : la scène de la plage suit le défilement, et la bande de pictos ne bouge que quand on fait défiler la page. Si l’appareil demande moins d’animations (`prefers-reduced-motion`), tout est coupé.
-- Navigation entre les pages avec transitions douces (View Transitions, navigateurs récents).
-- Pour tester en local avec l’API : `npx vercel dev`. Sinon, n’importe quel serveur statique qui gère les URL sans `.html` (ex. `npx serve`) fonctionne, en mode démo.
+Les cartes utilisent © OpenStreetMap (bibliothèque Leaflet incluse dans `vendor/`).

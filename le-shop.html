@@ -19,6 +19,9 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Big+Shoulders+Stencil:wght@700;800&family=DM+Sans:opsz,wght@9..40,400;9..40,500;9..40,600;9..40,700&family=Londrina+Solid:wght@400;900&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="css/style.css">
+  <script src="config.js" defer></script>
+  <script src="js/demo-seed.js" defer></script>
+  <script src="js/demo-db.js" defer></script>
   <script type="module" src="js/main.js"></script>
 </head>
 <body data-page="le-shop" data-hero="cream">
@@ -49,7 +52,8 @@
     </nav>
     <div class="mobile-menu__foot">
       <span class="status" data-status hidden></span>
-      <a class="btn btn--light btn--lg btn--block" href="carte">Commander sur la plage</a>
+      <a class="btn btn--light btn--lg btn--block" href="carte" data-set-mode="plage">Livré sur la plage</a>
+      <a class="btn btn--ghost btn--lg btn--block" href="carte" data-set-mode="shop">Je passe au shop</a>
     </div>
   </div>
   <main id="contenu">
@@ -58,13 +62,18 @@
         <div>
           <p class="kicker">Le shop</p>
           <h1 class="h1">Passe nous voir</h1>
-          <p class="lead">Un coffee shop à l’esprit californien, posé à Sainte-Anne, à 5 minutes à pied de la plage de la Caravelle.</p>
-          <div class="actions" style="margin-top:32px">
+          <p class="lead">Un coffee shop à l’esprit californien, posé à Durivage, Sainte-Anne, à 5 minutes à pied de la plage de la Caravelle.</p>
+          <p class="visit__proof"><i data-picto="star"></i><span data-proof>2 300+ personnes nous suivent déjà sur Instagram</span></p>
+          <div class="actions" style="margin-top:28px">
             <a class="btn btn--lg" data-directions href="#" target="_blank" rel="noopener"><i data-icon="route"></i> Itinéraire</a>
-            <a class="btn btn--ghost btn--lg" href="carte">La carte</a>
+            <a class="btn btn--ghost btn--lg" href="carte" data-set-mode="shop">Commander à emporter</a>
           </div>
         </div>
-        <div class="visit__art" data-shop-vignette></div>
+        <div class="collage" aria-hidden="true">
+          <figure class="collage__a photo"><img src="assets/photos/espresso.webp" alt="" width="900" height="930" decoding="async"></figure>
+          <figure class="collage__b photo"><img src="assets/photos/merch-portant.webp" alt="" width="1022" height="1000" decoding="async"></figure>
+          <div class="collage__sticker sticker"><svg viewBox="0 0 728 584"><use href="assets/brand.svg#st-head"/></svg></div>
+        </div>
       </div>
     </section>
 
@@ -84,7 +93,8 @@
           <p class="kicker reveal">L’esprit Ady</p>
           <h2 class="h2 reveal" id="titre-esprit">Californie, version Guadeloupe</h2>
           <p class="lead reveal">Des boissons glacées généreuses, du bon café et une carte pensée pour le soleil.</p>
-          <p class="reveal">Ady, c’est l’envie d’un coffee shop qui a le goût des matins de la West Coast&nbsp;: un iced latte bien frais, un matcha qui réveille, un cookie pour accompagner, et la mer à deux pas. On prend le temps de bien faire les choses, et on te les apporte jusque sur le sable.</p>
+          <p class="reveal">Ady, c’est l’envie d’un coffee shop qui a le goût des matins de la West Coast&nbsp;: un iced latte bien frais, un matcha qui réveille, une citronnade gwozey, un club sandwich à midi, et la mer à deux pas. On prend le temps de bien faire les choses, et on te les apporte jusque sur le sable.</p>
+          <div class="actions reveal" style="margin-top:26px"><a class="btn" href="carte" data-set-mode="shop">Commander, je passe la chercher <i data-icon="arrow" class="icon--arrow"></i></a></div>
         </div>
         <div class="map-box reveal" data-shop-map aria-label="Carte du shop et de la plage"></div>
       </div>
@@ -113,6 +123,7 @@
           <h3>Infos</h3>
           <ul>
             <li><a href="cgv">Conditions de vente</a></li>
+            <li><a href="admin" rel="nofollow">Espace équipe</a></li>
             <li><a href="mentions-legales">Mentions légales</a></li>
             <li data-insta></li>
           </ul>

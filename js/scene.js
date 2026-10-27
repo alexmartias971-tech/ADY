@@ -334,6 +334,17 @@ function construireSVG() {
   </svg>`;
 }
 
+// Le livreur qui marche sur place (suivi de commande « en route »)
+export function livreurSeul() {
+  let points = '';
+  for (let i = 0; i < 16; i++) points += `<circle cx="${-120 + i * 30}" cy="${8 + (i % 3) * 5}" r="${1.4 + (i % 2)}" fill="#c98f62"/>`;
+  return `<svg class="walker" viewBox="-120 -236 240 262" aria-hidden="true">
+    <rect x="-130" y="0" width="260" height="30" rx="14" fill="${SAND}"/>
+    <g class="walker__ground">${points}${points.replace(/cx="(-?\d+)"/g, (m, x) => `cx="${Number(x) + 480}"`)}</g>
+    ${livreur().replace('class="courier"', 'class="courier is-walking"')}
+  </svg>`;
+}
+
 // Vignette du shop seul (accueil « Passe nous voir », page Le shop)
 export function vignetteShop() {
   return `<svg viewBox="20 196 760 608" preserveAspectRatio="xMidYMid slice" role="img" aria-label="Illustration du coffee shop Ady, avec son auvent rayé, au bord de la plage">
@@ -413,7 +424,9 @@ export function creerScene(conteneur, { mode = 'scroll', onEtape } = {}) {
     wrap.style.opacity = visible ? 1 : 0;
     wrap.setAttribute('transform', `translate(${pt.x.toFixed(1)} ${pt.y.toFixed(1)}) scale(1.08)`);
 
-    const cam = Math.min(W - vbW, Math.max(camMin, pt.x - vbW * ancre));
+    let cam = Math.min(W - vbW, Math.max(camMin, pt.x - vbW * ancre));
+    // en portrait, la bulle « nouvelle commande » doit rester entière à l'écran
+    if (ancre < 0.5 && p < 0.22) cam = Math.min(W - vbW, Math.max(cam, 752 - vbW));
     svgEl.setAttribute('viewBox', `${cam.toFixed(1)} ${Y0} ${vbW.toFixed(1)} ${VH}`);
     far.setAttribute('transform', `translate(${(cam * 0.82).toFixed(1)} 0)`);
     mid.setAttribute('transform', `translate(${(cam * 0.5).toFixed(1)} 0)`);

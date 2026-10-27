@@ -1,9 +1,11 @@
-// Fiche produit : grande illustration, description, options, quantité
-import { OPTIONS, prixLigne } from './menu.js';
+// Fiche produit : grande illustration (qui passe en glacé si on choisit « Glacé »),
+// description, options, taille, quantité
+import { prixUnitaire, choixParDefaut, enService, plageSale, catalogue } from './data.js';
+import { panier } from './cart.js';
 import { illustration } from './illustrations.js';
 import { icon } from './icons.js';
 import { $, euro, esc } from './utils.js';
-import { ajouter } from './produits.js';
+import { ajouter, ton } from './produits.js';
 
 let sheet = null;
 let produit = null;
@@ -27,6 +29,7 @@ function creer() {
         <p data-desc></p>
         <p class="price sheet__price" data-prix></p>
         <div data-options></div>
+        <p class="form-error" data-alerte hidden></p>
       </div>
       <div class="sheet__foot">
         <div class="stepper" data-stepper>
@@ -39,7 +42,10 @@ function creer() {
     </form>`;
   document.body.appendChild(sheet);
   const form = $('[data-form]', sheet);
-  form.addEventListener('change', maj);
+  form.addEventListener('change', (e) => {
+    if (e.target.name === 'temperature') dessiner();
+    maj();
+  });
   $('[data-stepper]', sheet).addEventListener('click', (e) => {
     const b = e.target.closest('[data-q]');
     if (!b) return;
@@ -48,47 +54,79 @@ function creer() {
   });
   form.addEventListener('submit', (e) => {
     e.preventDefault();
-    ajouter(produit, choix(), qty, $('[data-art]', sheet));
+    const { opts, vid } = selection();
+    if (produit.variantes.length && !vid) {
+      montrer('Choisis ta taille.');
+      return;
+    }
+    ajouter(produit, opts, vid, qty, $('[data-art]', sheet));
     fermerFiche();
   });
   sheet.addEventListener('click', (e) => { if (e.target.closest('[data-close]')) fermerFiche(); });
   document.addEventListener('keydown', (e) => { if (e.key === 'Escape' && !sheet.hidden) fermerFiche(); });
 }
 
-function choix() {
+function montrer(msg) {
+  const a = $('[data-alerte]', sheet);
+  a.textContent = msg;
+  a.hidden = !msg;
+}
+
+function selection() {
   const data = new FormData($('[data-form]', sheet));
-  const c = {};
-  for (const g of produit.options || []) c[g] = data.get(g);
-  return c;
+  const opts = produit.groupes.map((g) => data.get(g.id)).filter(Boolean);
+  const vid = data.get('taille') || null;
+  return { opts, vid };
+}
+
+function estGlaceChoisi() {
+  const v = new FormData($('[data-form]', sheet)).get('temperature');
+  return v ? /^glac/i.test(catalogue.choix[v]?.label || '') : undefined;
+}
+
+function dessiner() {
+  const art = $('[data-art]', sheet);
+  art.innerHTML = illustration(produit, { glace: estGlaceChoisi() });
 }
 
 function maj() {
-  const unit = prixLigne(produit, choix());
+  const { opts } = selection();
   $('[data-qte]', sheet).textContent = qty;
-  $('[data-submit]', sheet).textContent = `Ajouter · ${euro(unit * qty)}`;
+  $('[data-submit]', sheet).textContent = `Ajouter · ${euro(prixUnitaire(produit.id, opts) * qty)}`;
+  montrer('');
 }
 
 export function ouvrirFiche(p) {
   if (!sheet) creer();
-  if (p.dispo === false) return;
+  if (p.epuise) return;
   produit = p;
   qty = 1;
   focusAvant = document.activeElement;
-  const tons = { iced: 'var(--sky)', hot: 'var(--peach)', matcha: 'var(--sage)', fresh: 'var(--sun)', food: 'var(--sand)' };
-  $('[data-art]', sheet).style.setProperty('--tone', tons[p.cat] || 'var(--sand)');
-  $('[data-art]', sheet).innerHTML = p.photo ? `<img src="${esc(p.photo)}" alt="">` : illustration(p);
+  $('[data-art]', sheet).style.setProperty('--tone', ton(p));
   $('[data-titre]', sheet).textContent = p.nom;
   $('[data-desc]', sheet).textContent = p.desc;
+  $('[data-desc]', sheet).hidden = !p.desc;
   $('[data-prix]', sheet).textContent = euro(p.prix);
-  $('[data-options]', sheet).innerHTML = (p.options || []).map((g) => {
-    const def = OPTIONS[g];
-    return `<fieldset class="opt-group"><legend>${esc(def.label)}</legend><div class="choices">${def.choix
-      .map((c, i) => `<label class="choice"><input type="radio" name="${g}" value="${c.id}"${i === 0 ? ' checked' : ''}><span>${esc(c.label)}${c.prix ? ` <small>+${euro(c.prix)}</small>` : ''}</span></label>`)
+  const defauts = choixParDefaut(p);
+  const groupes = p.groupes.map((g, gi) => {
+    // sur la plage, on propose d'abord la version glacée
+    let coche = defauts[gi];
+    if (g.id === 'temperature' && panier.mode === 'plage') coche = (g.choix.find((c) => /^glac/i.test(c.label)) || g.choix[0]).id;
+    return `<fieldset class="opt-group"><legend>${esc(g.nom)}</legend><div class="choices">${g.choix
+      .map((c) => `<label class="choice"><input type="radio" name="${g.id}" value="${c.id}"${c.id === coche ? ' checked' : ''}><span>${esc(c.label)}${c.delta ? ` <small>+${euro(c.delta)}</small>` : ''}</span></label>`)
       .join('')}</div></fieldset>`;
   }).join('');
+  const tailles = p.variantes.length ? `<fieldset class="opt-group"><legend>Taille</legend><div class="choices">${p.variantes
+    .map((v) => `<label class="choice${v.epuise ? ' is-off' : ''}"><input type="radio" name="taille" value="${v.id}"${v.epuise ? ' disabled' : ''}><span>${esc(v.label)}${v.epuise ? ' <small>épuisé</small>' : ''}</span></label>`)
+    .join('')}</div></fieldset>` : '';
+  $('[data-options]', sheet).innerHTML = tailles + groupes;
+  dessiner();
+  const fermeHeure = !enService(p);
+  $('[data-submit]', sheet).disabled = fermeHeure;
   sheet.hidden = false;
   document.documentElement.style.overflow = 'hidden';
   maj();
+  if (fermeHeure) montrer(`Servi de ${plageSale()} : reviens un peu plus tard !`);
   setTimeout(() => $('[data-submit]', sheet).focus({ preventScroll: true }), 60);
 }
 

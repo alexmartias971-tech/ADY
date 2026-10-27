@@ -1,42 +1,59 @@
-// Éléments communs à toutes les pages : en-tête, menu mobile, textes pilotés
-// par config.js, statut d'ouverture, panier, apparitions au défilement.
+// Éléments communs à toutes les pages : en-tête, menu mobile, statut d'ouverture,
+// panier, suivi de commande, apparitions au défilement, effet 3D.
 import { CONFIG } from './config.js';
-import { trouverProduit } from './menu.js';
+import { chargerCatalogue, catalogue } from './data.js';
 import { illustration, defsGlobales } from './illustrations.js';
-import { panier } from './cart.js';
+import { panier, nettoyerPanier } from './cart.js';
 import { etatOuverture, JOURS, heure } from './horaires.js';
 import { icon, hydrateIcons } from './icons.js';
-import { $, $$, euro, euroCourt, esc, minusculeInitiale } from './utils.js';
+import { $, $$, euro, euroCourt, esc, minusculeInitiale, toast, pointeurFin, reduceMotion } from './utils.js';
 import { initCheckout, ouvrirPanneau } from './checkout.js';
 
-export function initUI() {
+export async function initUI() {
   document.documentElement.classList.remove('no-js');
   document.body.insertAdjacentHTML('afterbegin', defsGlobales());
-
-  // Textes issus de la configuration
-  $$('[data-min-order]').forEach((el) => (el.textContent = euroCourt(CONFIG.commandeMinimum)));
-  $$('[data-delay]').forEach((el) => (el.textContent = CONFIG.delaiLivraison));
-  $$('[data-zone-name]').forEach((el) => (el.textContent = minusculeInitiale(CONFIG.zone.nom)));
-  $$('[data-address]').forEach((el) => (el.textContent = CONFIG.adresse));
-  $$('[data-directions]').forEach((el) => (el.href = CONFIG.lienItineraire));
-  $$('[data-year]').forEach((el) => (el.textContent = new Date().getFullYear()));
-  $$('[data-fees]').forEach((el) => {
-    el.textContent = CONFIG.fraisLivraison
-      ? `Elle coûte ${euro(CONFIG.fraisLivraison)}, ajoutés au total de ta commande.`
-      : 'Non, elle est offerte dès le minimum de commande.';
-  });
-  $$('[data-ill]').forEach((el) => {
-    const p = trouverProduit(el.dataset.ill);
-    if (p) el.innerHTML = illustration(p);
-  });
-
   hydrateIcons();
   initEntete();
   initStatut();
   initContact();
   initReveal();
+  textes();
+
+  try {
+    await chargerCatalogue();
+    nettoyerPanier();
+  } catch (e) {
+    console.error(e);
+    toast('La carte n’a pas pu se charger. Réessaie dans un instant.');
+  }
+  textes();
+  $$('[data-ill]').forEach((el) => {
+    const p = catalogue.produits.find((x) => x.nom === el.dataset.ill);
+    if (p) el.innerHTML = illustration(p, { glace: el.dataset.glace ? el.dataset.glace === '1' : undefined });
+  });
   initPanier();
   initCheckout();
+  initModes();
+  initTilt();
+}
+
+// Textes issus de la configuration et des réglages du back-office
+function textes() {
+  const min = Number(catalogue.reglages.beach_min ?? CONFIG.commandeMinimum);
+  $$('[data-min-order]').forEach((el) => (el.textContent = euroCourt(min)));
+  $$('[data-delay]').forEach((el) => (el.textContent = CONFIG.delaiLivraison));
+  $$('[data-zone-name]').forEach((el) => (el.textContent = minusculeInitiale(CONFIG.zone.nom)));
+  $$('[data-address]').forEach((el) => (el.textContent = CONFIG.adresse));
+  $$('[data-directions]').forEach((el) => (el.href = CONFIG.lienItineraire));
+  $$('[data-year]').forEach((el) => (el.textContent = new Date().getFullYear()));
+  $$('[data-insta-link]').forEach((el) => { el.href = CONFIG.instagram; el.hidden = !CONFIG.instagram; });
+  $$('[data-insta-pseudo]').forEach((el) => (el.textContent = CONFIG.instagramPseudo || 'Instagram'));
+  $$('[data-proof]').forEach((el) => { el.textContent = CONFIG.preuveSociale || ''; el.hidden = !CONFIG.preuveSociale; });
+  $$('[data-fees]').forEach((el) => {
+    el.textContent = CONFIG.fraisLivraison
+      ? `Elle coûte ${euro(CONFIG.fraisLivraison)}, ajoutés au total de ta commande.`
+      : 'Non, elle est offerte dès le minimum de commande.';
+  });
 }
 
 /* ── En-tête & menu mobile ───────────────────────────────── */
@@ -45,6 +62,8 @@ function initEntete() {
   const onScroll = () => header.classList.toggle('is-scrolled', window.scrollY > 24);
   onScroll();
   window.addEventListener('scroll', onScroll, { passive: true });
+  // pastille « commande en cours »
+  $('.site-header__actions')?.insertAdjacentHTML('afterbegin', '<button class="track-pill" type="button" data-track-pill hidden></button>');
 
   const burger = $('[data-burger]');
   const menu = $('#mobile-menu');
@@ -84,18 +103,18 @@ function initStatut() {
   setInterval(maj, 60000);
 }
 
-/* ── Liens de contact (selon ce qui est renseigné) ─────────── */
+/* ── Liens de contact ─────────────────────────────────────── */
 function initContact() {
   const liens = [];
   if (CONFIG.telephone) liens.push(`<a class="btn btn--sm" href="tel:${CONFIG.telephone.replace(/[^\d+]/g, '')}">${icon('phone')} ${esc(CONFIG.telephone)}</a>`);
   if (CONFIG.whatsapp) liens.push(`<a class="btn btn--sm btn--dark" href="https://wa.me/${CONFIG.whatsapp}" target="_blank" rel="noopener">${icon('chat')} WhatsApp</a>`);
-  if (CONFIG.instagram) liens.push(`<a class="btn btn--sm btn--dark" href="${esc(CONFIG.instagram)}" target="_blank" rel="noopener">${icon('insta')} Instagram</a>`);
+  if (CONFIG.instagram) liens.push(`<a class="btn btn--sm btn--dark" href="${esc(CONFIG.instagram)}" target="_blank" rel="noopener">${icon('insta')} ${esc(CONFIG.instagramPseudo || 'Instagram')}</a>`);
   $$('[data-contact]').forEach((el) => {
-    el.innerHTML = liens.length ? liens.join('') : '<p class="muted" style="margin:0">Passe directement au shop, ou commande en ligne si tu es sur la plage.</p>';
+    el.innerHTML = liens.length ? liens.join('') : '<p class="muted" style="margin:0">Passe directement au shop, ou commande en ligne.</p>';
   });
   $$('[data-insta]').forEach((el) => {
-    el.innerHTML = CONFIG.instagram ? `<a href="${esc(CONFIG.instagram)}" target="_blank" rel="noopener">Instagram</a>` : '';
-    if (!CONFIG.instagram) el.remove();
+    if (CONFIG.instagram) el.innerHTML = `<a href="${esc(CONFIG.instagram)}" target="_blank" rel="noopener">Instagram ${esc(CONFIG.instagramPseudo || '')}</a>`;
+    else el.remove();
   });
 }
 
@@ -114,7 +133,7 @@ export function initReveal(root = document) {
   }
   $$('.reveal:not(.is-in)', root).forEach((el) => {
     const freres = [...el.parentElement.children].filter((c) => c.classList.contains('reveal'));
-    el.style.setProperty('--delay', `${Math.min(freres.indexOf(el), 5) * 0.09}s`);
+    el.style.setProperty('--delay', `${Math.min(freres.indexOf(el), 5) * 0.08}s`);
     revealObs.observe(el);
   });
 }
@@ -127,17 +146,53 @@ export function pauserHorsEcran(els) {
   els.forEach((el) => pauseObs.observe(el));
 }
 
+/* ── Effet 3D : les cartes s'inclinent sous la souris ─────── */
+export function initTilt(root = document) {
+  if (!pointeurFin() || reduceMotion()) return;
+  $$('[data-tilt]:not([data-tilt-on])', root).forEach((el) => {
+    el.dataset.tiltOn = '1';
+    el.addEventListener('pointermove', (e) => {
+      const r = el.getBoundingClientRect();
+      const x = (e.clientX - r.left) / r.width - 0.5;
+      const y = (e.clientY - r.top) / r.height - 0.5;
+      el.style.setProperty('--tx', `${(-y * 10).toFixed(2)}deg`);
+      el.style.setProperty('--ty', `${(x * 12).toFixed(2)}deg`);
+      el.style.setProperty('--gx', `${((x + 0.5) * 100).toFixed(0)}%`);
+      el.style.setProperty('--mx', x.toFixed(3));
+      el.style.setProperty('--my', y.toFixed(3));
+      el.style.setProperty('--gy', `${((y + 0.5) * 100).toFixed(0)}%`);
+      el.classList.add('is-tilting');
+    });
+    el.addEventListener('pointerleave', () => {
+      el.classList.remove('is-tilting');
+      el.style.setProperty('--tx', '0deg');
+      el.style.setProperty('--ty', '0deg');
+      el.style.setProperty('--mx', '0');
+      el.style.setProperty('--my', '0');
+    });
+  });
+}
+
+/* ── Liens « livré sur la plage » / « je passe au shop » ──── */
+function initModes() {
+  document.addEventListener('click', (e) => {
+    const a = e.target.closest('[data-set-mode]');
+    if (a) panier.setMode(a.dataset.setMode);
+  });
+}
+
 /* ── Panier : compteurs, barre mobile ─────────────────────── */
 function initPanier() {
   document.body.insertAdjacentHTML('beforeend', `<button class="cartbar" type="button" data-cartbar data-open-cart hidden>
       <span class="cartbar__count" data-cart-count>0</span>
-      <span class="cartbar__label">Mon panier</span>
+      <span class="cartbar__label">Mon panier<small data-cartbar-mode></small></span>
       <span class="cartbar__total" data-cart-total>0,00 €</span>
     </button>`);
   const maj = () => {
     const n = panier.nb();
     $$('[data-cart-count]').forEach((el) => (el.textContent = n));
     $$('[data-cart-total]').forEach((el) => (el.textContent = euro(panier.sousTotal())));
+    $$('[data-cartbar-mode]').forEach((el) => (el.textContent = panier.mode === 'plage' ? 'Livré sur la plage' : 'Retrait au shop'));
     $('[data-cartbar]').hidden = n === 0;
   };
   panier.onChange(maj);

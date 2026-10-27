@@ -1,73 +1,56 @@
-// Panier, sauvegardé dans le navigateur (localStorage)
-import { OPTIONS, trouverProduit, prixLigne } from './menu.js';
+// Panier (gardé dans le navigateur) + mode de commande : « plage » ou « shop »
+import { trouverProduit, prixUnitaire, catalogue } from './data.js';
 
-const KEY = 'ady-panier-v1';
+const KEY = 'ady-panier-v3';
+const KEY_MODE = 'ady-mode';
 const abonnes = new Set();
 
-function normaliserChoix(produit, choix = {}) {
-  const out = {};
-  for (const g of produit.options || []) {
-    const def = OPTIONS[g];
-    out[g] = def.choix.some((c) => c.id === choix[g]) ? choix[g] : def.choix[0].id;
-  }
-  return out;
-}
+const lire = (k, d) => { try { const v = localStorage.getItem(k); return v ? JSON.parse(v) : d; } catch { return d; } };
+const ecrire = (k, v) => { try { localStorage.setItem(k, JSON.stringify(v)); } catch { /* navigation privée */ } };
 
-const cle = (id, choix) => `${id}|${Object.keys(choix).sort().map((k) => `${k}=${choix[k]}`).join(',')}`;
+let lignes = lire(KEY, []);
+let mode = lire(KEY_MODE, 'plage') === 'shop' ? 'shop' : 'plage';
 
-function lire() {
-  try {
-    const v = JSON.parse(localStorage.getItem(KEY) || '[]');
-    if (!Array.isArray(v)) return [];
-    return v.filter((l) => {
-      const p = trouverProduit(l.id);
-      return p && p.dispo !== false && Number.isInteger(l.qty) && l.qty > 0;
-    }).map((l) => {
-      const p = trouverProduit(l.id);
-      const choix = normaliserChoix(p, l.choix);
-      return { cle: cle(l.id, choix), id: l.id, choix, qty: Math.min(l.qty, 20) };
-    });
-  } catch {
-    return [];
-  }
-}
+const cle = (pid, opts, vid) => `${pid}|${[...opts].sort().join(',')}|${vid || ''}`;
+const prevenir = () => abonnes.forEach((fn) => fn());
+function sauver() { ecrire(KEY, lignes); prevenir(); }
 
-let lignes = lire();
-
-function changer() {
-  try { localStorage.setItem(KEY, JSON.stringify(lignes)); } catch { /* navigation privée : tant pis */ }
-  abonnes.forEach((fn) => fn());
+// Une fois la carte chargée : on retire ce qui n'existe plus ou n'est plus en vente
+export function nettoyerPanier() {
+  const avant = lignes.length;
+  lignes = lignes.filter((l) => {
+    const p = trouverProduit(l.pid);
+    return p && !p.epuise && l.opts.every((id) => catalogue.choix[id]) && (!p.variantes.length || p.variantes.some((v) => v.id === l.vid && !v.epuise));
+  });
+  if (lignes.length !== avant) sauver(); else prevenir();
 }
 
 export const panier = {
-  lignes: () => lignes,
-  ajouter(id, choix = {}, qty = 1) {
-    const p = trouverProduit(id);
-    if (!p || p.dispo === false) return;
-    const c = normaliserChoix(p, choix);
-    const k = cle(id, c);
-    const ligne = lignes.find((l) => l.cle === k);
-    if (ligne) ligne.qty = Math.min(20, ligne.qty + qty);
-    else lignes.push({ cle: k, id, choix: c, qty: Math.min(20, qty) });
-    changer();
+  lignes: () => lignes.filter((l) => trouverProduit(l.pid)),
+  get mode() { return mode; },
+  setMode(m) {
+    mode = m === 'shop' ? 'shop' : 'plage';
+    ecrire(KEY_MODE, mode);
+    prevenir();
+  },
+  ajouter(pid, opts = [], vid = null, qty = 1) {
+    const k = cle(pid, opts, vid);
+    const l = lignes.find((x) => x.cle === k);
+    if (l) l.qty = Math.min(20, l.qty + qty);
+    else lignes.push({ cle: k, pid, opts: [...opts], vid, qty: Math.min(20, qty) });
+    sauver();
   },
   setQty(k, qty) {
-    const ligne = lignes.find((l) => l.cle === k);
-    if (!ligne) return;
-    if (qty <= 0) lignes = lignes.filter((l) => l.cle !== k);
-    else ligne.qty = Math.min(20, qty);
-    changer();
+    const l = lignes.find((x) => x.cle === k);
+    if (!l) return;
+    if (qty <= 0) lignes = lignes.filter((x) => x.cle !== k);
+    else l.qty = Math.min(20, qty);
+    sauver();
   },
-  vider() {
-    lignes = [];
-    changer();
-  },
-  nb: () => lignes.reduce((s, l) => s + l.qty, 0),
-  qtyProduit: (id) => lignes.filter((l) => l.id === id).reduce((s, l) => s + l.qty, 0),
-  prixUnitaire: (l) => prixLigne(trouverProduit(l.id), l.choix),
-  sousTotal() {
-    const t = lignes.reduce((s, l) => s + prixLigne(trouverProduit(l.id), l.choix) * l.qty, 0);
-    return Math.round(t * 100) / 100;
-  },
+  vider() { lignes = []; sauver(); },
+  nb: () => panier.lignes().reduce((s, l) => s + l.qty, 0),
+  qtyProduit: (pid) => lignes.filter((l) => l.pid === pid).reduce((s, l) => s + l.qty, 0),
+  prixLigne: (l) => prixUnitaire(l.pid, l.opts) * l.qty,
+  sousTotal: () => Math.round(panier.lignes().reduce((s, l) => s + prixUnitaire(l.pid, l.opts) * l.qty, 0) * 100) / 100,
   onChange: (fn) => abonnes.add(fn),
 };

@@ -127,119 +127,115 @@ function paille(S, type = 'straw') {
   };
 }
 
-function gobeletGlace(v, label) {
+/* ── Recettes : couleurs des couches (du fond vers la surface), d'après le nom ── */
+const LAIT = '#f1e3cd';
+const CAFE = '#7a4426';
+const MATCHA = '#8db255';
+
+function recette(nom) {
+  const n = nom.toLowerCase();
+  if (/tonic/.test(n)) return { couches: [['#f4c33f', 0.3], ['#eef4e4', 0.36], [MATCHA, 0.34]], graines: true, fruit: '#f4c33f' };
+  if (/mang/.test(n)) return { couches: [['#f6a23b', 0.32], [LAIT, 0.28], [MATCHA, 0.4]], fruit: '#f6a23b' };
+  if (/goyave/.test(n)) return { couches: [['#ee8a8f', 0.32], [LAIT, 0.28], [MATCHA, 0.4]], fruit: '#ee8a8f' };
+  if (/banan/.test(n)) return { couches: [['#f2d16b', 0.32], [LAIT, 0.28], [MATCHA, 0.4]] };
+  if (/matcha/.test(n)) return { couches: [[LAIT, 0.45], [MATCHA, 0.55]], volute: '#b9d287' };
+  if (/ube/.test(n)) return { couches: [[LAIT, 0.4], ['#9a78c6', 0.6]], volute: '#c4adde' };
+  if (/gwozey/.test(n)) return { couches: [[/thé/.test(n) ? '#a8324a' : '#c73d52', 1]], fruit: '#e2475e', fleur: true };
+  if (/maracudja/.test(n)) return { couches: [[/thé/.test(n) ? '#c98a2e' : '#f2b93b', 1]], graines: true, fruit: '#f4c33f' };
+  if (/orange/.test(n)) return { couches: [['#f39a2e', 1]], fruit: '#f39a2e', sansGlace: true };
+  if (/citronnade|citron/.test(n)) return { couches: [['#f3e7a6', 1]], fruit: '#e8d84a', bulles: true };
+  if (/thé glacé/.test(n)) return { couches: [['#c9853a', 1]], fruit: '#e8d84a' };
+  if (/tiramisu/.test(n)) return { couches: [[LAIT, 0.42], [CAFE, 0.34], ['#fff3e0', 0.24]], cacao: true };
+  if (/cacahu/.test(n)) return { couches: [[LAIT, 0.45], ['#b57b45', 0.55]], volute: '#e0b98a' };
+  if (/caramel/.test(n)) return { couches: [[LAIT, 0.5], [CAFE, 0.5]], filet: '#b8692a' };
+  if (/chocolat/.test(n)) return { couches: [['#5e321e', 1]], volute: '#8a5638' };
+  if (/dirty/.test(n)) return { couches: [[LAIT, 0.4], ['#c79a6b', 0.4], [CAFE, 0.2]] };
+  if (/cha[iï]/.test(n)) return { couches: [[LAIT, 0.42], ['#c79a6b', 0.58]], cannelle: true };
+  if (/americano|espresso/.test(n)) return { couches: [['#2e170d', 0.6], ['#4a2614', 0.4]] };
+  if (/vanille/.test(n)) return { couches: [[LAIT, 0.5], [CAFE, 0.5]], volute: '#f4e1b8' };
+  return { couches: [[LAIT, 0.5], [CAFE, 0.5]], volute: '#ead6bd' };
+}
+
+// Couvercle des boissons chaudes, selon la famille
+function couvercle(nom) {
+  const n = nom.toLowerCase();
+  if (/matcha/.test(n)) return { lid: '#8db255', manchon: CREAM };
+  if (/ube/.test(n)) return { lid: '#9a78c6', manchon: CREAM };
+  if (/chocolat/.test(n)) return { lid: '#5e321e', manchon: TERRA };
+  if (/cha[iï]/.test(n)) return { lid: '#c79a6b', manchon: TERRA };
+  if (/thé|infusion/.test(n)) return { lid: '#f4c33f', manchon: TERRA, tag: true };
+  if (/flat|cappuccino/.test(n)) return { lid: TERRA, manchon: CREAM };
+  if (/latte|macchiato/.test(n)) return { lid: CREAM, manchon: TERRA };
+  return { lid: INK, manchon: TERRA };
+}
+
+/* ── Gobelet transparent : couches qui ondulent, glaçons, garnitures ── */
+function gobeletGlace(nom, label) {
+  const r = recette(nom);
   const id = nid('g');
-  const dome = v.style === 'frappe';
-  const S = dome ? 66 : 90;
+  const S = 88;
   const L = liquide(S);
   const surf = { rx: r1(100 - xL(S)), ry: r1(10 - ((S - 58) * 3) / 164) };
-  const fondClair = luminance(v.bas) > 0.6;
-  const logoColor = v.logo || (fondClair ? TERRA : CREAM);
-  let defs = `<clipPath id="${id}l"><path d="${L}"/></clipPath><clipPath id="${id}r"><rect x="122" y="0" width="80" height="240"/></clipPath><clipPath id="${id}s"><rect x="0" y="0" width="200" height="${S + 1}"/></clipPath>
-    <linearGradient id="${id}d" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="${v.haut}"/><stop offset=".38" stop-color="${v.haut}"/><stop offset=".72" stop-color="${v.bas}"/><stop offset="1" stop-color="${v.bas}"/></linearGradient>`;
-  let print = '';
-  let ink = '';
-  let top = '';
-
-  // paille (derrière la face avant)
-  const p = paille(S, v.paille);
-  print += p.print;
-
-  // teinte du plastique
-  print += `<path d="${CUP_BODY}" fill="#fff" fill-opacity=".32"/>`;
-
-  // liquide
-  let liq = '';
-  if (v.style === 'layer') {
-    // deux couches nettes (matcha sur lait) + coulures
-    const B = S + 58;
-    liq += `<path d="${L}" fill="${v.bas}"/>
-      <path d="M30 ${S - 14} H170 V${B} q-10 7 -20 0 t-20 0 t-20 0 t-20 0 t-20 0 t-20 0 t-20 0 V${S - 14}Z" fill="${v.haut}"/>
-      <path d="M70 ${B} q-3 18 2 34 M98 ${B + 2} q4 22 -2 44 M128 ${B} q-2 14 3 26" stroke="${v.haut}" stroke-width="6" stroke-linecap="round" fill="none" opacity=".85"/>
-      <g fill="${shade(v.haut, -0.25)}" opacity=".6"><circle cx="80" cy="${S + 22}" r="2"/><circle cx="112" cy="${S + 34}" r="1.6"/><circle cx="96" cy="${S + 14}" r="1.4"/><circle cx="130" cy="${S + 24}" r="1.8"/></g>`;
-  } else if (v.style === 'latte') {
-    liq += `<path d="${L}" fill="url(#${id}d)"/>
-      <g class="ill-swirl"><path d="M50 ${S + 46} C 70 ${S + 26} 92 ${S + 62} 116 ${S + 40} S 150 ${S + 30} 160 ${S + 48}" stroke="${v.bas}" stroke-width="8" fill="none" opacity=".85" stroke-linecap="round"/>
-      <path d="M58 ${S + 74} C 80 ${S + 58} 104 ${S + 86} 146 ${S + 66}" stroke="${v.bas}" stroke-width="5" fill="none" opacity=".7" stroke-linecap="round"/>
-      <path d="M70 ${S + 22} C 86 ${S + 12} 100 ${S + 30} 124 ${S + 18}" stroke="${shade(v.haut, 0.25)}" stroke-width="4" fill="none" opacity=".8" stroke-linecap="round"/></g>`;
-  } else if (v.style === 'smoothie') {
-    liq += `<path d="${L}" fill="url(#${id}d)"/><path d="${L}" fill="url(#htl)" opacity=".25"/>`;
-    const rand = rng(31);
-    for (let i = 0; i < 26; i++) liq += `<ellipse cx="${r1(56 + rand() * 88)}" cy="${r1(S + 8 + rand() * 120)}" rx="1.8" ry="1.2" fill="${INK}" opacity=".75"/>`;
-  } else {
-    liq += `<path d="${L}" fill="url(#${id}d)"/>`;
+  const H = 222 - S;
+  // couches empilées depuis le fond, avec une frontière ondulée
+  let y = 222;
+  let couches = '';
+  r.couches.forEach(([c, k], i) => {
+    const h = H * k;
+    y -= h;
+    const haut = i === r.couches.length - 1 ? S - 14 : y;
+    couches += `<path d="M30 ${r1(haut + 3)} q12.5 -6 25 0 t25 0 t25 0 t25 0 t25 0 t25 0 V${r1(y + h + 4)} H30Z" fill="${c}"/>`;
+  });
+  const top = r.couches[r.couches.length - 1][0];
+  const fond = r.couches.find((_, i) => { let yy = 222; for (let j = 0; j <= i; j++) yy -= H * r.couches[j][1]; return yy < 175; })?.[0] || top;
+  const logoColor = luminance(fond) > 0.6 ? TERRA : CREAM;
+  const defs = `<clipPath id="${id}l"><path d="${L}"/></clipPath><clipPath id="${id}r"><rect x="122" y="0" width="80" height="240"/></clipPath><clipPath id="${id}s"><rect x="0" y="0" width="200" height="${S + 1}"/></clipPath>`;
+  const p = paille(S, r.cannelle ? 'cinnamon' : 'straw');
+  let liq = couches;
+  if (r.volute) liq += `<g class="ill-swirl"><path d="M50 ${S + 54} C 70 ${S + 34} 92 ${S + 70} 116 ${S + 48} S 150 ${S + 38} 160 ${S + 56}" stroke="${r.volute}" stroke-width="7" fill="none" opacity=".85" stroke-linecap="round"/></g>`;
+  if (r.filet) liq += `<path d="M54 ${S + 6} q10 26 2 52 q-6 26 8 64 M146 ${S + 4} q-10 30 -2 56 q6 26 -8 60" stroke="${r.filet}" stroke-width="5.5" fill="none" opacity=".9" stroke-linecap="round"/>`;
+  if (r.graines) {
+    const rand = rng(nom.length * 7 + 3);
+    for (let i = 0; i < 18; i++) liq += `<ellipse cx="${r1(58 + rand() * 84)}" cy="${r1(S + 70 + rand() * 60)}" rx="2.6" ry="1.7" fill="${INK}" opacity=".85"/>`;
   }
-  if (v.style === 'limonade') {
-    liq += `<g opacity=".95"><circle cx="78" cy="${S + 64}" r="17" fill="#cfe27a"/><circle cx="78" cy="${S + 64}" r="12.5" fill="#e9f3b5"/><path d="M78 ${S + 52} V${S + 76} M66 ${S + 64} H90 M69.5 ${S + 55.5} l17 17 M86.5 ${S + 55.5} l-17 17" stroke="#b7cf55" stroke-width="2.2"/>
-      <path d="M112 ${S + 92} q14 -16 28 -6 q-12 16 -28 6z" fill="#5f9a3a"/><path d="M104 ${S + 40} q10 -14 24 -8 q-10 14 -24 8z" fill="#6fa944"/></g>`;
-    top += [0, 1, 2, 3].map((i) => `<circle class="ill-bubble" style="animation-delay:${i * 0.6}s" cx="${70 + i * 16}" cy="${S + 110}" r="${2 + (i % 2)}" fill="#fff" opacity=".8"/>`).join('');
-  }
-  if (v.filet) liq += `<path d="M54 ${S + 6} q10 26 2 52 q-6 26 8 64 M146 ${S + 4} q-10 30 -2 56 q6 26 -8 60 M100 ${S + 2} q6 20 -2 40" stroke="${v.filet}" stroke-width="5.5" fill="none" opacity=".9" stroke-linecap="round"/>`;
-
-  // glaçons immergés
-  const ices = [];
-  if (v.glace !== false) {
-    ices.push(glacon(80, S + 18, 26, 22, 0.38), glacon(108, S + 40, 24, -10, 0.34));
-  }
-  print += `<g clip-path="url(#${id}l)">${liq}${ices.map((i) => i.print).join('')}
-    <path d="${L}" fill="url(#ht)" opacity=".17" clip-path="url(#${id}r)"/>
-    <path d="${L}" fill="url(#gr-d)" opacity=".55"/></g>`;
-  // surface
-  print += `<ellipse cx="100" cy="${S}" rx="${surf.rx}" ry="${surf.ry}" fill="${shade(v.haut, 0.12)}"/><ellipse cx="86" cy="${S - 1.5}" rx="18" ry="2.6" fill="#fff" opacity=".35"/>`;
-  // logo imprimé sur le gobelet
-  print += logo(69, 150, 62, logoColor);
-
-  ink += ices.map((i) => i.ink).join('');
-  ink += `<g clip-path="url(#${id}s)">${p.ink}</g>`;
-
-  // glaçons qui dépassent
-  if (v.glace !== false && !dome) {
+  if (r.bulles) liq += [0, 1, 2, 3].map((i) => `<circle class="ill-bubble" style="animation-delay:${i * 0.6}s" cx="${70 + i * 16}" cy="${S + 110}" r="${2 + (i % 2)}" fill="#fff" opacity=".85"/>`).join('');
+  if (r.fleur) liq += `<g opacity=".9" transform="translate(84 ${S + 70})"><path d="M0 -12 q8 -10 14 0 q10 6 0 14 q4 12 -10 10 q-10 8 -12 -4 q-12 -4 -2 -14 q-2 -12 10 -6z" fill="#e2475e"/><circle r="3.5" fill="#f4c33f"/></g>`;
+  const ices = r.sansGlace ? [] : [glacon(80, S + 18, 26, 22, 0.38), glacon(108, S + 40, 24, -10, 0.34)];
+  let print = `${p.print}<path d="${CUP_BODY}" fill="#fff" fill-opacity=".32"/>
+    <g clip-path="url(#${id}l)">${liq}${ices.map((i) => i.print).join('')}
+      <path d="${L}" fill="url(#ht)" opacity=".17" clip-path="url(#${id}r)"/>
+      <path d="${L}" fill="url(#gr-d)" opacity=".55"/></g>
+    <ellipse cx="100" cy="${S}" rx="${surf.rx}" ry="${surf.ry}" fill="${shade(top, 0.12)}"/><ellipse cx="86" cy="${S - 1.5}" rx="18" ry="2.6" fill="#fff" opacity=".35"/>
+    ${logo(69, 150, 62, logoColor)}`;
+  if (r.cacao) print += `<g fill="#5b3020">${[[66, S - 2], [84, S - 5], [104, S - 1], [122, S - 4], [94, S + 3], [134, S]].map(([a, b]) => `<circle cx="${a}" cy="${b}" r="2.2"/>`).join('')}</g>`;
+  let ink = ices.map((i) => i.ink).join('') + `<g clip-path="url(#${id}s)">${p.ink}</g>`;
+  if (!r.sansGlace) {
     const hautG = [glacon(62, S - 22, 30, -14, 0.8), glacon(100, S - 18, 28, 12, 0.8)];
     print += hautG.map((i) => i.print).join('');
     ink += hautG.map((i) => i.ink).join('');
   }
-
-  ink += `<ellipse cx="100" cy="${S}" rx="${surf.rx}" ry="${surf.ry}" stroke-width="2.6" opacity=".55"/>`;
-  ink += `<ellipse cx="100" cy="58" rx="58" ry="10"/><path d="${CUP_FRONT}"/><path d="M63 214 A37 6 0 0 0 137 214" stroke-width="2.4" opacity=".35"/>`;
-
-  if (dome) {
-    defs += `<clipPath id="${id}dm"><path d="M40 60 Q44 8 100 6 Q156 8 160 60 Z"/></clipPath>`;
-    print += `<path d="M40 60 Q44 8 100 6 Q156 8 160 60 Z" fill="#fff" fill-opacity=".35"/>
-      <g clip-path="url(#${id}dm)"><g class="ill-float-soft"><path d="M50 62 C46 44 62 38 72 42 C70 26 88 20 98 28 C104 14 126 18 126 32 C142 30 152 44 146 62 Z" fill="#fffaf2"/>
-      <path d="M50 62 C46 44 62 38 72 42 C70 26 88 20 98 28 C104 14 126 18 126 32 C142 30 152 44 146 62 Z" fill="url(#ht)" opacity=".1"/>
-      <path d="M58 48 q8 7 16 0 t16 0 t16 0 t16 0 t14 2" stroke="${v.filet || TERRA}" stroke-width="5" fill="none" stroke-linecap="round"/></g></g>`;
-    ink += `<path d="M40 60 Q44 8 100 6 Q156 8 160 60"/><path d="M58 48 C60 40 70 38 76 42 M96 30 C100 24 110 22 118 28" stroke-width="2.6" opacity=".5"/>`;
-    ink += `<path d="M135 2.5 L129 30 M145 3.5 L139 30 M135 2.5 L145 3.5" stroke-width="3.2"/>`;
-    print += `<path d="M134 30 L140 3" stroke="${TERRA}" stroke-width="10"/><path d="M134 30 L140 3" stroke="${CREAM}" stroke-width="10" stroke-dasharray="6 9"/>`;
-  }
-
-  // reflets + gouttes de condensation
-  top += `<path d="M53 78 L65 206" stroke="#fff" stroke-width="5" stroke-linecap="round" opacity=".7"/><path d="M60 82 L62.5 108" stroke="#fff" stroke-width="2.5" stroke-linecap="round" opacity=".9"/>`;
-  top += gouttes(String(label).length * 13 + 5, { x: 72, y: 110, w: 70, h: 90 });
-
-  if (v.fruit) {
-    top += `<g class="ill-float-soft" transform="rotate(-20 158 56)">
-      <path d="M136 56 A22 22 0 0 1 180 56 Z" fill="${v.fruit}" stroke="${INK}" stroke-width="4" transform="translate(1.5 1.2)"/>
+  ink += `<ellipse cx="100" cy="${S}" rx="${surf.rx}" ry="${surf.ry}" stroke-width="2.6" opacity=".55"/><ellipse cx="100" cy="58" rx="58" ry="10"/><path d="${CUP_FRONT}"/><path d="M63 214 A37 6 0 0 0 137 214" stroke-width="2.4" opacity=".35"/>`;
+  let topL = `<path d="M53 78 L65 206" stroke="#fff" stroke-width="5" stroke-linecap="round" opacity=".7"/><path d="M60 82 L62.5 108" stroke="#fff" stroke-width="2.5" stroke-linecap="round" opacity=".9"/>${gouttes(nom.length * 13 + 5, { x: 72, y: 110, w: 70, h: 90 })}`;
+  if (r.fruit) {
+    topL += `<g class="ill-float-soft" transform="rotate(-20 158 56)">
+      <path d="M136 56 A22 22 0 0 1 180 56 Z" fill="${r.fruit}" stroke="${INK}" stroke-width="4" transform="translate(1.5 1.2)"/>
       <path d="M136 56 A22 22 0 0 1 180 56 Z" fill="none" stroke="${INK}" stroke-width="4"/>
-      <path d="M142 56 A16 16 0 0 1 174 56" fill="${shade(v.fruit, 0.45)}"/>
-      <path d="M158 56 V42 M158 56 L147 46 M158 56 L169 46" stroke="${shade(v.fruit, -0.2)}" stroke-width="2"/></g>`;
+      <path d="M142 56 A16 16 0 0 1 174 56" fill="${shade(r.fruit, 0.45)}"/>
+      ${r.graines ? `<g fill="${INK}"><circle cx="150" cy="50" r="1.8"/><circle cx="158" cy="46" r="1.8"/><circle cx="166" cy="51" r="1.8"/></g>` : `<path d="M158 56 V42 M158 56 L147 46 M158 56 L169 46" stroke="${shade(r.fruit, -0.2)}" stroke-width="2"/>`}</g>`;
   }
-
-  return svg(label, { defs, back: ombre(100, 228, 56, 7), print, ink, top });
+  return svg(label, { defs, back: ombre(100, 228, 56, 7), print, ink, top: topL });
 }
 
 /* ── Gobelet carton (boissons chaudes) ────────────────── */
 const xLh = (y) => 52 + ((y - 74) * 12) / 148;
 
-function gobeletChaud(v, label) {
+function gobeletChaud(nom, label) {
+  const { lid, manchon: sleeve, tag } = couvercle(nom);
   const id = nid('h');
-  const lid = v.couvercle || TERRA;
-  const sleeve = v.manchon || TERRA;
   const body = 'M52 74 L64 222 A36 6 0 0 0 136 222 L148 74 Z';
   const sl = (y1, y2) => `M${r1(xLh(y1))} ${y1} A${r1(100 - xLh(y1))} 6 0 0 0 ${r1(200 - xLh(y1))} ${y1} L${r1(200 - xLh(y2))} ${y2} A${r1(100 - xLh(y2))} 6 0 0 1 ${r1(xLh(y2))} ${y2} Z`;
   const defs = `<clipPath id="${id}b"><path d="${body}"/></clipPath><clipPath id="${id}r"><rect x="118" y="0" width="90" height="240"/></clipPath>`;
-  const print = `
-    <path d="${body}" fill="${PAPER}"/>
+  const print = `<path d="${body}" fill="${PAPER}"/>
     <g clip-path="url(#${id}b)"><path d="${sl(118, 178)}" fill="${sleeve}"/>
       <rect x="40" y="60" width="130" height="170" fill="url(#ht)" opacity=".16" clip-path="url(#${id}r)"/>
       <rect x="40" y="60" width="130" height="170" fill="url(#gr-d)" opacity=".5"/></g>
@@ -247,198 +243,206 @@ function gobeletChaud(v, label) {
     <path d="M46 62 L154 62 L151 76 A51 7 0 0 1 49 76 Z" fill="${lid}"/>
     <path d="M62 62 C64 50 74 46 100 46 C126 46 136 50 138 62 Z" fill="${shade(lid, 0.12)}"/>
     <ellipse cx="100" cy="62" rx="54" ry="9" fill="${shade(lid, 0.06)}"/>
-    <path d="M62 62 C64 50 74 46 100 46 C126 46 136 50 138 62 Z" fill="url(#gr-d)" opacity=".5"/>
-    <ellipse cx="118" cy="51.5" rx="9" ry="3.2" fill="${INK}" opacity=".75"/>`;
-  const ink = `<path d="M52 76 L64 222 A36 6 0 0 0 136 222 L148 76"/>
-    <path d="${sl(118, 178)}" stroke-width="3.2"/>
-    <path d="M123 82 L118 218" stroke-width="2" opacity=".3"/>
-    <path d="M46 62 L49 76 A51 7 0 0 0 151 76 L154 62"/><ellipse cx="100" cy="62" rx="54" ry="9"/>
-    <path d="M62 60 C64 50 74 46 100 46 C126 46 136 50 138 60" stroke-width="3.4"/>`;
-  const top = `${steam([82, 100, 118], 0, 40)}
-    <path d="M60 90 L70 210" stroke="#fff" stroke-width="5" stroke-linecap="round" opacity=".85"/>
-    <path d="M58 66 L70 66" stroke="#fff" stroke-width="3" stroke-linecap="round" opacity=".55"/>`;
+    <ellipse cx="118" cy="51.5" rx="9" ry="3.2" fill="${INK}" opacity=".75"/>
+    ${tag ? `<path d="M140 70 Q150 100 146 120" stroke="${INK}" stroke-width="1.6" fill="none"/><rect x="136" y="118" width="20" height="24" rx="2" fill="#f4c33f"/>` : ''}`;
+  const ink = `<path d="M52 76 L64 222 A36 6 0 0 0 136 222 L148 76"/><path d="${sl(118, 178)}" stroke-width="3.2"/>
+    <path d="M123 82 L118 218" stroke-width="2" opacity=".3"/><path d="M46 62 L49 76 A51 7 0 0 0 151 76 L154 62"/><ellipse cx="100" cy="62" rx="54" ry="9"/>
+    <path d="M62 60 C64 50 74 46 100 46 C126 46 136 50 138 60" stroke-width="3.4"/>${tag ? '<rect x="136" y="118" width="20" height="24" rx="2" stroke-width="2.6"/>' : ''}`;
+  const top = `${steam([82, 100, 118], 0, 40)}<path d="M60 90 L70 210" stroke="#fff" stroke-width="5" stroke-linecap="round" opacity=".85"/>`;
   return svg(label, { defs, back: ombre(100, 228, 50, 7), print, ink, top });
 }
 
-function espresso(v, label) {
+function espresso(nom, label) {
   const id = nid('e');
+  const double = /double/i.test(nom);
   const cup = 'M52 122 C52 168 70 190 100 190 C130 190 148 168 148 122 Z';
   const defs = `<clipPath id="${id}c"><path d="${cup}"/></clipPath><clipPath id="${id}r"><rect x="112" y="0" width="90" height="240"/></clipPath>`;
-  const print = `
-    <ellipse cx="100" cy="194" rx="80" ry="17" fill="${TERRA}"/>
-    <ellipse cx="100" cy="194" rx="80" ry="17" fill="url(#gr-d)" opacity=".5"/>
+  const print = `<ellipse cx="100" cy="194" rx="80" ry="17" fill="${TERRA}"/><ellipse cx="100" cy="194" rx="80" ry="17" fill="url(#gr-d)" opacity=".5"/>
     <ellipse cx="100" cy="190" rx="50" ry="9" fill="${TERRA_D}" opacity=".45"/>
-    <path d="M146 136 C 172 132 174 168 142 170" stroke="${PAPER}" stroke-width="7" fill="none"/>
-    <path d="${cup}" fill="${PAPER}"/>
+    <path d="M146 136 C 172 132 174 168 142 170" stroke="${PAPER}" stroke-width="7" fill="none"/><path d="${cup}" fill="${PAPER}"/>
     <g clip-path="url(#${id}c)"><rect x="40" y="110" width="120" height="90" fill="url(#ht)" opacity=".18" clip-path="url(#${id}r)"/><rect x="40" y="110" width="120" height="90" fill="url(#gr-d)" opacity=".5"/></g>
-    <ellipse cx="100" cy="122" rx="48" ry="10" fill="${PAPER}"/>
-    <ellipse cx="100" cy="123.5" rx="41" ry="7.5" fill="#b8743f"/>
+    <ellipse cx="100" cy="122" rx="48" ry="10" fill="${PAPER}"/><ellipse cx="100" cy="123.5" rx="41" ry="7.5" fill="#b8743f"/>
     <path class="ill-swirl" d="M74 123 C 84 118 96 128 108 122 S 124 120 128 124" stroke="#dca46c" stroke-width="3.4" fill="none" stroke-linecap="round"/>
-    <g fill="#e2b07a"><circle cx="118" cy="126" r="1.6"/><circle cx="84" cy="121" r="1.2"/><circle cx="96" cy="127" r="1.1"/></g>
-    ${logo(84, 146, 32, TERRA)}`;
-  const ink = `<ellipse cx="100" cy="194" rx="80" ry="17"/><path d="M50 196 A50 9 0 0 0 150 196" stroke-width="2.4" opacity=".4"/>
-    <path d="M146 136 C 172 132 174 168 142 170" stroke-width="13" opacity="1"/>
-    <path d="M52 122 C52 168 70 190 100 190 C130 190 148 168 148 122"/><ellipse cx="100" cy="122" rx="48" ry="10"/>
-    <ellipse cx="100" cy="123.5" rx="41" ry="7.5" stroke-width="2.4" opacity=".55"/>`;
-  const top = `<path d="M146 136 C 172 132 174 168 142 170" stroke="${PAPER}" stroke-width="5" fill="none"/>
-    ${steam([88, 110], 50, 104)}
+    ${logo(84, 146, 32, TERRA)}${double ? `<text x="100" y="212" text-anchor="middle" font-family="Big Shoulders Stencil, sans-serif" font-weight="800" font-size="16" fill="${CREAM}">×2</text>` : ''}`;
+  const ink = `<ellipse cx="100" cy="194" rx="80" ry="17"/><path d="M146 136 C 172 132 174 168 142 170" stroke-width="13"/>
+    <path d="M52 122 C52 168 70 190 100 190 C130 190 148 168 148 122"/><ellipse cx="100" cy="122" rx="48" ry="10"/><ellipse cx="100" cy="123.5" rx="41" ry="7.5" stroke-width="2.4" opacity=".55"/>`;
+  const top = `<path d="M146 136 C 172 132 174 168 142 170" stroke="${PAPER}" stroke-width="5" fill="none"/>${steam([88, 110], 50, 104)}
     <path d="M62 136 C62 158 72 174 84 182" stroke="#fff" stroke-width="5" fill="none" stroke-linecap="round" opacity=".85"/>`;
   return svg(label, { defs, back: ombre(100, 214, 70, 6), print, ink, top });
 }
 
-function canette(v, label) {
-  const ice = [glacon(30, 186, 28, -18, 0.85), glacon(144, 192, 24, 14, 0.85)];
-  const print = `<g class="ill-float-soft"><svg x="24" y="6" width="152" height="200" viewBox="0 0 680 800" style="--st-bg:${PAPER};--st-ink:${TERRA}"><use href="${SPRITE}#st-can"/></svg></g>${ice.map((i) => i.print).join('')}`;
-  const ink = ice.map((i) => i.ink).join('');
-  const top = `${gouttes(77, { x: 84, y: 70, w: 50, h: 90 })}<g class="ill-sparkle" fill="${TERRA}"><path d="M172 46 l4 10 10 4 -10 4 -4 10 -4 -10 -10 -4 10 -4z"/><path style="animation-delay:.9s" d="M28 98 l3 8 8 3 -8 3 -3 8 -3 -8 -8 -3 8 -3z"/></g>`;
-  return svg(label, { back: ombre(100, 224, 64, 7), print, ink, top });
+function affogato(nom, label) {
+  const versement = /matcha/i.test(nom) ? MATCHA : '#6b3418';
+  const print = `<path d="M50 120 L62 196 Q64 204 72 204 L128 204 Q136 204 138 196 L150 120 Z" fill="#fff" fill-opacity=".45"/>
+    <path d="M56 150 L62 196 Q64 204 72 204 L128 204 Q136 204 138 196 L144 150 Q100 162 56 150Z" fill="${shade(versement, 0.15)}"/>
+    <path d="M64 124 C60 92 84 76 100 78 C118 76 142 92 136 124 Q100 136 64 124Z" fill="#fff8ec"/>
+    <path d="M64 124 C60 92 84 76 100 78 C118 76 142 92 136 124 Q100 136 64 124Z" fill="url(#ht)" opacity=".1"/>
+    <path d="M100 80 C102 96 92 104 98 120 C100 132 92 140 96 150" stroke="${versement}" stroke-width="9" fill="none" stroke-linecap="round"/>
+    <path d="M72 102 c6 -8 14 -10 20 -6" stroke="#fff" stroke-width="4" fill="none" stroke-linecap="round"/>`;
+  const ink = `<path d="M50 120 L62 196 Q64 204 72 204 L128 204 Q136 204 138 196 L150 120"/><path d="M64 124 C60 92 84 76 100 78 C118 76 142 92 136 124" stroke-width="3.6"/>
+    <path d="M70 32 L100 70" stroke-width="3"/><path d="M58 22 h32 l-4 14 h-24z" stroke-width="3"/>`;
+  const top = `<path d="M58 22 h32 l-4 14 h-24z" fill="#fff6ea"/><path d="M84 36 L98 76" stroke="${versement}" stroke-width="5" stroke-linecap="round"/><path d="M58 22 h32 l-4 14 h-24z" fill="none" stroke="${INK}" stroke-width="3" stroke-linejoin="round"/>`;
+  return svg(label, { back: ombre(100, 214, 54, 6), print, ink, top });
 }
 
-/* ── Douceurs ─────────────────────────────────────────── */
-function cookie(v, label) {
-  const id = nid('k');
-  const back = blob(118, 108, 62, 16, 0.12, 19, null);
-  const front = blob(94, 138, 70, 18, 0.11, 7, { angle: -0.75, width: 0.5, depth: 20 });
-  const rand = rng(11);
-  let chips = '';
-  [[66, 112], [110, 104], [88, 140], [128, 140], [64, 160], [104, 172], [140, 116], [80, 186], [124, 182], [96, 118]].forEach(([x, y]) => {
-    chips += `<path d="${blob(x, y, 5.5 + rand() * 4, 6, 0.45, x * y, null)}" fill="#3e1f12"/>`;
-  });
-  const defs = `<clipPath id="${id}f"><path d="${front}"/></clipPath><clipPath id="${id}b"><path d="${back}"/></clipPath>`;
-  const fond = `${ombre(100, 218, 70, 8)}<g transform="${OFFSET}"><path d="${back}" fill="#c98b4f"/><g clip-path="url(#${id}b)"><rect width="200" height="240" fill="url(#ht)" opacity=".22"/><rect width="200" height="240" fill="url(#gr-d)" opacity=".5"/></g></g>
-    <path d="${back}" fill="none" stroke="${INK}" stroke-width="3.6"/>`;
-  const print = `
-    <path d="${front}" fill="#dca464"/>
-    <g clip-path="url(#${id}f)">
-      <path d="${blob(94, 138, 56, 16, 0.16, 3, null)}" fill="#e8b979" opacity=".7"/>
-      ${chips}
-      <circle cx="130" cy="176" r="70" fill="url(#ht)" opacity=".22"/>
-      <rect width="200" height="240" fill="url(#gr-d)" opacity=".6"/>
+/* ── Le salé ──────────────────────────────────────────── */
+// Grain + trame d'ombre, limités au contour de la forme
+function matiere(d, { trame = 118 } = {}) {
+  const id = nid('m');
+  return {
+    defs: `<clipPath id="${id}"><path d="${d}"/></clipPath>`,
+    calque: `<g clip-path="url(#${id})"><rect width="200" height="240" fill="url(#gr-d)" opacity=".5"/><rect x="${trame}" width="${200 - trame}" height="240" fill="url(#ht)" opacity=".15"/></g>`,
+  };
+}
+function couche(d, fill) { return `<path d="${d}" fill="${fill}"/>`; }
+function vague(x0, x1, y, amp, n) {
+  const pas = (x1 - x0) / n;
+  let d = `M${x0} ${y}`;
+  for (let i = 0; i < n; i++) d += ` q${r1(pas / 2)} ${i % 2 ? amp : -amp} ${r1(pas)} 0`;
+  return d;
+}
+
+function club(nom, label) {
+  const pain = '#f3d6a2';
+  const croute = '#c98e4e';
+  const L = 38, R = 162;
+  const m = matiere(`M${L} 202 V72 Q${L} 46 ${L + 16} 64 H${R - 16} Q${R} 46 ${R} 72 V202Z`);
+  const tranche = (y, h, dome = 0) => `<path d="M${L} ${y + h} L${L} ${y + 8} Q${L} ${y - dome} ${L + 16} ${y} L${R - 16} ${y} Q${R} ${y - dome} ${R} ${y + 8} L${R} ${y + h}Z" fill="${croute}"/><path d="M${L + 6} ${y + h - 4} L${L + 6} ${y + 10} Q${L + 6} ${y + 4 - dome * 0.6} ${L + 18} ${y + 6} L${R - 18} ${y + 6} Q${R - 6} ${y + 4 - dome * 0.6} ${R - 6} ${y + 10} L${R - 6} ${y + h - 4}Z" fill="${pain}"/>`;
+  const print = `${tranche(178, 22)}
+    ${couche(`${vague(L - 6, R + 6, 172, 6, 12)} V182 H${L - 6}Z`, '#7fae4a')}
+    ${couche(`M${L + 2} 158 H${R - 2} V172 H${L + 2}Z`, '#d8433a')}
+    ${couche(`M${L} 140 Q100 132 ${R} 140 V160 H${L}Z`, '#e8b98a')}
+    ${tranche(116, 26)}
+    ${couche(`${vague(L - 4, R + 4, 110, 5, 10)} V120 H${L - 4}Z`, '#b5452f')}
+    ${couche(`${vague(L - 8, R + 8, 100, 6, 12)} V112 H${L - 8}Z`, '#8fbf55')}
+    ${tranche(64, 38, 18)}
+    ${m.calque}`;
+  const ink = `<path d="M${L} 200 V186 Q${L} 178 ${L + 16} 178 H${R - 16} Q${R} 178 ${R} 186 V200Z"/>
+    <path d="M${L} 142 V124 Q${L} 116 ${L + 16} 116 H${R - 16} Q${R} 116 ${R} 124 V142Z"/>
+    <path d="M${L} 102 V72 Q${L} 46 ${L + 16} 64 H${R - 16} Q${R} 46 ${R} 72 V102Z"/>
+    <path d="${vague(L - 6, R + 6, 172, 6, 12)}" stroke-width="2.6"/><path d="${vague(L - 8, R + 8, 100, 6, 12)}" stroke-width="2.6"/>
+    <path d="M100 20 V150" stroke-width="3"/>`;
+  const top = `<path d="M100 20 V150" stroke="#e9c48a" stroke-width="3"/><g class="ill-float-soft"><path d="M100 20 L128 27 L100 34Z" fill="${TERRA}" stroke="${INK}" stroke-width="2.6" stroke-linejoin="round"/></g>`;
+  return svg(label, { defs: m.defs, back: ombre(100, 212, 70, 7), print, ink, top });
+}
+
+function petitPain(nom, label) {
+  const homard = /lobster|homard|langouste/i.test(nom);
+  const pain = '#e7a95a';
+  const m = matiere('M24 148 C20 120 40 108 60 110 L140 110 C160 108 180 120 176 148 C172 176 150 184 100 184 C50 184 28 176 24 148Z');
+  const print = `<path d="M24 148 C20 120 40 108 60 110 L140 110 C160 108 180 120 176 148 C172 176 150 184 100 184 C50 184 28 176 24 148Z" fill="${pain}"/>
+    ${homard
+    ? `<g>${[[50, 104], [70, 98], [92, 102], [114, 96], [136, 102], [154, 108]].map(([x, y], i) => `<path d="M${x - 12} ${y + 10} q2 -18 14 -16 q12 2 10 18z" fill="${i % 2 ? '#f08a6b' : '#f6b28c'}"/>`).join('')}
+       <g fill="#9fc657">${[[60, 112], [100, 110], [140, 112]].map(([x, y]) => `<circle cx="${x}" cy="${y}" r="5"/>`).join('')}</g>
+       <g fill="#4f7a2a"><circle cx="80" cy="100" r="2"/><circle cx="126" cy="98" r="2"/></g>`
+    : `<path d="M16 120 C14 104 30 98 44 100 L156 100 C170 98 186 104 184 120 C182 132 170 136 156 134 L44 134 C30 136 18 132 16 120Z" fill="#b5523a"/>
+       <path d="M36 112 q10 -8 20 0 t20 0 t20 0 t20 0 t20 0 t20 0" stroke="#f4c33f" stroke-width="5" fill="none" stroke-linecap="round"/>
+       <g fill="#7fae4a">${[[58, 106], [96, 104], [134, 106]].map(([x, y]) => `<rect x="${x}" y="${y}" width="10" height="6" rx="2"/>`).join('')}</g>
+       <g fill="#a8642e">${[[46, 98], [72, 96], [110, 95], [146, 97], [88, 99]].map(([x, y]) => `<circle cx="${x}" cy="${y}" r="3"/>`).join('')}</g>`}
+    <path d="M30 140 C40 126 160 126 170 140 C166 160 150 168 100 168 C50 168 34 160 30 140Z" fill="${shade(pain, 0.18)}"/>
+    ${m.calque}`;
+  const ink = `<path d="M24 148 C20 120 40 108 60 110 L140 110 C160 108 180 120 176 148 C172 176 150 184 100 184 C50 184 28 176 24 148Z"/>
+    ${homard ? '' : '<path d="M16 120 C14 104 30 98 44 100 L156 100 C170 98 186 104 184 120 C182 132 170 136 156 134 L44 134 C30 136 18 132 16 120Z" stroke-width="3.4"/>'}
+    <path d="M48 150 q52 10 104 0" stroke-width="2.4" opacity=".4"/>`;
+  return svg(label, { defs: m.defs, back: ombre(100, 196, 80, 8), print, ink });
+}
+
+function wrap(nom, label) {
+  const n = nom.toLowerCase();
+  const garniture = /veggie/.test(n) ? ['#7b3a6e', '#f39a2e', '#8fbf55', '#fff8ec'] : /burrito/.test(n) ? ['#f4d35e', '#e9c28a', '#b5452f', '#f39a2e'] : ['#8fbf55', '#e8b98a', '#d8433a', '#fff8ec'];
+  const tortilla = '#f2d9a6';
+  const moitie = (dx, rot) => `<g transform="translate(${dx} 0) rotate(${rot} 100 140)">
+      <path d="M58 70 L142 70 L150 200 L50 200Z" fill="${tortilla}"/>
+      <ellipse cx="100" cy="70" rx="42" ry="20" fill="${shade(tortilla, -0.08)}"/>
+      ${garniture.map((c, i) => `<ellipse cx="${88 + (i % 2) * 22}" cy="${64 + (i > 1 ? 8 : -2)}" rx="${16 - i * 2}" ry="8" fill="${c}"/>`).join('')}
+      <path d="M58 70 L142 70 L150 200 L50 200Z" fill="url(#gr-d)" opacity=".45"/>
+      <path d="M110 80 L118 196" stroke="#d9b780" stroke-width="3"/>
     </g>`;
-  const ink = `<path d="${front}"/>
-    <path d="M60 128 q14 -6 22 4 M112 158 q10 -10 22 -4 M84 166 q4 8 14 8" stroke-width="2.6" opacity=".55"/>`;
-  const top = `<g class="ill-sparkle"><path d="${blob(158, 86, 5, 6, 0.4, 5, null)}" fill="#dca464" stroke="${INK}" stroke-width="2.4"/><path style="animation-delay:.7s" d="${blob(172, 106, 3.5, 6, 0.4, 9, null)}" fill="#dca464" stroke="${INK}" stroke-width="2"/></g>
-    <path d="M58 104 q8 -10 20 -12" stroke="#fff" stroke-width="3.5" fill="none" stroke-linecap="round" opacity=".6"/>`;
-  return svg(label, { defs, back: fond, print, ink, top });
-}
-
-function bananaBread(v, label) {
-  const id = nid('b');
-  const slice = 'M40 98 C40 62 70 50 100 50 C130 50 160 62 160 98 L156 198 C156 204 152 208 146 208 L54 208 C48 208 44 204 44 198 Z';
-  const crumb = 'M54 104 C56 76 76 68 100 68 C124 68 144 76 146 104 L143 190 C143 194 140 196 136 196 L64 196 C60 196 57 194 57 190 Z';
-  const defs = `<clipPath id="${id}c"><path d="${crumb}"/></clipPath><clipPath id="${id}s"><path d="${slice}"/></clipPath>`;
-  const rand = rng(23);
-  let trous = '';
-  for (let i = 0; i < 18; i++) trous += `<ellipse cx="${r1(62 + rand() * 78)}" cy="${r1(80 + rand() * 110)}" rx="${r1(1.4 + rand() * 2.2)}" ry="${r1(1 + rand() * 1.4)}" fill="#b98447" opacity=".7"/>`;
-  const print = `
-    <path d="${slice}" fill="#8a4b22"/>
-    <g clip-path="url(#${id}s)"><rect width="200" height="240" fill="url(#gr-d)" opacity=".6"/></g>
-    <path d="${crumb}" fill="#e7bb78"/>
-    <g clip-path="url(#${id}c)">
-      ${trous}
-      <g fill="#f7e6a6" stroke="#cf9f4c" stroke-width="2.2"><ellipse cx="80" cy="116" rx="14" ry="10"/><ellipse cx="124" cy="132" rx="15" ry="10"/><ellipse cx="90" cy="166" rx="13" ry="9"/><ellipse cx="132" cy="176" rx="10" ry="7.5"/></g>
-      <g fill="#c99a4f"><circle cx="78" cy="114" r="1.3"/><circle cx="83" cy="118" r="1.3"/><circle cx="122" cy="130" r="1.3"/><circle cx="127" cy="134" r="1.3"/><circle cx="88" cy="165" r="1.2"/></g>
-      <g fill="#6b3a1c"><path d="M104 96 l8 -3 4 6 -6 5 -7 -2z"/><path d="M66 140 l7 -2 3 6 -5 4 -6 -2z"/><path d="M112 160 l6 -2 3 5 -4 4 -5 -2z"/></g>
-      <rect x="110" width="100" height="240" fill="url(#ht)" opacity=".16"/>
-      <rect width="200" height="240" fill="url(#gr-d)" opacity=".5"/>
-    </g>`;
-  const ink = `<path d="${slice}"/><path d="${crumb}" stroke-width="2.6" opacity=".55"/>`;
-  const top = `<path d="M62 80 q16 -10 36 -10" stroke="#fff" stroke-width="3.5" fill="none" stroke-linecap="round" opacity=".45"/>`;
-  return svg(label, { defs, back: ombre(100, 216, 66, 7), print, ink, top });
-}
-
-function croissant(v, label) {
-  const id = nid('c');
-  const segs = [
-    [24, 168, 15, 22, -58], [176, 168, 15, 22, 58],
-    [42, 146, 21, 29, -40], [158, 146, 21, 29, 40],
-    [66, 128, 26, 37, -20], [134, 128, 26, 37, 20],
-    [100, 122, 31, 45, 0],
-  ];
-  const defs = `<radialGradient id="${id}g" cx=".45" cy=".4" r=".7"><stop offset="0" stop-color="#f4c77f"/><stop offset=".7" stop-color="#d98f43"/><stop offset="1" stop-color="#b8692c"/></radialGradient>`;
-  let corps = '';
-  segs.forEach(([cx, cy, rx, ry, rot], i) => {
-    const t = `rotate(${rot} ${cx} ${cy})`;
-    corps += `<g transform="${OFFSET}"><ellipse cx="${cx}" cy="${cy}" rx="${rx}" ry="${ry}" transform="${t}" fill="url(#${id}g)"/>
-      <ellipse cx="${cx + rx * 0.35}" cy="${cy + ry * 0.35}" rx="${rx * 0.7}" ry="${ry * 0.6}" transform="${t}" fill="url(#ht)" opacity=".2"/>
-      <ellipse cx="${cx}" cy="${cy}" rx="${rx}" ry="${ry}" transform="${t}" fill="url(#gr-d)" opacity=".55"/></g>
-      <g fill="none" stroke="${INK}" stroke-linecap="round"><ellipse cx="${cx}" cy="${cy}" rx="${rx}" ry="${ry}" transform="${t}" stroke-width="4.2"/>
-      <path d="M${cx - rx * 0.55} ${cy - ry * 0.15} Q${cx} ${cy + ry * 0.12} ${cx + rx * 0.55} ${cy - ry * 0.15}" transform="${t}" stroke-width="2.4" opacity="${i === 6 ? 0.55 : 0.4}"/>
-      ${i > 1 ? `<path d="M${cx - rx * 0.45} ${cy - ry * 0.55} q${rx * 0.3} -${ry * 0.12} ${rx * 0.6} 0" transform="${t}" stroke="#fff" stroke-width="3" opacity=".65"/>` : ''}</g>`;
+  const inkM = (dx, rot) => `<g transform="translate(${dx} 0) rotate(${rot} 100 140)"><path d="M58 70 L50 200 L150 200 L142 70"/><ellipse cx="100" cy="70" rx="42" ry="20"/></g>`;
+  const print = `${moitie(-26, -10)}`;
+  return svg(label, {
+    back: `${ombre(100, 212, 76, 7)}<g transform="${OFFSET}">${moitie(30, 12)}</g><g fill="none" stroke="${INK}" stroke-width="4.2" stroke-linejoin="round">${inkM(30, 12)}</g>`,
+    print,
+    ink: inkM(-26, -10),
   });
-  return svg(label, { defs, back: `${ombre(100, 196, 82, 9)}<g class="ill-float-soft">${corps}</g>` });
 }
 
-function acaiBowl(v, label) {
-  const id = nid('a');
-  const bowl = 'M22 116 C24 180 58 206 100 206 C142 206 176 180 178 116 Z';
-  const defs = `<clipPath id="${id}b"><path d="${bowl}"/></clipPath><clipPath id="${id}t"><ellipse cx="100" cy="116" rx="72" ry="17"/></clipPath>`;
-  const banane = (x, y) => `<ellipse cx="${x}" cy="${y}" rx="10" ry="6.5" fill="#f7e6a6"/><ellipse cx="${x}" cy="${y}" rx="5" ry="3" fill="#e9cd7c"/>`;
-  const print = `
-    <path d="${bowl}" fill="${CREAM}"/>
-    <g clip-path="url(#${id}b)">
-      <path d="M20 150 Q100 176 180 150 L180 162 Q100 188 20 162 Z" fill="${TERRA}"/>
-      <path d="M20 174 Q100 198 180 174 L180 180 Q100 204 20 180 Z" fill="${TERRA}"/>
-      <rect x="112" y="100" width="90" height="120" fill="url(#ht)" opacity=".18"/>
-      <rect width="200" height="240" fill="url(#gr-d)" opacity=".55"/>
-    </g>
-    <ellipse cx="100" cy="116" rx="72" ry="17" fill="#5b2a4e"/>
+function bagel(nom, label) {
+  const poisson = /fish|saumon|thon|marlin/i.test(nom);
+  const croute = '#c98545';
+  const m = matiere('M24 172 C22 152 50 146 100 146 C150 146 178 152 176 172 C174 188 150 194 100 194 C50 194 26 188 24 172Z');
+  const m2 = matiere('M24 120 C22 92 52 76 100 76 C148 76 178 92 176 120 C170 128 140 132 100 132 C60 132 30 128 24 120Z');
+  const print = `<path d="M24 172 C22 152 50 146 100 146 C150 146 178 152 176 172 C174 188 150 194 100 194 C50 194 26 188 24 172Z" fill="${croute}"/>
+    ${poisson
+    ? `<path d="${vague(22, 178, 140, 6, 10)} V152 H22Z" fill="#f08a6b"/><path d="${vague(28, 172, 132, 5, 10)} V142 H28Z" fill="#fff8ec"/><path d="${vague(30, 170, 124, 5, 8)} V134 H30Z" fill="#f4d35e"/><path d="M60 122 q20 -8 40 0 t40 0 v8 h-80z" fill="#9fc657"/>`
+    : `<path d="${vague(22, 178, 140, 6, 10)} V152 H22Z" fill="#b5452f"/><path d="M26 130 H174 L168 144 H32Z" fill="#f4b832"/><path d="${vague(30, 170, 124, 5, 8)} V134 H30Z" fill="#f4d35e"/>`}
+    <path d="M24 120 C22 92 52 76 100 76 C148 76 178 92 176 120 C170 128 140 132 100 132 C60 132 30 128 24 120Z" fill="${croute}"/>
+    <path d="M40 104 C50 90 150 90 160 104" fill="${shade(croute, 0.25)}" opacity=".7"/>
+    <g fill="#fff4dc">${[[60, 96], [80, 88], [104, 86], [128, 90], [146, 98], [92, 100], [118, 102]].map(([x, y]) => `<ellipse cx="${x}" cy="${y}" rx="3.2" ry="1.8" transform="rotate(${x % 40} ${x} ${y})"/>`).join('')}</g>
+    ${m.calque}${m2.calque}`;
+  const ink = `<path d="M24 172 C22 152 50 146 100 146 C150 146 178 152 176 172 C174 188 150 194 100 194 C50 194 26 188 24 172Z"/>
+    <path d="M24 120 C22 92 52 76 100 76 C148 76 178 92 176 120 C170 128 140 132 100 132 C60 132 30 128 24 120Z"/>`;
+  return svg(label, { defs: m.defs + m2.defs, back: ombre(100, 204, 80, 8), print, ink });
+}
+
+function bowl(nom, label) {
+  const id = nid('w');
+  const b = 'M22 116 C24 180 58 206 100 206 C142 206 176 180 178 116 Z';
+  const defs = `<clipPath id="${id}b"><path d="${b}"/></clipPath><clipPath id="${id}t"><ellipse cx="100" cy="116" rx="72" ry="17"/></clipPath>`;
+  const print = `<path d="${b}" fill="${CREAM}"/>
+    <g clip-path="url(#${id}b)"><path d="M20 150 Q100 176 180 150 L180 162 Q100 188 20 162 Z" fill="${TERRA}"/><rect x="112" y="100" width="90" height="120" fill="url(#ht)" opacity=".18"/><rect width="200" height="240" fill="url(#gr-d)" opacity=".55"/></g>
+    <ellipse cx="100" cy="116" rx="72" ry="17" fill="#6f9e3c"/>
     <g clip-path="url(#${id}t)">
-      <ellipse cx="100" cy="116" rx="72" ry="17" fill="url(#htl)" opacity=".12"/>
-      ${banane(54, 114)}${banane(72, 108)}${banane(90, 105)}
-      <g fill="#b07a3e"><circle cx="112" cy="110" r="4.5"/><circle cx="121" cy="114" r="4"/><circle cx="116" cy="120" r="3.6"/><circle cx="128" cy="108" r="3.4"/><circle cx="106" cy="118" r="3.2"/></g>
-      <g fill="#d8433a"><path d="M138 112 q8 -12 18 -2 q-8 12 -18 2z"/><path d="M144 122 q8 -10 16 -1 q-7 10 -16 1z"/></g>
-      <g fill="#2f2a5a"><circle cx="70" cy="122" r="3.4"/><circle cx="80" cy="124" r="3"/><circle cx="62" cy="125" r="2.6"/></g>
-      <g fill="#fff"><path d="M92 122 l8 -3 1 2 -8 3z"/><path d="M100 127 l7 -1 0 2 -7 1z"/></g>
-    </g>
-    <path d="M48 116 q10 -6 18 2 t18 -2 t18 2 t18 -2" stroke="#f0b440" stroke-width="2.6" fill="none" stroke-linecap="round"/>
-    <path d="M150 96 q14 -18 26 -10 q-8 16 -26 10z" fill="#7fae4a"/>`;
-  const ink = `<path d="M22 116 C24 180 58 206 100 206 C142 206 176 180 178 116"/><ellipse cx="100" cy="116" rx="78" ry="21"/>
-    <ellipse cx="100" cy="116" rx="72" ry="17" stroke-width="2.4" opacity=".6"/>
-    <path d="M150 96 q14 -18 26 -10 q-8 16 -26 10z M152 96 q10 -6 22 -9" stroke-width="2.6"/>
-    <path d="M70 206 Q100 214 130 206" stroke-width="3.4"/>`;
-  const top = `<path d="M34 128 C36 156 46 172 60 184" stroke="#fff" stroke-width="5" fill="none" stroke-linecap="round" opacity=".8"/>`;
-  return svg(label, { defs, back: ombre(100, 214, 62, 7), print, ink, top });
+      ${[[44, 112], [70, 104], [100, 102], [130, 104], [156, 112], [84, 120], [118, 122]].map(([x, y], i) => `<path d="M${x - 16} ${y + 6} q8 -18 18 -14 q10 -6 14 8 q-14 10 -32 6z" fill="${i % 2 ? '#8fbf55' : '#a9d06a'}"/>`).join('')}
+      <g fill="#e8b98a">${[[64, 110], [118, 108], [94, 118]].map(([x, y]) => `<rect x="${x}" y="${y}" width="22" height="9" rx="3" transform="rotate(-8 ${x} ${y})"/>`).join('')}</g>
+      <g fill="#d9a35c">${[[82, 104], [136, 112], [54, 120]].map(([x, y]) => `<rect x="${x}" y="${y}" width="9" height="9" rx="2"/>`).join('')}</g>
+      <g fill="#d8433a"><circle cx="110" cy="100" r="5"/><circle cx="72" cy="122" r="4.5"/></g>
+      <g fill="#fff8ec">${[[100, 112], [126, 118], [60, 106]].map(([x, y]) => `<path d="M${x} ${y} l9 -3 1 3 -9 3z"/>`).join('')}</g>
+    </g>`;
+  const ink = `<path d="M22 116 C24 180 58 206 100 206 C142 206 176 180 178 116"/><ellipse cx="100" cy="116" rx="78" ry="21"/><path d="M70 206 Q100 214 130 206" stroke-width="3.4"/>`;
+  return svg(label, { defs, back: ombre(100, 214, 62, 7), print, ink, top: `<path d="M34 128 C36 156 46 172 60 184" stroke="#fff" stroke-width="5" fill="none" stroke-linecap="round" opacity=".8"/>` });
 }
 
-function avocadoToast(v, label) {
-  const id = nid('t');
-  const bread = 'M46 118 C24 112 26 82 46 74 C54 52 82 42 104 46 C134 42 166 58 166 88 C178 100 172 116 164 120 L158 196 C158 202 154 206 148 206 L58 206 C52 206 48 202 48 196 Z';
-  const mie = 'M58 118 C42 110 44 90 58 84 C66 66 86 58 104 60 C128 58 152 70 152 92 C160 102 156 112 150 116 L146 186 C146 190 143 193 139 193 L66 193 C62 193 59 190 59 186 Z';
-  const defs = `<clipPath id="${id}m"><path d="${mie}"/></clipPath><clipPath id="${id}b"><path d="${bread}"/></clipPath>`;
-  const pain = `${ombre(104, 216, 70, 7)}<g transform="${OFFSET}">
-      <path d="${bread}" fill="#a8642e"/><g clip-path="url(#${id}b)"><rect width="200" height="240" fill="url(#gr-d)" opacity=".55"/></g>
-      <path d="${mie}" fill="#ebbd7b"/>
-      <g clip-path="url(#${id}m)"><rect x="116" width="90" height="240" fill="url(#ht)" opacity=".14"/><rect width="200" height="240" fill="url(#gr-d)" opacity=".45"/></g></g>
-    <path d="${bread}" fill="none" stroke="${INK}" stroke-width="4.2"/><path d="${mie}" fill="none" stroke="${INK}" stroke-width="2.4" opacity=".5"/>`;
-  // tranches d'avocat : croissants qui se chevauchent, du fond vers l'avant
-  let tranches = '';
-  [[62, 108, -26], [62, 124, -14], [62, 140, -3], [62, 156, 8], [62, 172, 18]].forEach(([x, y, rot]) => {
-    const d = `M${x} ${y} C ${x + 18} ${y - 26} ${x + 66} ${y - 30} ${x + 88} ${y - 8} C ${x + 62} ${y - 6} ${x + 26} ${y + 4} ${x} ${y} Z`;
-    const din = `M${x + 8} ${y - 3} C ${x + 24} ${y - 20} ${x + 60} ${y - 22} ${x + 78} ${y - 9} C ${x + 54} ${y - 8} ${x + 28} ${y - 1} ${x + 8} ${y - 3} Z`;
-    tranches += `<g transform="rotate(${rot} ${x} ${y})"><g transform="${OFFSET}"><path d="${d}" fill="#7da23f"/><path d="${din}" fill="#cfe08d"/><path d="${din}" fill="url(#ht)" opacity=".12"/></g>
-      <path d="${d}" fill="none" stroke="${INK}" stroke-width="3.2" stroke-linejoin="round"/></g>`;
-  });
-  const garniture = `<g fill="${INK}"><circle cx="96" cy="104" r="1.6"/><circle cx="122" cy="132" r="1.6"/><circle cx="104" cy="158" r="1.6"/><circle cx="134" cy="164" r="1.4"/><circle cx="84" cy="146" r="1.4"/></g>
-    <g fill="#fff4dc"><ellipse cx="112" cy="114" rx="2" ry="1.2"/><ellipse cx="90" cy="134" rx="2" ry="1.2"/><ellipse cx="128" cy="150" rx="2" ry="1.2"/><ellipse cx="100" cy="178" rx="2" ry="1.2"/></g>
-    <g fill="#d8433a"><path d="M104 124 l3 -2 1 3z"/><path d="M126 158 l3 -2 1 3z"/><path d="M84 166 l3 -2 1 3z"/><path d="M116 100 l3 -2 1 3z"/></g>
-    <g transform="${OFFSET}"><path d="M150 200 A22 22 0 0 1 186 184 Z" fill="#b9d462"/><path d="M155 197 A16 16 0 0 1 181 186" fill="#e3efab"/></g>
-    <path d="M150 200 A22 22 0 0 1 186 184 Z" fill="none" stroke="${INK}" stroke-width="3.4" stroke-linejoin="round"/>`;
-  return svg(label, { defs, back: pain + tranches + garniture });
-}
-
-export function illustration(produit) {
-  const v = produit.visuel || { type: 'iced', style: 'latte', bas: '#ead2b0', haut: '#7a4526' };
-  const label = produit.nom;
-  switch (v.type) {
-    case 'hot': return gobeletChaud(v, label);
-    case 'espresso': return espresso(v, label);
-    case 'can': return canette(v, label);
-    case 'cookie': return cookie(v, label);
-    case 'cake': return bananaBread(v, label);
-    case 'croissant': return croissant(v, label);
-    case 'bowl': return acaiBowl(v, label);
-    case 'toast': return avocadoToast(v, label);
-    default: return gobeletGlace(v, label);
+function frites(nom, label) {
+  const gourmandes = /gourmand|cheddar/i.test(nom);
+  const rand = rng(gourmandes ? 9 : 4);
+  let batons = '';
+  for (let i = 0; i < 11; i++) {
+    const x = 58 + i * 8.5 + rand() * 4;
+    const h = 60 + rand() * 40;
+    const a = -12 + rand() * 24;
+    batons += `<rect x="${r1(x)}" y="${r1(120 - h)}" width="11" height="${r1(h + 30)}" rx="3" fill="${rand() > 0.5 ? '#f4c55a' : '#eab14a'}" transform="rotate(${r1(a)} ${r1(x + 5)} 140)"/>`;
   }
+  const print = `${batons}
+    ${gourmandes ? `<path d="M56 96 q14 12 26 0 q12 14 24 0 q12 12 24 0 q10 10 18 0 v20 h-92z" fill="#f4b832"/><g fill="#a8642e">${[[66, 92], [90, 88], [112, 90], [134, 94]].map(([x, y]) => `<path d="M${x} ${y} q6 -6 12 0" stroke="#8a4b22" stroke-width="3" fill="none"/>`).join('')}</g>` : ''}
+    <path d="M44 110 L156 110 L142 206 Q140 212 132 212 L68 212 Q60 212 58 206Z" fill="${TERRA}"/>
+    <path d="M60 110 L66 212 M84 110 L86 212 M116 110 L114 212 M140 110 L134 212" stroke="${CREAM}" stroke-width="9"/>
+    <rect x="40" y="100" width="120" height="120" fill="url(#gr-d)" opacity=".45"/>
+    ${logo(76, 150, 48, CREAM)}`;
+  const ink = `<path d="M44 110 L156 110 L142 206 Q140 212 132 212 L68 212 Q60 212 58 206Z"/><path d="M44 110 Q100 126 156 110" stroke-width="3"/>`;
+  return svg(label, { back: ombre(100, 218, 54, 7), print: `<g class="ill-float-soft">${print}</g>`, ink: `<g class="ill-float-soft">${ink}</g>` });
+}
+
+function plat(nom, label) {
+  const n = nom.toLowerCase();
+  if (/club|sandwich/.test(n)) return club(nom, label);
+  if (/hot dog|roll|homard|langouste/.test(n)) return petitPain(nom, label);
+  if (/wrap|burrito/.test(n)) return wrap(nom, label);
+  if (/bagel/.test(n)) return bagel(nom, label);
+  if (/frite/.test(n)) return frites(nom, label);
+  return bowl(nom, label);
+}
+
+/* ── Point d'entrée ───────────────────────────────────── */
+// p = produit (data.js) ; options.glace force la version glacée (fiche produit)
+export function illustration(p, { glace } = {}) {
+  const nom = p.nom || '';
+  const label = nom.replace(/"/g, '');
+  if (p.kind === 'merch' && p.image) return `<img class="ill ill--photo" src="${p.image}" alt="" loading="lazy">`;
+  if (p.kind === 'food') return plat(nom, label);
+  if (/affogato/i.test(nom)) return affogato(nom, label);
+  const froid = glace ?? (p.glace || /^(iced|.*tonic|citronnade|thé glacé|jus)/i.test(nom));
+  if (froid) return gobeletGlace(nom, label);
+  if (/espresso/i.test(nom)) return espresso(nom, label);
+  return gobeletChaud(nom, label);
 }

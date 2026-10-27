@@ -19,6 +19,9 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Big+Shoulders+Stencil:wght@700;800&family=DM+Sans:opsz,wght@9..40,400;9..40,500;9..40,600;9..40,700&family=Londrina+Solid:wght@400;900&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="css/style.css">
+  <script src="config.js" defer></script>
+  <script src="js/demo-seed.js" defer></script>
+  <script src="js/demo-db.js" defer></script>
   <script type="module" src="js/main.js"></script>
 </head>
 <body data-page="livraison" data-hero="terra">
@@ -49,7 +52,8 @@
     </nav>
     <div class="mobile-menu__foot">
       <span class="status" data-status hidden></span>
-      <a class="btn btn--light btn--lg btn--block" href="carte">Commander sur la plage</a>
+      <a class="btn btn--light btn--lg btn--block" href="carte" data-set-mode="plage">Livré sur la plage</a>
+      <a class="btn btn--ghost btn--lg btn--block" href="carte" data-set-mode="shop">Je passe au shop</a>
     </div>
   </div>
   <main id="contenu">
@@ -60,11 +64,11 @@
           <h1 class="h1" style="font-size:clamp(56px,7.4vw,112px)">Livré les pieds dans le sable</h1>
           <p class="lead">On livre toute la plage de la Caravelle, à pied, depuis le shop. Tu restes allongé, on s’occupe du reste.</p>
           <ul class="pills">
-            <li><i data-icon="bag"></i>Dès <span data-min-order>5 €</span></li>
+            <li><i data-icon="bag"></i><span>Dès <span data-min-order>5 €</span></span></li>
             <li><i data-icon="clock"></i><span data-delay>15 à 20 min</span></li>
             <li><i data-icon="card"></i>Paiement à la livraison</li>
           </ul>
-          <div class="actions" style="margin-top:32px"><a class="btn btn--light btn--lg" href="carte">Commander <i data-icon="arrow" class="icon--arrow"></i></a></div>
+          <div class="actions" style="margin-top:32px"><a class="btn btn--light btn--lg" href="carte" data-set-mode="plage">Commander sur la plage <i data-icon="arrow" class="icon--arrow"></i></a></div>
         </div>
         <div class="scene-frame"><div class="scene" data-scene-loop></div></div>
       </div>
@@ -78,9 +82,9 @@
         </div>
         <ol class="how">
           <li class="reveal"><i data-picto="cup"></i><span class="label">Étape 1</span><h3>Choisis</h3><p>Ajoute tes boissons et douceurs au panier. Minimum <span data-min-order>5 €</span>.</p></li>
-          <li class="reveal"><i data-picto="pin"></i><span class="label">Étape 2</span><h3>Pose ton épingle</h3><p>Ta position GPS, que tu peux ajuster à la main sur la carte de la plage.</p></li>
+          <li class="reveal"><i data-picto="pin"></i><span class="label">Étape 2</span><h3>On te localise</h3><p>Le site place l’épingle tout seul sur la carte de la plage. Tu peux l’ajuster du bout du doigt.</p></li>
           <li class="reveal"><i data-picto="camera"></i><span class="label">Étape 3</span><h3>Photographie ton spot</h3><p>Ta serviette, ton parasol, un repère&nbsp;: une photo et le livreur te trouve du premier coup.</p></li>
-          <li class="reveal"><i data-picto="hat"></i><span class="label">Étape 4</span><h3>On arrive</h3><p>En <span data-delay>15 à 20 min</span> environ. Tu paies sur place, en espèces ou par carte.</p></li>
+          <li class="reveal"><i data-picto="hat"></i><span class="label">Étape 4</span><h3>On arrive</h3><p>Tu suis ta commande en direct, livrée en <span data-delay>15 à 20 min</span> environ. Tu paies sur place, en espèces ou par carte.</p></li>
         </ol>
       </div>
     </section>
@@ -104,12 +108,15 @@
           <h2 class="h2 reveal" id="titre-faq">Tes questions</h2>
         </div>
         <div class="faq">
-          <details class="reveal"><summary>Il y a un minimum de commande&nbsp;? <i data-icon="plus"></i></summary><p>Oui&nbsp;: <span data-min-order>5 €</span> hors frais. C’est ce qui nous permet de faire l’aller-retour à pied jusqu’à toi.</p></details>
+          <details class="reveal"><summary>Il y a un minimum de commande&nbsp;? <i data-icon="plus"></i></summary><p>Oui, pour la livraison&nbsp;: <span data-min-order>5 €</span>. C’est ce qui nous permet de faire l’aller-retour à pied jusqu’à toi. Pas de minimum si tu passes au shop.</p></details>
           <details class="reveal"><summary>Combien de temps ça prend&nbsp;? <i data-icon="plus"></i></summary><p><span data-delay>15 à 20 min</span> en général, un peu plus aux heures de pointe.</p></details>
           <details class="reveal"><summary>Comment je paie&nbsp;? <i data-icon="plus"></i></summary><p>À la livraison, en espèces ou par carte bancaire. Rien à payer en ligne.</p></details>
           <details class="reveal"><summary>Pourquoi une photo de mon spot&nbsp;? <i data-icon="plus"></i></summary><p>Sur une plage, le GPS d’un téléphone peut se tromper de plusieurs mètres, et tout le monde a une serviette. Une photo de ton parasol ou d’un repère, et le livreur te trouve du premier coup.</p></details>
+          <details class="reveal"><summary>Comment je suis ma commande&nbsp;? <i data-icon="plus"></i></summary><p>Juste après la validation, le suivi s’affiche en direct&nbsp;: reçue, en préparation, en route. Tu peux fermer la page&nbsp;: la pastille en haut de l’écran te ramène au suivi.</p></details>
           <details class="reveal"><summary>Et si je change de place&nbsp;? <i data-icon="plus"></i></summary><p>Pas de souci&nbsp;: le livreur a ton numéro et t’appelle s’il ne te trouve pas.</p></details>
           <details class="reveal"><summary>La livraison est payante&nbsp;? <i data-icon="plus"></i></summary><p data-fees>Non, elle est offerte dès le minimum de commande.</p></details>
+          <details class="reveal"><summary>Je peux plutôt passer la chercher&nbsp;? <i data-icon="plus"></i></summary><p>Oui&nbsp;: choisis «&nbsp;Je passe au shop&nbsp;» sur la carte. Pas de minimum, et c’est prêt à l’heure que tu choisis.</p></details>
+          <details class="reveal"><summary>Ma carte fidélité marche aussi&nbsp;? <i data-icon="plus"></i></summary><p>Oui&nbsp;: entre ton numéro de carte (écrit sous le QR code) au moment de commander. Un tampon par boisson, et au dixième, la boisson est offerte.</p></details>
           <details class="reveal"><summary>Vous livrez d’autres plages&nbsp;? <i data-icon="plus"></i></summary><p>Pour l’instant, uniquement la plage de la Caravelle. Le site vérifie ta position avant la commande.</p></details>
         </div>
       </div>
@@ -119,8 +126,8 @@
       <div class="container">
         <div class="cta-block on-terra reveal">
           <h2 class="h2">Une petite soif&nbsp;?</h2>
-          <p class="lead" style="margin:0">Iced latte, matcha, cold brew… et un cookie, tant qu’à faire.</p>
-          <a class="btn btn--light btn--lg" href="carte">Voir la carte <i data-icon="arrow" class="icon--arrow"></i></a>
+          <p class="lead" style="margin:0">Iced latte, matcha, citronnade gwozey… et des frites, tant qu’à faire.</p>
+          <a class="btn btn--light btn--lg" href="carte" data-set-mode="plage">Voir la carte <i data-icon="arrow" class="icon--arrow"></i></a>
           <svg class="cta-block__deco" viewBox="0 0 728 584" aria-hidden="true" style="--st-bg:var(--cream);--st-ink:var(--terra)"><use href="assets/brand.svg#st-head"/></svg>
         </div>
       </div>
@@ -149,6 +156,7 @@
           <h3>Infos</h3>
           <ul>
             <li><a href="cgv">Conditions de vente</a></li>
+            <li><a href="admin" rel="nofollow">Espace équipe</a></li>
             <li><a href="mentions-legales">Mentions légales</a></li>
             <li data-insta></li>
           </ul>

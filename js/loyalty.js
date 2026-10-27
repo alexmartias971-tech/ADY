@@ -21,16 +21,16 @@ function qr() {
 }
 
 export function creerCarteFidelite(stage, { interactif = false, auto = true } = {}) {
-  stage.innerHTML = `<div class="wallet" data-wallet tabindex="${interactif ? 0 : -1}" role="${interactif ? 'button' : 'img'}" aria-label="${interactif ? 'Carte fidélité de démonstration : touche-la pour ajouter un tampon' : 'Exemple de carte fidélité Ady : 10 tampons pour un café offert'}">
+  stage.innerHTML = `<div class="wallet" data-wallet tabindex="${interactif ? 0 : -1}" role="${interactif ? 'button' : 'img'}" aria-label="${interactif ? 'Carte fidélité de démonstration : touche-la pour ajouter un tampon' : 'Exemple de carte fidélité Ady : 10 tampons pour une boisson offerte'}">
       <div class="wallet__head">
         <svg viewBox="0 0 728 584" aria-hidden="true"><use href="assets/brand.svg#st-head"/></svg>
         <span class="wallet__brand">ADY COFFEE SHOP</span>
         <span class="wallet__count"><small>Tampons</small><b data-count>0/${TOTAL}</b></span>
       </div>
       <div class="wallet__beans" data-beans>${Array.from({ length: TOTAL }, () => `<span class="bean">${beanSVG()}</span>`).join('')}<span class="bean bean--gift">${picto('gift')}</span></div>
-      <div class="wallet__art"><svg viewBox="0 0 1440 1208" aria-hidden="true"><use href="assets/brand.svg#logo"/></svg><div class="wallet__qr">${qr()}</div></div>
-      <div class="wallet__fields"><span><small>Client</small><b>Marie</b></span><span style="text-align:right"><small>Récompense</small><b>Un café offert</b></span></div>
-      <p class="wallet__note" data-note>Plus que ${TOTAL} tampons pour : un café offert</p>
+      <div class="wallet__art"><svg viewBox="0 0 1440 1208" aria-hidden="true"><use href="assets/brand.svg#logo"/></svg><figure class="wallet__qrbox"><div class="wallet__qr">${qr()}</div><figcaption>ADY-2417</figcaption></figure></div>
+      <div class="wallet__fields"><span><small>Client</small><b>Marie</b></span><span style="text-align:right"><small>Récompense</small><b>Une boisson offerte</b></span></div>
+      <p class="wallet__note" data-note>Plus que ${TOTAL} tampons pour : une boisson offerte</p>
     </div>
     ${interactif ? `<span class="wallet__hint">${picto('bean')} Touche la carte pour la tamponner</span>` : ''}`;
 
@@ -43,7 +43,7 @@ export function creerCarteFidelite(stage, { interactif = false, auto = true } = 
   const afficher = () => {
     beans.forEach((b, i) => b.classList.toggle('is-on', i < n || (i === TOTAL && n >= TOTAL)));
     compteur.textContent = `${Math.min(n, TOTAL)}/${TOTAL}`;
-    note.textContent = n >= TOTAL ? 'Bravo ! Ton café est offert.' : `Plus que ${TOTAL - n} tampon${TOTAL - n > 1 ? 's' : ''} pour : un café offert`;
+    note.textContent = n >= TOTAL ? 'Bravo ! Ta boisson est offerte.' : `Plus que ${TOTAL - n} tampon${TOTAL - n > 1 ? 's' : ''} pour : une boisson offerte`;
   };
 
   const tamponner = () => {

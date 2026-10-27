@@ -20,6 +20,9 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Big+Shoulders+Stencil:wght@700;800&family=DM+Sans:opsz,wght@9..40,400;9..40,500;9..40,600;9..40,700&family=Londrina+Solid:wght@400;900&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="css/style.css">
+  <script src="config.js" defer></script>
+  <script src="js/demo-seed.js" defer></script>
+  <script src="js/demo-db.js" defer></script>
   <script type="module" src="js/main.js"></script>
   <meta name="robots" content="noindex">
 </head>
@@ -51,7 +54,8 @@
     </nav>
     <div class="mobile-menu__foot">
       <span class="status" data-status hidden></span>
-      <a class="btn btn--light btn--lg btn--block" href="carte">Commander sur la plage</a>
+      <a class="btn btn--light btn--lg btn--block" href="carte" data-set-mode="plage">Livré sur la plage</a>
+      <a class="btn btn--ghost btn--lg btn--block" href="carte" data-set-mode="shop">Je passe au shop</a>
     </div>
   </div>
   <main id="contenu">
@@ -87,6 +91,7 @@
           <h3>Infos</h3>
           <ul>
             <li><a href="cgv">Conditions de vente</a></li>
+            <li><a href="admin" rel="nofollow">Espace équipe</a></li>
             <li><a href="mentions-legales">Mentions légales</a></li>
             <li data-insta></li>
           </ul>
