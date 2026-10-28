@@ -1166,3 +1166,34 @@ body[data-hero='terra'] .site-header:not(.is-scrolled) .track-pill { background:
 .legal-form { margin: 18px 0 0; padding: 18px 20px; border-radius: 16px; background: var(--paper); box-shadow: inset 0 0 0 1.5px rgba(42, 24, 16, .14); }
 .legal-form p { margin: 0 0 10px; }
 .legal-form p:last-child { margin: 0; }
+
+/* ── Carte fidélité digitale (Walty) ───────────────────────── */
+.loyal-cta { display: grid; justify-items: start; gap: 12px; }
+.loyal-cta__hint { margin: 0; font-size: 14px; opacity: .85; }
+.loyal-hero { display: flex; flex-wrap: wrap; align-items: center; gap: 22px 28px; }
+.loyal-qr { display: none; margin: 0; align-items: center; gap: 14px; max-width: 280px; }
+.loyal-qr img { width: 112px; height: 112px; flex: none; padding: 6px; border-radius: 14px; background: #fffaf2; box-shadow: 0 12px 24px -14px rgba(42, 24, 16, .6); }
+.loyal-qr figcaption { font-size: 13px; line-height: 1.4; opacity: .9; }
+@media (hover: hover) and (pointer: fine) and (min-width: 900px) { .loyal-qr { display: flex; } }
+.link-arrow--light { color: var(--cream); }
+.loyalty .link-arrow--light { display: inline-flex; }
+.loyal-note a, .faq a { color: var(--terra); font-weight: 700; text-underline-offset: 3px; }
+.loyal-done {
+  display: grid; grid-template-columns: auto minmax(0, 1fr) auto; align-items: center; gap: 12px; max-width: 380px; margin: 18px auto 0;
+  padding: 14px 16px; border-radius: 16px; background: var(--terra); color: var(--cream); text-align: left; text-decoration: none; font-size: 14px; line-height: 1.4;
+  box-shadow: inset 0 -3px 0 rgba(42, 24, 16, .2); transition: transform .3s var(--spring);
+}
+.loyal-done:hover { transform: translateY(-2px); }
+.loyal-done b { display: block; font: 900 18px/1.05 var(--f-display); text-transform: uppercase; margin-bottom: 3px; }
+.loyal-done .icon { width: 22px; height: 22px; }
+.wallet__qr img { width: 100%; height: 100%; display: block; }
+/* sur téléphone, la pastille « commande en cours » flotte sous l'en-tête au lieu de pousser le menu hors de l'écran */
+@media (max-width: 719px) {
+  .site-header .track-pill { position: fixed; top: calc(var(--header-h) + 10px); left: 50%; translate: -50% 0; z-index: 95; height: 38px; box-shadow: 0 10px 24px -12px rgba(42, 24, 16, .6); }
+  .track-pill > span:last-child { max-width: 70vw; }
+  body[data-hero='terra'] .site-header:not(.is-scrolled) .track-pill { background: var(--ink); color: var(--cream); }
+}
+/* écrans moyens : avec une commande en cours, la pastille de suivi remplace le statut ouvert / fermé */
+@media (max-width: 1279px) {
+  .site-header__actions:has(.track-pill:not([hidden])) > .status { display: none !important; }
+}

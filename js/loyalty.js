@@ -1,7 +1,7 @@
 // Carte fidélité façon Wallet : effet 3D au survol, tampons qui se posent un à un
 import { CONFIG } from './config.js';
 import { beanSVG, reduceMotion, pointeurFin, esc } from './utils.js';
-import { picto } from './icons.js';
+import { picto, icon } from './icons.js';
 
 const TOTAL = 10;
 
@@ -28,9 +28,9 @@ export function creerCarteFidelite(stage, { interactif = false, auto = true } = 
         <span class="wallet__count"><small>Tampons</small><b data-count>0/${TOTAL}</b></span>
       </div>
       <div class="wallet__beans" data-beans>${Array.from({ length: TOTAL }, () => `<span class="bean">${beanSVG()}</span>`).join('')}<span class="bean bean--gift">${picto('gift')}</span></div>
-      <div class="wallet__art"><svg viewBox="0 0 1440 1208" aria-hidden="true"><use href="assets/brand.svg#logo"/></svg><div class="wallet__qr">${qr()}</div></div>
-      <div class="wallet__fields"><span><small>Client</small><b>Marie</b></span><span style="text-align:right"><small>Récompense</small><b>Une boisson offerte</b></span></div>
-      <p class="wallet__note" data-note>Plus que ${TOTAL} tampons pour : une boisson offerte</p>
+      <div class="wallet__art"><svg viewBox="0 0 1440 1208" aria-hidden="true"><use href="assets/brand.svg#logo"/></svg><div class="wallet__qr">${CONFIG.lienCarteFidelite ? '<img src="assets/qr-carte-fidelite.svg" alt="" width="78" height="78">' : qr()}</div></div>
+      <div class="wallet__fields"><span><small>Client</small><b>Marie</b></span><span style="text-align:right"><small>Récompense</small><b>Un café offert</b></span></div>
+      <p class="wallet__note" data-note>Plus que ${TOTAL} tampons pour : un café offert</p>
     </div>
     ${interactif ? `<span class="wallet__hint">${picto('bean')} Touche la carte pour la tamponner</span>` : ''}`;
 
@@ -43,7 +43,7 @@ export function creerCarteFidelite(stage, { interactif = false, auto = true } = 
   const afficher = () => {
     beans.forEach((b, i) => b.classList.toggle('is-on', i < n || (i === TOTAL && n >= TOTAL)));
     compteur.textContent = `${Math.min(n, TOTAL)}/${TOTAL}`;
-    note.textContent = n >= TOTAL ? 'Bravo ! Ta boisson est offerte.' : `Plus que ${TOTAL - n} tampon${TOTAL - n > 1 ? 's' : ''} pour : une boisson offerte`;
+    note.textContent = n >= TOTAL ? 'Bravo ! Ton café est offert.' : `Plus que ${TOTAL - n} tampon${TOTAL - n > 1 ? 's' : ''} pour : un café offert`;
   };
 
   const tamponner = () => {
@@ -114,9 +114,16 @@ function confettis(stage) {
   }
 }
 
-export function ctaFidelite(el, { clair = true } = {}) {
+// Bouton « Créer ma carte » (page Walty) ; avec un QR code à scanner quand on est sur ordinateur
+export function ctaFidelite(el, { clair = true, qr = false } = {}) {
   if (!el) return;
-  el.innerHTML = CONFIG.lienCarteFidelite
-    ? `<a class="btn ${clair ? 'btn--light' : ''} btn--lg" href="${esc(CONFIG.lienCarteFidelite)}" target="_blank" rel="noopener">Je récupère ma carte</a>`
-    : `<p class="label" style="margin:0">Demande-la au comptoir ou au livreur.</p>`;
+  if (!CONFIG.lienCarteFidelite) {
+    el.innerHTML = '<p class="label" style="margin:0">Demande-la au comptoir ou au livreur.</p>';
+    return;
+  }
+  el.innerHTML = `<div class="loyal-cta">
+      <a class="btn ${clair ? 'btn--light' : ''} btn--lg" href="${esc(CONFIG.lienCarteFidelite)}" target="_blank" rel="noopener">Créer ma carte ${icon('arrow', 'icon--arrow')}</a>
+      <p class="loyal-cta__hint">Gratuit, sans appli · 10 secondes · Apple Wallet ou Google Wallet</p>
+    </div>
+    ${qr ? `<figure class="loyal-qr"><img src="assets/qr-carte-fidelite.svg" alt="QR code qui ouvre la création de la carte fidélité ADY" width="132" height="132"><figcaption>Sur ordinateur&nbsp;? Scanne-le avec ton téléphone, la carte s’ajoute à ton Wallet.</figcaption></figure>` : ''}`;
 }

@@ -15,7 +15,7 @@ export const CONFIG = {
   instagram: 'https://www.instagram.com/adycoffeeshop/',
   instagramPseudo: '@adycoffeeshop',
   preuveSociale: '2 300+ personnes nous suivent déjà sur Instagram', // laisser vide pour ne rien afficher
-  lienCarteFidelite: '',    // lien d'inscription à la carte fidélité (Wallet), sinon laissez vide
+  lienCarteFidelite: 'https://carte.walty.fr/ady-coffee-shop', // création de la carte fidélité digitale (Walty), vide = pas de bouton
   lienItineraire: 'https://www.google.com/maps/search/?api=1&query=Ady+Coffee+Sainte-Anne+Guadeloupe',
 
   // Livraison plage (le minimum de commande se règle dans le back-office)

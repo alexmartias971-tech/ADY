@@ -8,6 +8,7 @@ import { etatOuverture, JOURS, heure } from './horaires.js';
 import { icon, hydrateIcons } from './icons.js';
 import { $, $$, euro, euroCourt, esc, minusculeInitiale, toast, pointeurFin, reduceMotion } from './utils.js';
 import { initCheckout, ouvrirPanneau } from './checkout.js';
+import { ctaFidelite } from './loyalty.js';
 
 export async function initUI() {
   document.documentElement.classList.remove('no-js');
@@ -51,6 +52,13 @@ function textes() {
   $$('[data-insta-link]').forEach((el) => { el.href = CONFIG.instagram; el.hidden = !CONFIG.instagram; });
   $$('[data-insta-pseudo]').forEach((el) => (el.textContent = CONFIG.instagramPseudo || 'Instagram'));
   $$('[data-proof]').forEach((el) => { el.textContent = CONFIG.preuveSociale || ''; el.hidden = !CONFIG.preuveSociale; });
+  // carte fidélité digitale : boutons, liens et QR code
+  $$('[data-loyalty-cta]:not([data-done])').forEach((el) => {
+    el.dataset.done = '1';
+    ctaFidelite(el, { clair: !el.dataset.loyaltyCta.includes('sombre'), qr: el.dataset.loyaltyCta.includes('qr') });
+  });
+  $$('[data-loyalty-link]').forEach((el) => { el.href = CONFIG.lienCarteFidelite; });
+  $$('[data-loyalty-only]').forEach((el) => { el.hidden = !CONFIG.lienCarteFidelite; });
   $$('[data-fees]').forEach((el) => {
     el.textContent = CONFIG.fraisLivraison
       ? `Elle coûte ${euro(CONFIG.fraisLivraison)}, ajoutés au total de ta commande.`

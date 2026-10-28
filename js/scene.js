@@ -183,7 +183,7 @@ function shop(vapeur = false) {
       <path d="M-120 -44 h240 a16 16 0 0 1 16 16 v40 a16 16 0 0 1 -16 16 h-108 l-12 16 l-12 -16 h-108 a16 16 0 0 1 -16 -16 v-40 a16 16 0 0 1 16 -16z" fill="#fffaf2" stroke="${INK}" stroke-width="3.4"/>
       <circle cx="-88" cy="-8" r="20" fill="${TERRA}"/><path d="M-97 -12 h18 l-2 16 h-14z M-93 -12 v-3 a5 5 0 0 1 10 0 v3" fill="none" stroke="${CREAM}" stroke-width="3" stroke-linejoin="round"/>
       <text x="-58" y="-12" font-family="Londrina Solid, sans-serif" font-weight="900" font-size="22" fill="${INK}">NOUVELLE COMMANDE</text>
-      <text x="-58" y="12" font-family="DM Sans, sans-serif" font-weight="500" font-size="15" fill="${INK}" opacity=".75">2 boissons · plage de la Caravelle</text>
+      <text x="-58" y="12" font-family="DM Sans, sans-serif" font-weight="500" font-size="15" fill="${INK}" opacity=".75">2 boissons pour la plage</text>
     </g></g>
   </g>`;
 }
@@ -280,7 +280,7 @@ function construireSVG() {
       <linearGradient id="sc-sky" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#93c6da"/><stop offset=".62" stop-color="#cfe5e8"/><stop offset="1" stop-color="#f7dcc0"/></linearGradient>
       <linearGradient id="sc-sea" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#5aaabd"/><stop offset="1" stop-color="#2f8499"/></linearGradient>
     </defs>
-    <rect x="-4000" y="0" width="12000" height="${H}" fill="url(#sc-sky)" data-sky/>
+    <rect x="-4000" y="-300" width="12000" height="${H + 300}" fill="url(#sc-sky)" data-sky/>
     <g data-layer="far">
       ${soleil(820, 400, 120)}
       ${nuage(120, 210, 1.2, 'cloud--1')}${nuage(980, 190, 0.9, 'cloud--2')}${nuage(1700, 240, 1.1, 'cloud--3')}
@@ -398,6 +398,10 @@ export function creerScene(conteneur, { mode = 'scroll', onEtape } = {}) {
   let VH = 730;
   let ancre = 0.55;
   let camMin = -460;
+  // en portrait, le panneau des étapes est en haut : au début, on descend un peu le cadrage
+  // pour que la bulle « nouvelle commande » apparaisse sous le panneau, jamais dessous
+  let Y0debut = Y0;
+  const panneau = conteneur.parentElement?.querySelector('.story__panel');
   const redimensionner = () => {
     const r = conteneur.getBoundingClientRect();
     if (!r.width || !r.height) return;
@@ -408,6 +412,12 @@ export function creerScene(conteneur, { mode = 'scroll', onEtape } = {}) {
     ancre = portrait ? 0.45 : 0.56;
     camMin = portrait ? -60 : -470;
     vbW = Math.min(W, Math.max(380, (VH * r.width) / r.height));
+    Y0debut = Y0;
+    if (portrait && panneau && panneau.offsetParent) {
+      const echelle = r.height / VH;
+      const basPanneau = panneau.getBoundingClientRect().bottom - r.top + 14;
+      Y0debut = Math.min(Y0, 306 - basPanneau / echelle);
+    }
     appliquer(progression, true);
   };
 
@@ -427,7 +437,9 @@ export function creerScene(conteneur, { mode = 'scroll', onEtape } = {}) {
     let cam = Math.min(W - vbW, Math.max(camMin, pt.x - vbW * ancre));
     // en portrait, la bulle « nouvelle commande » doit rester entière à l'écran
     if (ancre < 0.5 && p < 0.22) cam = Math.min(W - vbW, Math.max(cam, 752 - vbW));
-    svgEl.setAttribute('viewBox', `${cam.toFixed(1)} ${Y0} ${vbW.toFixed(1)} ${VH}`);
+    const k = Math.min(1, Math.max(0, (p - 0.18) / 0.08));
+    const y0 = Y0debut + (Y0 - Y0debut) * (k * k * (3 - 2 * k));
+    svgEl.setAttribute('viewBox', `${cam.toFixed(1)} ${y0.toFixed(1)} ${vbW.toFixed(1)} ${VH}`);
     far.setAttribute('transform', `translate(${(cam * 0.82).toFixed(1)} 0)`);
     mid.setAttribute('transform', `translate(${(cam * 0.5).toFixed(1)} 0)`);
     sky.setAttribute('x', (cam - 4000).toFixed(0));
@@ -475,6 +487,7 @@ export function creerScene(conteneur, { mode = 'scroll', onEtape } = {}) {
   const ro = new ResizeObserver(redimensionner);
   ro.observe(conteneur);
   redimensionner();
+  document.fonts?.ready.then(redimensionner);
 
   return {
     set(p) {

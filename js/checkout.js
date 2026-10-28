@@ -81,7 +81,7 @@ function construire() {
 
       <section class="step" data-step="2" hidden>
         <h3 class="step__title">Où es-tu&nbsp;?</h3>
-        <p>On te localise tout seul. Déplace l’épingle si besoin, ou touche la carte.</p>
+        <p>Ton téléphone va te demander ta position&nbsp;: accepte, et le point se place tout seul. Sinon, touche la carte à l’endroit où tu es.</p>
         <div class="map-wrap">
           <div class="map" id="carte-livraison" aria-label="Carte de la plage pour placer ta position"></div>
           <button class="btn btn--sm map-locate" type="button" data-locate>${icon('locate')} Me localiser</button>
@@ -122,7 +122,7 @@ function construire() {
           </div>
           <label class="field"><span>Téléphone <em data-tel-hint>(le livreur peut t’appeler)</em></span><input type="tel" name="telephone" autocomplete="tel" inputmode="tel" maxlength="30" placeholder="0690 12 34 56"></label>
           <fieldset class="field"><legend data-pay-legend>Paiement à la livraison</legend><div class="choices" data-payments></div></fieldset>
-          <p class="loyal-note">${icon('card')}<span><b>Carte fidélité ADY&nbsp;?</b> <span data-loyal-note>Montre ton QR code au livreur au moment de payer</span>&nbsp;: on la scanne, et ta boisson offerte est déduite si tu y as droit.</span></p>
+          <p class="loyal-note">${icon('card')}<span><b>Carte fidélité ADY&nbsp;?</b> <span data-loyal-note>Montre ton QR code au livreur au moment de payer</span>&nbsp;: on la scanne, et ton café offert est déduit si tu y as droit.${CONFIG.lienCarteFidelite ? ` Pas encore de carte&nbsp;? <a href="${esc(CONFIG.lienCarteFidelite)}" target="_blank" rel="noopener">Crée-la en 10 secondes</a>, et gagne déjà un tampon sur cette commande.` : ''}</span></p>
           <label class="field"><span>Une note pour nous&nbsp;? <em>(facultatif)</em></span><input type="text" name="note" maxlength="200" placeholder="Bien glacé, sans paille…"></label>
           <label class="check"><input type="checkbox" name="memo"> Se souvenir de mes coordonnées sur ce téléphone</label>
           <input class="hp" type="text" name="site" tabindex="-1" autocomplete="off" aria-hidden="true">
@@ -563,6 +563,7 @@ function majSuivi() {
     <h3>${titre}</h3>
     <p>${suivi.mode === 'plage' ? `On arrive sur la plage dans <b>${esc(CONFIG.delaiLivraison)}</b> environ.` : `Retrait au shop · <b>${esc(suivi.quand || 'dès que possible')}</b>.`}</p>
     <ol class="timeline">${etapes.map(([, l, d], i) => `<li class="${i < idx ? 'is-done' : i === idx ? (suivi.status === 'done' ? 'is-done' : 'is-now') : ''}"><span><b>${l}</b>${d}</span></li>`).join('')}</ol>
+    ${CONFIG.lienCarteFidelite && suivi.status !== 'done' ? `<a class="loyal-done" href="${esc(CONFIG.lienCarteFidelite)}" target="_blank" rel="noopener">${icon('card')}<span><b>Un tampon sur cette commande&nbsp;?</b>Crée ta carte fidélité en 10 secondes, on la scanne ${suivi.mode === 'plage' ? 'à la livraison' : 'au comptoir'}.</span>${icon('arrow', 'icon--arrow')}</a>` : ''}
     <p class="done__pay">${suivi.mode === 'plage' ? 'À payer à la livraison' : 'À payer au comptoir'}&nbsp;: <b>${euro(suivi.total)}</b>${Number(suivi.discount) > 0 ? ` <small>(dont ${euro(suivi.discount)} offerts grâce à ta carte)</small>` : ''}</p>
     ${estDemo() ? '<p class="muted" style="font-size:13px">Mode démo : le statut change quand on fait avancer la commande dans le back-office (/admin).</p>' : ''}
     ${CONFIG.telephone ? `<a class="btn btn--sm btn--dark" href="tel:${CONFIG.telephone.replace(/[^\d+]/g, '')}">${icon('phone')} Appeler le shop</a>` : ''}

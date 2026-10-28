@@ -29,7 +29,8 @@ Les gens sont sur la plage, au soleil, avec un téléphone : tout est pensé pou
 **Le tunnel de commande** (panneau qui s’ouvre depuis le panier, sur toutes les pages) :
 - *Plage* : panier (minimum 5 €, suggestions) → position GPS automatique, ajustable, puis **photo du spot obligatoire** → nom, prénom, téléphone, paiement (espèces / carte) → bouton « Commander avec obligation de paiement » → **suivi en direct** (reçue, en préparation, en route, livrée).
 - *Shop* : panier (pas de minimum) → heure de passage → nom, prénom, paiement au comptoir → suivi (reçue, en préparation, prête au comptoir).
-- *Fidélité* : pas de numéro à taper. Le client montre son QR code au livreur ou au comptoir au moment de payer ; la boisson offerte est déduite à ce moment-là.
+- *Fidélité* : pas de numéro à taper. Le client montre son QR code au livreur ou au comptoir au moment de payer ; le café offert est déduit à ce moment-là.
+- *Carte fidélité digitale (Walty)* : le bouton « Créer ma carte » ouvre https://carte.walty.fr/ady-coffee-shop (accueil, page Fidélité avec un QR code à scanner sur ordinateur, FAQ livraison, étape Contact et écran de suivi : « Un tampon sur cette commande ? »). Le lien se règle dans `js/config.js` (`lienCarteFidelite`) ; vide, les boutons disparaissent.
 - On peut fermer la page : la pastille en haut de l’écran ramène au suivi.
 
 ## Comment le shop reçoit les commandes
@@ -110,7 +111,7 @@ Tout ce qui est marqué **DEMO** dans les pages légales doit être complété a
 
 - **Pages légales** (`cgv.html`, `mentions-legales.html`, `confidentialite.html`, générées depuis les mêmes textes) : forme juridique et capital, SIREN/RCS, TVA, directeur de la publication, e-mail et téléphone, région Supabase, **médiateur de la consommation** (adhésion obligatoire), délai de conservation d’une commande non retirée, conduite si le client est introuvable, durée de conservation comptable. Tous ces endroits sont marqués **DEMO**.
 - **Allergènes** de chaque produit : dans le back-office, *Carte & prix*.
-- `js/config.js` : **téléphone**, **WhatsApp**, **horaires réels** (ceux du site sont provisoires), lien de la carte fidélité Wallet, position exacte du shop (`shop`), et le chiffre d’abonnés Instagram (`preuveSociale`) à vérifier.
+- `js/config.js` : **téléphone**, **WhatsApp**, **horaires réels** (ceux du site sont provisoires), position exacte du shop (`shop`), et le chiffre d’abonnés Instagram (`preuveSociale`) à vérifier.
 - Zone de livraison : centre et rayon à vérifier sur place (Réglages du back-office).
 
 ## 7. Fichiers utiles
