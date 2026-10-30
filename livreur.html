@@ -1,0 +1,65 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="robots" content="noindex, nofollow">
+<title>Livraisons · ADY Coffee Shop</title>
+<meta name="theme-color" content="#2A1A14">
+<link rel="icon" href="assets/favicon.svg" type="image/svg+xml">
+<link rel="apple-touch-icon" href="assets/apple-touch-icon.png">
+<link rel="stylesheet" href="css/fonts.css">
+<link rel="stylesheet" href="css/admin.css">
+</head>
+<body class="page-livreur">
+
+<!-- Connexion -->
+<main class="login" data-login hidden>
+  <form class="login__box" data-login-form>
+    <img src="assets/mark-red.webp" alt="ADY Coffee Shop" width="120" height="125">
+    <h1>Espace livreur</h1>
+    <label>E-mail<input type="email" name="email" autocomplete="username" required></label>
+    <label>Mot de passe<input type="password" name="password" autocomplete="current-password" required></label>
+    <button class="btn" type="submit">Se connecter</button>
+    <p class="login__err" data-login-err></p>
+    <p class="login__demo" data-demo-hint hidden>Accès démo : <b>demo.com@gmail.com</b> / <b>demo</b></p>
+  </form>
+</main>
+
+<!-- Livraisons -->
+<div class="liv" data-app hidden>
+  <header class="liv__top">
+    <img src="assets/logo.webp" alt="" width="36" height="36">
+    <h1>Livraisons</h1>
+    <span class="demo-pill" data-demo-pill hidden>Démo</span>
+    <button class="iconbtn" type="button" data-sound aria-pressed="false">Son coupé</button>
+  </header>
+  <p class="live" data-live>Connexion au direct…</p>
+
+  <section class="liv__sec" aria-labelledby="titre-route">
+    <h2 id="titre-route">À livrer <span class="liv__n" data-n="route">0</span></h2>
+    <div class="liv__list" data-list="route"></div>
+  </section>
+
+  <section class="liv__sec" aria-labelledby="titre-shop">
+    <h2 id="titre-shop">À récupérer au shop <span class="liv__n" data-n="shop">0</span></h2>
+    <div class="liv__list" data-list="shop"></div>
+  </section>
+
+  <details class="liv__faites">
+    <summary data-resume>Livrées aujourd’hui</summary>
+    <div class="liv__list" data-list="faites"></div>
+  </details>
+  <p class="liv__bas"><a href="admin" data-lien-gerant hidden>Retour au back-office</a><button class="linkish" type="button" data-logout>Se déconnecter</button></p>
+</div>
+
+<div class="lightbox" data-lightbox hidden><button class="iconbtn" type="button" data-lightbox-close>Fermer</button><img alt="Photo du point de livraison"></div>
+<div class="toast" role="status" aria-live="polite"></div>
+
+<script src="vendor/supabase/supabase.js"></script>
+<script src="config.js"></script>
+<script src="js/demo/demo-seed.js"></script>
+<script src="js/demo/demo-db.js"></script>
+<script src="js/livreur.js"></script>
+</body>
+</html>

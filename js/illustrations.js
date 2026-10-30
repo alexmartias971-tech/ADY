@@ -45,28 +45,6 @@ function rng(seed) {
   return () => ((s = (s * 16807) % 2147483647) / 2147483647);
 }
 
-// Forme organique lissée (cookies, miettes…)
-function blob(cx, cy, r, points, jitter, seed, bite) {
-  const rand = rng(seed);
-  const pts = [];
-  for (let i = 0; i < points; i++) {
-    const a = (i / points) * Math.PI * 2;
-    let rr = r * (1 - jitter / 2 + rand() * jitter);
-    if (bite) {
-      const d = Math.atan2(Math.sin(a - bite.angle), Math.cos(a - bite.angle));
-      if (Math.abs(d) < bite.width) rr -= bite.depth * Math.cos((d / bite.width) * (Math.PI / 2));
-    }
-    pts.push([cx + Math.cos(a) * rr, cy + Math.sin(a) * rr]);
-  }
-  let d = '';
-  for (let i = 0; i < pts.length; i++) {
-    const p0 = pts[(i - 1 + pts.length) % pts.length], p1 = pts[i], p2 = pts[(i + 1) % pts.length], p3 = pts[(i + 2) % pts.length];
-    if (i === 0) d += `M${r1(p1[0])} ${r1(p1[1])}`;
-    d += `C${r1(p1[0] + (p2[0] - p0[0]) / 6)} ${r1(p1[1] + (p2[1] - p0[1]) / 6)} ${r1(p2[0] - (p3[0] - p1[0]) / 6)} ${r1(p2[1] - (p3[1] - p1[1]) / 6)} ${r1(p2[0])} ${r1(p2[1])}`;
-  }
-  return `${d}Z`;
-}
-
 function svg(label, { defs = '', back = '', print = '', ink = '', top = '' }) {
   return `<svg class="ill" viewBox="0 0 200 240" role="img" aria-label="${label}">
     <defs>${defs}</defs>${back}

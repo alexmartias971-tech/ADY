@@ -2,8 +2,8 @@
 //  Scène « Livré les pieds dans le sable »
 //  Panorama illustré (monde de 3600 × 900) filmé par une caméra qui suit
 //  le livreur, du shop jusqu'au parasol jaune du client.
-//  • mode 'scroll' : la progression suit le défilement (page d'accueil)
-//  • mode 'loop'   : la scène se joue toute seule en boucle
+//  • mode 'loop'   : la scène se joue toute seule en boucle (accueil, livraison)
+//  • mode 'scroll' : la progression suit le défilement (scene.set(p))
 //  Trois plans de parallaxe : lointain (soleil, nuages, île), mer, plage.
 // ─────────────────────────────────────────────────────────────
 
@@ -39,13 +39,13 @@ export function polaroid({ x = 0, y = 0, w = 120, rot = 0 } = {}) {
       <rect x="9" y="50" width="102" height="18" fill="#3f97ae"/>
       <path d="M9 64 q8 -4 16 0 t16 0 t16 0 t16 0 t16 0 t16 0 t8 0 V70 H9Z" fill="#fff" opacity=".8"/>
       <rect x="9" y="66" width="102" height="40" fill="${SAND}"/>
-      <path d="M40 92 L94 92 L86 102 L32 102Z" fill="${TERRA}"/><path d="M42 95 h48 M38 99 h48" stroke="${CREAM}" stroke-width="2.4"/>
-      <path d="M63 96 L66 46" stroke="${INK}" stroke-width="2.6"/>
-      <path d="M36 50 Q66 22 96 50 Q88 46 81 50 Q73 46 66 50 Q58 46 51 50 Q43 46 36 50Z" fill="#f4c33f" stroke="${INK}" stroke-width="2.6" stroke-linejoin="round"/>
-      <circle cx="74" cy="86" r="5" fill="${SKIN}"/><path d="M70 92 q4 -4 9 0 v6 h-9z" fill="#4aa3c9"/>
+      <path d="M52 104 L52 66" stroke="${INK}" stroke-width="4" stroke-linecap="round"/>
+      <rect x="24" y="44" width="56" height="27" rx="5" fill="${TERRA}" stroke="${INK}" stroke-width="2.6"/>
+      <text x="52" y="63" text-anchor="middle" font-family="Londrina Solid, sans-serif" font-weight="900" font-size="16" fill="${CREAM}">ADY</text>
+      <circle cx="88" cy="84" r="5" fill="${SKIN}"/><path d="M84 90 q4 -4 9 0 v8 h-9z" fill="#4aa3c9"/>
     </g>
     <rect x="9" y="9" width="102" height="96" fill="url(#gr-d)" opacity=".35"/>
-    <text x="60" y="128" text-anchor="middle" font-family="Londrina Solid, sans-serif" font-weight="400" font-size="14" fill="${INK}">mon spot !</text>
+    <text x="60" y="128" text-anchor="middle" font-family="Londrina Solid, sans-serif" font-weight="400" font-size="14" fill="${INK}">point ADY</text>
   </g>`;
 }
 

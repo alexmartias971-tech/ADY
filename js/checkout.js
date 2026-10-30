@@ -1,35 +1,28 @@
 // ─────────────────────────────────────────────────────────────
-//  Tunnel de commande — pensé pour quelqu'un sur sa serviette :
-//  1. Panier (et « livré sur la plage » ou « je passe au shop »)
-//  2. Ton spot (GPS lancé tout seul + photo)  ·  ou  ·  heure de passage
-//  3. Prénom, téléphone (mémorisés), paiement, carte fidélité
-//  4. Suivi en direct (reste accessible depuis l'en-tête)
+//  Commande express, sur un seul écran (pensée pour le téléphone) :
+//  le panier, puis 1. le point de livraison sur la plage (ou l'heure
+//  de retrait au shop), 2. nom, prénom, téléphone, paiement, et un
+//  bouton. Ensuite, le suivi en direct (accessible depuis l'en-tête).
 // ─────────────────────────────────────────────────────────────
-import { CONFIG } from './config.js';
-import { catalogue, trouverProduit, libelleOptions, choixParDefaut, zone, envoyerPhoto, passerCommande, statutCommande, enService, estDemo } from './data.js';
+import { CONFIG } from './reglages.js';
+import { catalogue, trouverProduit, trouverPoint, libelleOptions, passerCommande, statutCommande, enService, estDemo } from './data.js';
 import { illustration } from './illustrations.js';
 import { panier } from './cart.js';
 import { etatOuverture } from './horaires.js';
 import { icon } from './icons.js';
-import { polaroid, livreurSeul } from './scene.js';
-import { chargerLeaflet, iconePin, iconeShop } from './map.js';
-import { $, $$, euro, euroCourt, esc, minusculeInitiale, toast, beanSVG, distanceMetres, reduceMotion } from './utils.js';
-import { ouvrirFiche } from './sheet.js';
-import { ajouter, ton } from './produits.js';
+import { livreurSeul } from './scene.js';
+import { $, $$, euro, euroCourt, esc, toast, beanSVG, distanceMetres, reduceMotion } from './utils.js';
+import { ton } from './produits.js';
 
 const CLE_CLIENT = 'ady-client-v1';
 const CLE_SUIVI = 'ady-suivi-v1';
 const CRENEAUX = ['Dès que possible', 'Dans 15 min', 'Dans 30 min', 'Dans 1 h'];
 
 let panel;
-const etat = { etape: 1, position: null, photo: null, photoBlob: null, envoi: false, creneau: CRENEAUX[0], dejaLocalise: false };
+const etat = { vue: 'commande', envoi: false, creneau: CRENEAUX[0], distances: null };
 let suivi = lireSuivi();
 let minuteurSuivi = null;
 let focusAvant = null;
-let map = null;
-let L = null;
-let marqueur = null;
-let cerclePrecision = null;
 
 function lireSuivi() {
   try {
@@ -42,8 +35,8 @@ function ecrireSuivi() {
   try { if (suivi) localStorage.setItem(CLE_SUIVI, JSON.stringify(suivi)); else localStorage.removeItem(CLE_SUIVI); } catch { /* */ }
 }
 
-const flux = () => (panier.mode === 'plage' ? [1, 2, 3] : [1, 'retrait', 3]);
 const R = () => catalogue.reglages;
+const plageDispo = () => R().beach_open !== false && catalogue.points.length > 0;
 
 /* ── Construction du panneau ──────────────────────────────── */
 function construire() {
@@ -57,87 +50,66 @@ function construire() {
   panel.innerHTML = `<div class="panel__backdrop" data-close-panel></div>
   <div class="panel__box">
     <header class="panel__head">
-      <button class="round-btn" type="button" data-back aria-label="Étape précédente" hidden>${icon('back')}</button>
       <h2 id="commande-titre">Ma commande</h2>
       <button class="round-btn" type="button" data-close-panel aria-label="Fermer">${icon('close')}</button>
     </header>
-    <div class="modes" role="radiogroup" aria-label="Comment veux-tu ta commande ?" data-modes>
-      <button type="button" role="radio" data-mode="plage">${icon('pin')}<span><b>Livré sur la plage</b><small data-mode-plage-sub>Caravelle · dès 5 €</small></span></button>
-      <button type="button" role="radio" data-mode="shop">${icon('bag')}<span><b>Je passe au shop</b><small>Prête à ton arrivée</small></span></button>
-    </div>
-    <ol class="progress" data-progress><li data-dot="1">Panier</li><li data-dot="2" data-dot-label>Ton spot</li><li data-dot="3">Contact</li></ol>
     <div class="panel__body" data-body>
-      <section class="step" data-step="1">
+      <section class="vue" data-vue="commande">
+        <div class="modes" role="radiogroup" aria-label="Comment veux-tu ta commande ?" data-modes>
+          <button type="button" role="radio" data-mode="plage">${icon('pin')}<span><b>Livré sur la plage</b><small data-mode-plage-sub>Caravelle · dès 5 €</small></span></button>
+          <button type="button" role="radio" data-mode="shop">${icon('bag')}<span><b>Je passe au shop</b><small>Prête à ton arrivée</small></span></button>
+        </div>
         <p class="notice" data-ferme hidden></p>
         <div class="cart-empty" data-empty>
           <svg viewBox="0 0 728 584" aria-hidden="true"><use href="assets/brand.svg#st-head"/></svg>
           <p><b>Ton panier est vide.</b><br>Une petite soif&nbsp;?</p>
           <a class="btn btn--sm" href="carte" data-close-panel>Voir la carte</a>
         </div>
-        <ul class="cart-lines" data-lines></ul>
-        <div class="min-meter" data-meter><div class="min-meter__beans" data-meter-beans></div><p data-meter-text></p></div>
-        <div class="upsell" data-upsell></div>
-      </section>
+        <div data-plein>
+          <ul class="cart-lines" data-lines></ul>
+          <div class="min-line" data-min hidden><p data-min-text></p><span class="min-line__bar"><span data-min-bar></span></span></div>
 
-      <section class="step" data-step="2" hidden>
-        <h3 class="step__title">Où es-tu&nbsp;?</h3>
-        <p>Ton téléphone va te demander ta position&nbsp;: accepte, et le point se place tout seul. Sinon, touche la carte à l’endroit où tu es.</p>
-        <div class="map-wrap">
-          <div class="map" id="carte-livraison" aria-label="Carte de la plage pour placer ta position"></div>
-          <button class="btn btn--sm map-locate" type="button" data-locate>${icon('locate')} Me localiser</button>
-        </div>
-        <p class="geo-status" data-geo role="status">Ta position n’est pas encore définie.</p>
-        <h3 class="step__title">Ton spot en photo <span class="req" data-photo-req>obligatoire</span></h3>
-        <p>C’est ce qui aide le plus le livreur à te trouver.</p>
-        <div class="photo-tip"><svg viewBox="-6 -6 136 156" aria-hidden="true">${polaroid({ x: 0, y: 0, w: 120, rot: -4 })}</svg><span>Cadre ta serviette ou ton parasol, avec un repère visible&nbsp;: poste de secours, palmier, bateau… Évite d’y faire figurer d’autres personnes.</span></div>
-        <div class="photo__actions" data-photo-actions>
-          <label class="photo__btn photo__btn--main"><input type="file" accept="image/*" capture="environment" data-photo-input>${icon('camera')} Prendre la photo</label>
-          <label class="photo__btn"><input type="file" accept="image/*" data-photo-input>${icon('image')} Galerie</label>
-        </div>
-        <figure class="photo__preview" data-photo-preview hidden>
-          <img alt="Photo de ton spot" data-photo-img>
-          <figcaption>ton spot</figcaption>
-          <button type="button" class="round-btn photo__remove" data-photo-remove aria-label="Supprimer la photo">${icon('close')}</button>
-        </figure>
-        <label class="field"><span>Un repère en plus&nbsp;? <em>(facultatif)</em></span>
-          <input type="text" maxlength="160" placeholder="Ex. parasol jaune, à droite du poste de secours" data-landmark></label>
-      </section>
-
-      <section class="step" data-step="retrait" hidden>
-        <h3 class="step__title">Tu passes quand&nbsp;?</h3>
-        <p>On lance la préparation pour que ce soit prêt à ton arrivée.</p>
-        <div class="choices choices--big" role="radiogroup" aria-label="Heure de passage" data-creneaux></div>
-        <div class="pickup-card">
-          <svg viewBox="0 0 728 584" aria-hidden="true"><use href="assets/brand.svg#st-head"/></svg>
-          <div><b>ADY Coffee Shop</b><span data-address-pickup></span><a class="link-arrow" data-directions-pickup target="_blank" rel="noopener">Itinéraire ${icon('arrow')}</a></div>
-        </div>
-      </section>
-
-      <section class="step" data-step="3" hidden>
-        <h3 class="step__title">Tes coordonnées</h3>
-        <form data-form novalidate>
-          <div class="field-row">
-            <label class="field"><span>Prénom</span><input type="text" name="prenom" autocomplete="given-name" maxlength="40" required placeholder="Marie"></label>
-            <label class="field"><span>Nom</span><input type="text" name="nom" autocomplete="family-name" maxlength="40" required placeholder="Durand"></label>
+          <div class="bloc" data-bloc="plage">
+            <h3 class="bloc__titre"><span class="bloc__n">1</span>Où on te livre&nbsp;?</h3>
+            <p class="bloc__aide">Choisis le point le plus proche de toi&nbsp;: ta commande t’y attend, on te prévient par message.</p>
+            <button class="lien-proche" type="button" data-proche>${icon('locate')} Trouver le point le plus proche</button>
+            <div class="points" role="radiogroup" aria-label="Point de livraison" data-points></div>
+            <label class="field field--court"><span>Un signe pour te reconnaître&nbsp;? <em>(facultatif)</em></span>
+              <input type="text" maxlength="120" placeholder="Ex. chapeau de paille, serviette jaune" data-signe></label>
           </div>
-          <label class="field"><span>Téléphone <em data-tel-hint>(le livreur peut t’appeler)</em></span><input type="tel" name="telephone" autocomplete="tel" inputmode="tel" maxlength="30" placeholder="0690 12 34 56"></label>
-          <fieldset class="field"><legend data-pay-legend>Paiement à la livraison</legend><div class="choices" data-payments></div></fieldset>
-          <p class="loyal-note">${icon('card')}<span><b>Carte fidélité ADY&nbsp;?</b> <span data-loyal-note>Montre ton QR code au livreur au moment de payer</span>&nbsp;: on la scanne, et ton café offert est déduit si tu y as droit.${CONFIG.lienCarteFidelite ? ` Pas encore de carte&nbsp;? <a href="${esc(CONFIG.lienCarteFidelite)}" target="_blank" rel="noopener">Crée-la en 10 secondes</a>, et gagne déjà un tampon sur cette commande.` : ''}</span></p>
-          <label class="field"><span>Une note pour nous&nbsp;? <em>(facultatif)</em></span><input type="text" name="note" maxlength="200" placeholder="Bien glacé, sans paille…"></label>
-          <label class="check"><input type="checkbox" name="memo"> Se souvenir de mes coordonnées sur ce téléphone</label>
-          <input class="hp" type="text" name="site" tabindex="-1" autocomplete="off" aria-hidden="true">
-        </form>
-        <div class="recap" data-recap></div>
-        <p class="notice notice--demo" data-demo-note hidden>Site de démonstration&nbsp;: cette commande n’est ni préparée ni livrée.</p>
-        <p class="legal-note">En validant, tu acceptes nos <a href="cgv" target="_blank" rel="noopener">conditions de vente</a> et tu t’engages à payer ta commande à la remise. Tes coordonnées, ta position et ta photo servent uniquement à préparer et remettre ta commande (<a href="confidentialite" target="_blank" rel="noopener">confidentialité</a>).</p>
+
+          <div class="bloc" data-bloc="shop" hidden>
+            <h3 class="bloc__titre"><span class="bloc__n">1</span>Tu passes quand&nbsp;?</h3>
+            <div class="choices choices--big" role="radiogroup" aria-label="Heure de passage" data-creneaux></div>
+            <p class="bloc__aide bloc__aide--shop">${icon('pin')}<span>ADY Coffee Shop, <span data-address-pickup></span> · <a data-directions-pickup target="_blank" rel="noopener">Itinéraire</a></span></p>
+          </div>
+
+          <form class="bloc" data-form novalidate>
+            <h3 class="bloc__titre"><span class="bloc__n">2</span>Tes infos</h3>
+            <div class="field-row">
+              <label class="field field--court"><span>Prénom</span><input type="text" name="prenom" autocomplete="given-name" maxlength="40" required placeholder="Marie"></label>
+              <label class="field field--court"><span>Nom</span><input type="text" name="nom" autocomplete="family-name" maxlength="40" required placeholder="Durand"></label>
+            </div>
+            <label class="field field--court"><span>Téléphone <em data-tel-hint>(on te prévient quand c’est là)</em></span><input type="tel" name="telephone" autocomplete="tel" inputmode="tel" maxlength="30" placeholder="0690 12 34 56"></label>
+            <fieldset class="field field--court"><legend data-pay-legend>Paiement à la livraison</legend><div class="choices" data-payments></div></fieldset>
+            <label class="check"><input type="checkbox" name="memo"> Se souvenir de moi sur ce téléphone</label>
+            <details class="ajout-note"><summary>Ajouter une note pour nous</summary>
+              <label class="field field--court"><span class="sr-only">Note</span><input type="text" name="note" maxlength="200" placeholder="Bien glacé, sans paille…"></label></details>
+            <input class="hp" type="text" name="site" tabindex="-1" autocomplete="off" aria-hidden="true">
+          </form>
+
+          <p class="loyal-note">${icon('card')}<span><b>Carte fidélité&nbsp;?</b> <span data-loyal-note>Montre ton QR code au livreur au moment de payer.</span>${CONFIG.lienCarteFidelite ? ` Pas encore de carte&nbsp;? <a href="${esc(CONFIG.lienCarteFidelite)}" target="_blank" rel="noopener">Crée-la en 10 secondes</a>.` : ''}</span></p>
+          <p class="notice notice--demo" data-demo-note hidden>Site de démonstration&nbsp;: cette commande n’est ni préparée ni livrée.</p>
+          <p class="legal-note">En validant, tu acceptes nos <a href="cgv" target="_blank" rel="noopener">conditions de vente</a> et tu t’engages à payer ta commande à la remise. Tes coordonnées servent uniquement à préparer et remettre ta commande (<a href="confidentialite" target="_blank" rel="noopener">confidentialité</a>).</p>
+        </div>
       </section>
 
-      <section class="step" data-step="4" hidden><div data-suivi></div></section>
+      <section class="vue" data-vue="suivi" hidden><div data-suivi></div></section>
     </div>
     <footer class="panel__foot">
       <div class="totals" data-totals></div>
       <p class="form-error" data-error role="alert" hidden></p>
-      <button class="btn btn--block btn--lg" type="button" data-next>Continuer</button>
+      <button class="btn btn--block btn--lg" type="button" data-next>Commander</button>
     </footer>
   </div>`;
   document.body.appendChild(panel);
@@ -146,16 +118,18 @@ function construire() {
 const q = (sel) => $(sel, panel);
 
 /* ── Ouverture / fermeture ────────────────────────────────── */
-export function ouvrirPanneau(etape = 1) {
-  if (etape === 4 && !suivi) etape = 1;
-  if (etape !== 4 && etape !== 1 && !panierValide()) etape = 1;
-  if (!panel.hidden) return allerA(etape);
+// vue : 'commande' (par défaut) ou 'suivi' (4, pour les anciens appels)
+export function ouvrirPanneau(vue = 'commande') {
+  if (vue === 4) vue = 'suivi';
+  if (vue === 'suivi' && !suivi) vue = 'commande';
+  if (vue !== 'suivi') vue = 'commande';
+  if (!panel.hidden) return montrerVue(vue);
   focusAvant = document.activeElement;
   $('[data-toast]')?.classList.remove('is-on');
   panel.hidden = false;
   document.documentElement.style.overflow = 'hidden';
   history.pushState({ panneau: true }, '');
-  allerA(etape);
+  montrerVue(vue);
   setTimeout(() => q('.panel__head [data-close-panel]').focus({ preventScroll: true }), 60);
 }
 
@@ -167,83 +141,69 @@ function fermerPanneau(depuisHistorique = false) {
   focusAvant?.focus?.({ preventScroll: true });
 }
 
-/* ── Étapes ───────────────────────────────────────────────── */
-function allerA(n) {
-  if (n === 2 && panier.mode === 'shop') n = 'retrait';
-  if (n === 'retrait' && panier.mode === 'plage') n = 2;
-  etat.etape = n;
+function montrerVue(vue) {
+  etat.vue = vue;
   cacherErreur();
-  $$('[data-step]', panel).forEach((s) => (s.hidden = String(s.dataset.step) !== String(n)));
-  const idx = n === 4 ? 4 : flux().indexOf(n) + 1;
-  $$('[data-dot]', panel).forEach((li) => {
-    const i = Number(li.dataset.dot);
-    li.classList.toggle('is-active', i === idx);
-    li.classList.toggle('is-done', i < idx);
-  });
-  q('[data-dot-label]').textContent = panier.mode === 'plage' ? 'Ton spot' : 'Retrait';
-  q('[data-progress]').hidden = n === 4;
-  q('[data-modes]').hidden = n !== 1;
-  q('[data-back]').hidden = n === 1 || n === 4;
+  $$('[data-vue]', panel).forEach((s) => (s.hidden = s.dataset.vue !== vue));
+  q('#commande-titre').textContent = vue === 'suivi' ? 'Ma commande' : 'Commander';
   q('[data-body]').scrollTop = 0;
-  if (n === 2) initCarte();
-  if (n === 'retrait') majCreneaux();
-  if (n === 3) { prerempli(); majContact(); majRecap(); }
-  if (n === 4) majSuivi();
+  if (vue === 'commande') { prerempli(); majCommande(); }
+  if (vue === 'suivi') majSuivi();
   majPied();
 }
 
+/* ── Règles ───────────────────────────────────────────────── */
 const fraisLivraison = () => (panier.mode === 'plage' && panier.nb() ? CONFIG.fraisLivraison : 0);
 const total = () => panier.sousTotal() + fraisLivraison();
 const minimum = () => (panier.mode === 'plage' ? Number(R().beach_min) || 0 : 0);
 
 function blocage() {
   if (!R().orders_open) return 'Les commandes en ligne sont fermées pour le moment. Tu peux toujours passer au shop !';
-  if (panier.mode === 'plage' && !R().beach_open) return 'La livraison plage est fermée pour le moment. Tu peux commander à emporter.';
+  if (panier.mode === 'plage' && !plageDispo()) return 'La livraison plage est fermée pour le moment. Tu peux commander à emporter.';
   if (CONFIG.bloquerHorsHoraires && !etatOuverture(CONFIG).livraison) return 'Le shop est fermé pour le moment : reviens pendant les horaires d’ouverture.';
   const horsService = panier.lignes().map((l) => trouverProduit(l.pid)).find((p) => p && !enService(p));
   if (horsService) return `${horsService.nom} n’est servi qu’à l’heure du déjeuner : retire-le pour commander maintenant.`;
   return null;
 }
 
-function panierValide() {
-  return panier.nb() > 0 && panier.sousTotal() >= minimum() && !blocage();
-}
-
 function majPied() {
-  const n = etat.etape;
-  const st = panier.sousTotal();
-  q('[data-totals]').innerHTML = n === 4 || !panier.nb() ? '' : `<div><span>Sous-total</span><span>${euro(st)}</span></div>
-    ${panier.mode === 'plage' ? `<div><span>Livraison sur la plage</span><span>${fraisLivraison() ? euro(fraisLivraison()) : 'Offerte'}</span></div>` : ''}
-    <div class="totals__grand"><span>Total</span><span>${euro(total())}</span></div>`;
   const b = q('[data-next]');
-  const fleche = icon('arrow', 'icon--arrow');
-  if (n === 1) {
-    const bloque = blocage();
-    b.innerHTML = panier.mode === 'plage' ? `Choisir mon spot ${fleche}` : `Choisir mon heure ${fleche}`;
-    b.disabled = !panierValide();
-    const f = q('[data-ferme]');
-    f.hidden = !bloque || !panier.nb();
-    f.textContent = bloque || '';
-  } else if (n === 2 || n === 'retrait') {
-    b.innerHTML = `Continuer ${fleche}`;
-    b.disabled = false;
-  } else if (n === 3) {
-    // libellé imposé pour une commande en ligne (art. L221-14 du Code de la consommation)
-    b.textContent = etat.envoi ? 'Envoi en cours…' : 'Commander avec obligation de paiement';
-    b.classList.toggle('btn--legal', !etat.envoi);
-    b.disabled = etat.envoi;
-  } else {
+  b.classList.remove('btn--legal');
+  if (etat.vue === 'suivi') {
+    q('[data-totals]').innerHTML = '';
     b.textContent = suivi && !['done', 'cancelled'].includes(suivi.status) ? 'Continuer ma visite' : 'Fermer';
     b.disabled = false;
+    return;
   }
+  const vide = !panier.nb();
+  q('[data-totals]').innerHTML = vide ? '' : `<div class="totals__grand"><span>Total${panier.mode === 'plage' ? ` <small>${fraisLivraison() ? `livraison ${euro(fraisLivraison())}` : 'livraison offerte'}</small>` : ''}</span><span>${euro(total())}</span></div>`;
+  if (vide) {
+    b.textContent = 'Voir la carte';
+    b.disabled = false;
+    return;
+  }
+  // libellé imposé pour une commande en ligne (art. L221-14 du Code de la consommation)
+  b.textContent = etat.envoi ? 'Envoi en cours…' : 'Commander avec obligation de paiement';
+  b.classList.toggle('btn--legal', !etat.envoi);
+  b.disabled = etat.envoi;
 }
 
-const montrerErreur = (msg) => { const e = q('[data-error]'); e.textContent = msg; e.hidden = false; };
+const montrerErreur = (msg, cible) => {
+  const e = q('[data-error]');
+  e.textContent = msg;
+  e.hidden = false;
+  if (cible) {
+    cible.scrollIntoView({ behavior: reduceMotion() ? 'auto' : 'smooth', block: 'center' });
+    if (cible.matches('input')) setTimeout(() => cible.focus({ preventScroll: true }), 250);
+  }
+};
 const cacherErreur = () => { q('[data-error]').hidden = true; };
 
-/* ── Mode : plage ou shop ─────────────────────────────────── */
-function majModes() {
-  const plageOff = !R().beach_open;
+/* ── Écran de commande ────────────────────────────────────── */
+function majCommande() {
+  if (!panel) return;
+  // mode plage / shop
+  const plageOff = !plageDispo();
   if (plageOff && panier.mode === 'plage') panier.setMode('shop');
   $$('[data-mode]', panel).forEach((b) => {
     const on = b.dataset.mode === panier.mode;
@@ -252,14 +212,16 @@ function majModes() {
     b.disabled = b.dataset.mode === 'plage' && plageOff;
   });
   q('[data-mode-plage-sub]').textContent = plageOff ? 'Fermée pour le moment' : `Caravelle · dès ${euroCourt(Number(R().beach_min))}`;
-}
 
-/* ── Étape 1 : panier ─────────────────────────────────────── */
-function majPanier() {
-  if (!panel) return;
-  majModes();
   const lignes = panier.lignes();
+  const plage = panier.mode === 'plage';
   q('[data-empty]').hidden = lignes.length > 0;
+  q('[data-plein]').hidden = !lignes.length;
+  const bloque = blocage();
+  const f = q('[data-ferme]');
+  f.hidden = !bloque || !lignes.length;
+  f.textContent = bloque || '';
+
   q('[data-lines]').innerHTML = lignes.map((l) => {
     const p = trouverProduit(l.pid);
     const o = libelleOptions(l.pid, l.opts, l.vid);
@@ -274,161 +236,83 @@ function majPanier() {
       </div></li>`;
   }).join('');
 
-  // jauge du minimum de commande (livraison plage seulement), façon carte fidélité
+  // minimum de commande pour la livraison plage
   const st = panier.sousTotal();
   const min = minimum();
-  const meter = q('[data-meter]');
-  meter.hidden = !lignes.length || panier.mode !== 'plage';
-  if (!meter.hidden) {
-    const allumes = Math.round(Math.min(1, min > 0 ? st / min : 1) * 10);
-    meter.classList.toggle('is-ok', st >= min);
-    q('[data-meter-beans]').innerHTML = Array.from({ length: 10 }, (_, i) => `<span class="bean${i < allumes ? ' is-on' : ''}">${beanSVG()}</span>`).join('');
-    q('[data-meter-text]').innerHTML = st >= min ? 'C’est bon, on se déplace jusqu’à toi&nbsp;!' : `Encore <b>${euro(min - st)}</b> pour la livraison sur la plage (minimum ${euroCourt(min)}).`;
+  const m = q('[data-min]');
+  m.hidden = !plage || !lignes.length || st >= min;
+  if (!m.hidden) {
+    q('[data-min-text]').innerHTML = `Encore <b>${euro(min - st)}</b> pour être livré sur la plage (minimum ${euroCourt(min)}).`;
+    q('[data-min-bar]').style.width = `${Math.round(Math.min(1, st / min) * 100)}%`;
   }
 
-  // « Avec ça ? » : les signatures et le salé, pas encore dans le panier
-  const dans = new Set(lignes.map((l) => l.pid));
-  const idees = catalogue.produits.filter((p) => !p.epuise && enService(p) && p.kind !== 'merch' && !dans.has(p.id) && (p.vedette || p.signature)).slice(0, 8);
-  q('[data-upsell]').innerHTML = lignes.length && idees.length ? `<h3>Avec ça&nbsp;?</h3><div class="upsell__list">${idees.map((p) => `
-      <button type="button" class="upsell__item" data-idee="${p.id}"><div class="art" style="--tone:${ton(p)}">${illustration(p)}</div><b>${esc(p.nom)}</b><span>${euro(p.prix)} ${icon('plus')}</span></button>`).join('')}</div>` : '';
-
-  if (etat.etape === 3) majRecap();
-  if (!panel.hidden && !lignes.length && [2, 'retrait', 3].includes(etat.etape)) allerA(1);
+  q('[data-bloc="plage"]').hidden = !plage;
+  q('[data-bloc="shop"]').hidden = plage;
+  if (plage) majPoints(); else majCreneaux();
+  majContact();
   majPied();
 }
 
-/* ── Étape 2 : carte, GPS, photo ──────────────────────────── */
-const dansLaZone = (pos) => distanceMetres(pos, zone().centre) <= zone().rayonMetres;
-
-async function initCarte() {
-  if (!map) {
-    try {
-      L = await chargerLeaflet();
-    } catch {
-      q('#carte-livraison').innerHTML = '<p style="padding:16px">La carte n’a pas pu se charger. Utilise «&nbsp;Me localiser&nbsp;» et la photo de ton spot.</p>';
-      return;
-    }
-    const z = zone();
-    map = L.map('carte-livraison', { zoomControl: true, scrollWheelZoom: false }).setView([z.centre.lat, z.centre.lng], 16);
-    map.attributionControl.setPrefix('<a href="https://leafletjs.com" target="_blank" rel="noopener">Leaflet</a>');
-    L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', { maxZoom: 19, attribution: '© <a href="https://www.openstreetmap.org/copyright" target="_blank" rel="noopener">OpenStreetMap</a>' }).addTo(map);
-    L.circle([z.centre.lat, z.centre.lng], { radius: z.rayonMetres, color: '#bf472c', weight: 3, dashArray: '8 8', fillColor: '#bf472c', fillOpacity: 0.07, interactive: false }).addTo(map);
-    map.fitBounds(L.latLng(z.centre.lat, z.centre.lng).toBounds(z.rayonMetres * 2), { padding: [10, 10], animate: false });
-    if (CONFIG.shop) L.marker([CONFIG.shop.lat, CONFIG.shop.lng], { interactive: false, keyboard: false, icon: iconeShop(L) }).addTo(map);
-    map.on('click', (e) => placer(e.latlng.lat, e.latlng.lng, null, 'manuel'));
-    if (etat.position) placer(etat.position.lat, etat.position.lng, etat.position.precision, etat.position.source);
-  }
-  setTimeout(() => map.invalidateSize(), 80);
-  // on évite un clic : la localisation se lance toute seule la première fois
-  if (!etat.position && !etat.dejaLocalise) {
-    etat.dejaLocalise = true;
-    localiser();
-  }
+/* ── 1. Point de livraison sur la plage ───────────────────── */
+function majPoints() {
+  const liste = catalogue.points.slice();
+  if (etat.distances) liste.sort((a, b) => etat.distances[a.id] - etat.distances[b.id]);
+  // un seul point : il est choisi d'office
+  if (liste.length === 1 && panier.point !== liste[0].id) panier.setPoint(liste[0].id);
+  q('[data-proche]').hidden = liste.length < 2;
+  q('[data-points]').innerHTML = liste.map((p) => {
+    const d = etat.distances?.[p.id];
+    return `<label class="pt${panier.point === p.id ? ' is-on' : ''}">
+      <input type="radio" name="point" value="${esc(p.id)}"${panier.point === p.id ? ' checked' : ''}>
+      <span class="pt__img">${p.photo ? `<img src="${esc(p.photo)}" alt="" loading="lazy">` : icon('pin')}</span>
+      <span class="pt__txt"><b>${esc(p.nom)}</b>${p.indication ? `<small>${esc(p.indication)}</small>` : ''}${d != null ? `<em>à ${d < 1000 ? `${Math.round(d / 10) * 10} m` : `${(d / 1000).toFixed(1).replace('.', ',')} km`} de toi</em>` : ''}</span>
+      <span class="pt__check" aria-hidden="true">${icon('check')}</span>
+    </label>`;
+  }).join('');
 }
 
-function placer(lat, lng, precision, source) {
-  etat.position = { lat, lng, precision, source };
-  if (map && L) {
-    if (!marqueur) {
-      marqueur = L.marker([lat, lng], { draggable: true, autoPan: true, icon: iconePin(L), title: 'Ma position' }).addTo(map);
-      marqueur.on('dragend', () => {
-        const p = marqueur.getLatLng();
-        cerclePrecision?.remove(); cerclePrecision = null;
-        etat.position = { lat: p.lat, lng: p.lng, precision: null, source: 'manuel' };
-        majGeo();
-      });
-    } else marqueur.setLatLng([lat, lng]);
-    cerclePrecision?.remove(); cerclePrecision = null;
-    if (precision) cerclePrecision = L.circle([lat, lng], { radius: precision, color: '#2a1810', weight: 1, fillOpacity: 0.08, interactive: false }).addTo(map);
-  }
-  majGeo();
-}
-
-function majGeo(message) {
-  const el = q('[data-geo]');
-  el.classList.remove('is-ok', 'is-ko');
-  if (message) { el.textContent = message; el.classList.add('is-ko'); return; }
-  if (!etat.position) { el.textContent = 'Ta position n’est pas encore définie.'; return; }
-  if (dansLaZone(etat.position)) {
-    const p = etat.position.precision;
-    el.textContent = `C’est noté, tu es dans la zone de livraison${p ? ` (précision ±${Math.round(p)} m)` : ''}.`;
-    el.classList.add('is-ok');
-  } else {
-    el.textContent = `Hors zone : on livre uniquement sur la ${minusculeInitiale(CONFIG.zone.nom)}. Si ta position est fausse, déplace l’épingle.`;
-    el.classList.add('is-ko');
-  }
-}
-
-function localiser() {
-  if (!('geolocation' in navigator) || !window.isSecureContext) {
-    majGeo('La localisation n’est pas disponible ici. Touche la carte pour placer l’épingle.');
-    return;
-  }
-  const btn = q('[data-locate]');
-  btn.disabled = true;
-  q('[data-geo]').textContent = 'Localisation en cours…';
+// Position lue sur le téléphone, uniquement pour trier les points : elle n'est jamais envoyée
+function plusProche() {
+  const b = q('[data-proche]');
+  if (!('geolocation' in navigator) || !window.isSecureContext) return toast('La localisation n’est pas disponible ici : choisis ton point dans la liste.');
+  b.disabled = true;
+  b.lastChild.textContent = ' Recherche…';
   navigator.geolocation.getCurrentPosition((pos) => {
-    btn.disabled = false;
-    const { latitude, longitude, accuracy } = pos.coords;
-    placer(latitude, longitude, accuracy, 'gps');
-    if (!map) return;
-    if (dansLaZone(etat.position)) map.setView([latitude, longitude], 18);
-    else {
-      const z = zone();
-      map.fitBounds(L.latLng(z.centre.lat, z.centre.lng).toBounds(z.rayonMetres * 2).extend([latitude, longitude]), { padding: [24, 24] });
-    }
-  }, (err) => {
-    btn.disabled = false;
-    majGeo(err.code === 1
-      ? 'Localisation refusée. Autorise-la dans les réglages de ton navigateur, ou touche la carte pour placer l’épingle.'
-      : 'Impossible de te localiser pour le moment. Touche la carte pour placer l’épingle.');
-  }, { enableHighAccuracy: true, timeout: 15000, maximumAge: 0 });
+    const moi = { lat: pos.coords.latitude, lng: pos.coords.longitude };
+    etat.distances = Object.fromEntries(catalogue.points.map((p) => [p.id, distanceMetres(moi, p)]));
+    const proche = catalogue.points.reduce((a, p) => (etat.distances[p.id] < etat.distances[a.id] ? p : a));
+    b.disabled = false;
+    b.lastChild.textContent = ' Trouver le point le plus proche';
+    cacherErreur();
+    panier.setPoint(proche.id);
+    toast(`Le plus proche : ${proche.nom}`);
+  }, () => {
+    b.disabled = false;
+    b.lastChild.textContent = ' Trouver le point le plus proche';
+    toast('Position indisponible : choisis ton point dans la liste.');
+  }, { enableHighAccuracy: true, timeout: 12000, maximumAge: 60000 });
 }
 
-// Photo redimensionnée et compressée dans le navigateur avant l'envoi
-async function compresser(fichier, max) {
-  const url = URL.createObjectURL(fichier);
-  try {
-    const img = new Image();
-    img.src = url;
-    await img.decode();
-    const r = Math.min(1, max / Math.max(img.naturalWidth, img.naturalHeight));
-    const c = document.createElement('canvas');
-    c.width = Math.round(img.naturalWidth * r);
-    c.height = Math.round(img.naturalHeight * r);
-    c.getContext('2d').drawImage(img, 0, 0, c.width, c.height);
-    const blob = await new Promise((ok) => c.toBlob(ok, 'image/jpeg', 0.75));
-    return { blob, apercu: c.toDataURL('image/jpeg', 0.6) };
-  } finally {
-    URL.revokeObjectURL(url);
-  }
-}
-
-function majPhoto() {
-  q('[data-photo-preview]').hidden = !etat.photo;
-  q('[data-photo-actions]').hidden = !!etat.photo;
-  if (etat.photo) q('[data-photo-img]').src = etat.photo;
-}
-
-/* ── Étape « retrait » ────────────────────────────────────── */
+/* ── 1 bis. Heure de retrait au shop ──────────────────────── */
 function majCreneaux() {
   q('[data-creneaux]').innerHTML = CRENEAUX.map((c) => `<label class="choice"><input type="radio" name="creneau" value="${c}"${c === etat.creneau ? ' checked' : ''}><span>${c}</span></label>`).join('');
-  q('[data-address-pickup]').textContent = CONFIG.adresse;
+  q('[data-address-pickup]').textContent = CONFIG.adresse.split(',')[0];
   q('[data-directions-pickup]').href = CONFIG.lienItineraire;
 }
 
-/* ── Étape 3 : contact & récap ────────────────────────────── */
+/* ── 2. Infos du client ───────────────────────────────────── */
 function majContact() {
   const plage = panier.mode === 'plage';
-  q('[data-tel-hint]').textContent = plage ? '(le livreur peut t’appeler)' : '(facultatif, pour te prévenir)';
+  q('[data-tel-hint]').textContent = plage ? '(on te prévient quand c’est là)' : '(facultatif, pour te prévenir)';
   q('[data-pay-legend]').textContent = plage ? 'Paiement à la livraison' : 'Paiement au comptoir';
-  q('[data-loyal-note]').textContent = plage ? 'Montre ton QR code au livreur au moment de payer' : 'Montre ton QR code au comptoir au moment de payer';
+  q('[data-loyal-note]').textContent = plage ? 'Montre ton QR code au livreur au moment de payer.' : 'Montre ton QR code au comptoir au moment de payer.';
   q('[data-demo-note]').hidden = !estDemo();
   const actuel = q('[data-form]').querySelector('input[name="paiement"]:checked')?.value;
   q('[data-payments]').innerHTML = CONFIG.paiements
     .map((p, i) => `<label class="choice"><input type="radio" name="paiement" value="${p.id}"${(actuel ? actuel === p.id : i === 0) ? ' checked' : ''}><span>${esc(p.label)}</span></label>`).join('');
 }
 
+// Client déjà venu : ses infos sont déjà remplies (s'il l'a demandé)
 function prerempli() {
   const f = q('[data-form]');
   if (f.elements.prenom.value) return;
@@ -446,18 +330,6 @@ function prerempli() {
   } catch { /* stockage indisponible */ }
 }
 
-function majRecap() {
-  const plage = panier.mode === 'plage';
-  const repere = q('[data-landmark]').value.trim();
-  q('[data-recap]').innerHTML = `<h4>Récap</h4><ul>${panier.lignes().map((l) => {
-    const p = trouverProduit(l.pid);
-    const o = libelleOptions(l.pid, l.opts, l.vid);
-    return `<li>${l.qty} × ${esc(p.nom)}${o ? ` <span class="muted">(${esc(o)})</span>` : ''}</li>`;
-  }).join('')}</ul>
-  <div class="recap__spot">${plage && etat.photo ? `<img src="${etat.photo}" alt="Ton spot">` : `<span class="recap__ico">${icon(plage ? 'pin' : 'bag')}</span>`}
-    <span>${plage ? `Livraison sur la ${esc(minusculeInitiale(CONFIG.zone.nom))}${repere ? `<br><b>Repère :</b> ${esc(repere)}` : ''}` : `Retrait au shop · <b>${esc(etat.creneau)}</b>`}</span></div>`;
-}
-
 function lireContact() {
   const d = new FormData(q('[data-form]'));
   return {
@@ -471,7 +343,12 @@ function lireContact() {
   };
 }
 
-function validerContact() {
+// Première chose qui manque, avec l'endroit où l'indiquer
+function verifier() {
+  const b = blocage();
+  if (b) return [b, q('[data-ferme]')];
+  if (panier.sousTotal() < minimum()) return [`Le minimum pour la livraison plage est de ${euroCourt(minimum())}.`, q('[data-min]')];
+  if (panier.mode === 'plage' && !trouverPoint(panier.point)) return ['Choisis ton point de livraison sur la plage.', q('[data-bloc="plage"]')];
   const c = lireContact();
   const f = q('[data-form]');
   const telOk = c.telephone.replace(/\D/g, '').length >= 8;
@@ -479,55 +356,49 @@ function validerContact() {
   f.elements.prenom.setAttribute('aria-invalid', String(!c.prenom));
   f.elements.nom.setAttribute('aria-invalid', String(!c.nom));
   f.elements.telephone.setAttribute('aria-invalid', String(telRequis && !telOk));
-  if (!c.prenom) { f.elements.prenom.focus(); return 'Indique ton prénom.'; }
-  if (!c.nom) { f.elements.nom.focus(); return 'Indique ton nom.'; }
-  if (telRequis && !telOk) { f.elements.telephone.focus(); return 'Ajoute ton numéro : le livreur peut avoir besoin de t’appeler.'; }
+  if (!c.prenom) return ['Indique ton prénom.', f.elements.prenom];
+  if (!c.nom) return ['Indique ton nom.', f.elements.nom];
+  if (telRequis && !telOk) return ['Ajoute ton numéro : on te prévient quand ta commande est au point.', f.elements.telephone];
   return null;
 }
 
 /* ── Envoi ────────────────────────────────────────────────── */
 async function envoyer() {
-  const msg = validerContact();
-  if (msg) return montrerErreur(msg);
+  const manque = verifier();
+  if (manque) return montrerErreur(...manque);
   const c = lireContact();
   if (c.site) return; // robot
   cacherErreur();
   etat.envoi = true;
   majPied();
   const plage = panier.mode === 'plage';
+  const pt = plage ? trouverPoint(panier.point) : null;
   try {
-    let photoPath = null;
-    if (plage && etat.photoBlob) photoPath = await envoyerPhoto(etat.photoBlob);
     const paiement = CONFIG.paiements.find((p) => p.id === c.paiement)?.label || '';
-    const payload = {
+    const data = await passerCommande({
       mode: panier.mode,
       name: `${c.prenom} ${c.nom}`,
       phone: c.telephone,
       when: plage ? null : etat.creneau,
       note: [c.note, paiement && `Paiement : ${paiement}`].filter(Boolean).join(' · '),
-      spot: plage ? q('[data-landmark]').value.trim() : null,
-      lat: plage ? etat.position?.lat : null,
-      lng: plage ? etat.position?.lng : null,
-      accuracy: plage && etat.position?.precision ? Math.round(etat.position.precision) : null,
-      photo_path: photoPath,
+      point_id: pt?.id || null,
+      spot: plage ? q('[data-signe]').value.trim() : null,
       items: panier.lignes().map((l) => ({ product_id: l.pid, variant_id: l.vid, qty: l.qty, options: l.opts })),
-    };
-    const data = await passerCommande(payload);
+    });
     try {
       if (c.memo) localStorage.setItem(CLE_CLIENT, JSON.stringify({ prenom: c.prenom, nom: c.nom, telephone: c.telephone, paiement: c.paiement }));
       else localStorage.removeItem(CLE_CLIENT);
     } catch { /* */ }
-    suivi = { token: data.token, number: data.number, mode: panier.mode, total: data.total, discount: data.discount, status: 'new', at: Date.now(), quand: plage ? null : etat.creneau };
+    suivi = {
+      token: data.token, number: data.number, mode: panier.mode, total: data.total, discount: data.discount, status: 'new', at: Date.now(),
+      quand: plage ? null : etat.creneau, point: pt ? { nom: pt.nom, photo: pt.photo, indication: pt.indication } : null,
+    };
     ecrireSuivi();
     panier.vider();
-    Object.assign(etat, { photo: null, photoBlob: null, position: null, dejaLocalise: false });
-    marqueur?.remove(); marqueur = null;
-    cerclePrecision?.remove(); cerclePrecision = null;
-    q('[data-landmark]').value = '';
+    q('[data-signe]').value = '';
     q('[data-form]').elements.note.value = '';
-    majPhoto();
     etat.envoi = false;
-    allerA(4);
+    montrerVue('suivi');
     confettis();
     lancerSuivi();
   } catch (e) {
@@ -540,14 +411,18 @@ async function envoyer() {
 /* ── Suivi en direct ──────────────────────────────────────── */
 const ETAPES = {
   shop: [['new', 'Reçue', 'Le shop a bien ta commande.'], ['preparing', 'En préparation', 'Ça glace, ça mousse.'], ['ready', 'Prête au comptoir', 'Passe la récupérer !'], ['done', 'Récupérée', 'Bonne dégustation.']],
-  plage: [['new', 'Reçue', 'On a ta photo et ta position.'], ['preparing', 'En préparation', 'Le livreur part juste après.'], ['delivering', 'En route vers toi', 'Garde ton téléphone à portée.'], ['done', 'Livrée', 'Bonne plage !']],
+  plage: [['new', 'Reçue', 'Le shop a bien ta commande.'], ['preparing', 'En préparation', 'Ça glace, ça mousse.'], ['delivering', 'En route', 'Le livreur file vers ton point.'], ['arrived', 'Ton livreur est là', 'Rejoins ton point : on t’attend avec ta commande.'], ['done', 'Livrée', 'Bonne plage !']],
 };
 
 function majSuivi() {
   const el = q('[data-suivi]');
   if (!suivi) { el.innerHTML = ''; return; }
   if (suivi.status === 'cancelled') {
-    el.innerHTML = `<div class="done"><span class="order-num">n° ${suivi.number}</span><h3>Commande annulée</h3><p>Le shop a annulé cette commande. Si c’est une erreur, passe nous voir ou recommande.</p></div>`;
+    el.innerHTML = `<div class="done done--refus"><span class="order-num">n° ${esc(suivi.number)}</span><h3>Commande refusée</h3>
+      ${suivi.reason ? `<p class="done__motif">${esc(suivi.reason)}</p>` : '<p>Le shop n’a pas pu prendre cette commande.</p>'}
+      <p><b>Rien à payer.</b> Toutes nos excuses.</p>
+      <a class="btn btn--sm" href="carte" data-close-panel>Recommander</a>
+      ${CONFIG.telephone ? `<a class="btn btn--sm btn--dark" href="tel:${CONFIG.telephone.replace(/[^\d+]/g, '')}">${icon('phone')} Appeler le shop</a>` : ''}</div>`;
     majPied();
     return;
   }
@@ -555,13 +430,16 @@ function majSuivi() {
   let idx = etapes.findIndex(([k]) => k === suivi.status);
   if (suivi.status === 'ready' && suivi.mode === 'plage') idx = 2;
   if (idx < 0) idx = 0;
-  const titre = suivi.status === 'done' ? (suivi.mode === 'plage' ? 'Livrée, bonne plage&nbsp;!' : 'Bonne dégustation&nbsp;!') : idx === 0 ? 'C’est parti&nbsp;!' : etapes[idx][1];
-  const enRoute = suivi.mode === 'plage' && idx === 2;
+  const arrive = suivi.status === 'arrived';
+  const titre = suivi.status === 'done' ? (suivi.mode === 'plage' ? 'Livrée, bonne plage&nbsp;!' : 'Bonne dégustation&nbsp;!') : idx === 0 ? 'C’est parti&nbsp;!' : arrive ? 'Ton livreur est là&nbsp;!' : etapes[idx][1];
+  const enRoute = suivi.mode === 'plage' && (idx === 2 || arrive);
+  const pt = suivi.point;
   el.innerHTML = `<div class="done">
-    <div class="done__art${enRoute ? ' is-route' : ''}">${enRoute ? livreurSeul() : '<svg viewBox="0 0 728 584" aria-hidden="true" style="--st-bg:var(--cream-2);--st-ink:var(--terra)"><use href="assets/brand.svg#st-head"/></svg>'}</div>
+    ${arrive ? '' : `<div class="done__art${enRoute ? ' is-route' : ''}">${enRoute ? livreurSeul() : '<svg viewBox="0 0 728 584" aria-hidden="true" style="--st-bg:var(--cream-2);--st-ink:var(--terra)"><use href="assets/brand.svg#st-head"/></svg>'}</div>`}
     <span class="order-num">n° ${esc(suivi.number)}</span>
     <h3>${titre}</h3>
-    <p>${suivi.mode === 'plage' ? `On arrive sur la plage dans <b>${esc(CONFIG.delaiLivraison)}</b> environ.` : `Retrait au shop · <b>${esc(suivi.quand || 'dès que possible')}</b>.`}</p>
+    <p>${arrive ? `Rejoins le point <b>${esc(pt?.nom || 'de livraison')}</b>&nbsp;: on t’attend avec ta commande.` : suivi.mode === 'plage' ? `Livraison dans <b>${esc(CONFIG.delaiLivraison)}</b> environ.` : `Retrait au shop · <b>${esc(suivi.quand || 'dès que possible')}</b>.`}</p>
+    ${pt ? `<div class="suivi-point${arrive ? ' is-arrive' : ''}">${pt.photo ? `<img src="${esc(pt.photo)}" alt="">` : ''}<span><small>Ton point de livraison</small><b>${esc(pt.nom)}</b>${pt.indication ? `<em>${esc(pt.indication)}</em>` : ''}</span></div>` : ''}
     <ol class="timeline">${etapes.map(([, l, d], i) => `<li class="${i < idx ? 'is-done' : i === idx ? (suivi.status === 'done' ? 'is-done' : 'is-now') : ''}"><span><b>${l}</b>${d}</span></li>`).join('')}</ol>
     ${CONFIG.lienCarteFidelite && suivi.status !== 'done' ? `<a class="loyal-done" href="${esc(CONFIG.lienCarteFidelite)}" target="_blank" rel="noopener">${icon('card')}<span><b>Un tampon sur cette commande&nbsp;?</b>Crée ta carte fidélité en 10 secondes, on la scanne ${suivi.mode === 'plage' ? 'à la livraison' : 'au comptoir'}.</span>${icon('arrow', 'icon--arrow')}</a>` : ''}
     <p class="done__pay">${suivi.mode === 'plage' ? 'À payer à la livraison' : 'À payer au comptoir'}&nbsp;: <b>${euro(suivi.total)}</b>${Number(suivi.discount) > 0 ? ` <small>(dont ${euro(suivi.discount)} offerts grâce à ta carte)</small>` : ''}</p>
@@ -576,12 +454,19 @@ async function interroger() {
   try {
     const d = await statutCommande(suivi.token);
     if (d && d.status !== suivi.status) {
-      suivi = { ...suivi, status: d.status, total: d.total };
+      suivi = { ...suivi, status: d.status, total: d.total, reason: d.reason || null };
       ecrireSuivi();
       if (d.status === 'ready' && suivi.mode === 'shop') toast(`Commande n° ${suivi.number} prête au comptoir !`);
-      if (d.status === 'delivering') toast('Ta commande est en route vers la plage');
+      if (d.status === 'delivering') toast(suivi.point ? `En route : rejoins le point « ${suivi.point.nom} »` : 'Ta commande est en route vers la plage');
       if (d.status === 'done') toast(suivi.mode === 'plage' ? 'Livrée, bonne plage !' : 'Merci et à très vite !');
-      if (!panel.hidden && etat.etape === 4) majSuivi();
+      if (d.status === 'cancelled') toast(`Commande refusée${d.reason ? ` : ${d.reason}` : ''}`);
+      if (d.status === 'arrived') {
+        // le moment à ne pas rater : on ouvre le suivi avec la photo du point
+        try { navigator.vibrate?.([200, 100, 200]); } catch { /* */ }
+        if (panel.hidden) ouvrirPanneau('suivi'); else montrerVue('suivi');
+        toast(suivi.point ? `Ton livreur est au point « ${suivi.point.nom} » !` : 'Ton livreur est là !');
+      }
+      if (!panel.hidden && etat.vue === 'suivi') majSuivi();
       majPastille();
     }
   } catch { /* réseau : on réessaie au prochain tour */ }
@@ -603,7 +488,7 @@ function majPastille() {
   const actif = suivi && !['done', 'cancelled'].includes(suivi.status);
   p.hidden = !actif;
   if (!actif) return;
-  const libelle = (ETAPES[suivi.mode] || ETAPES.shop).find(([k]) => k === suivi.status)?.[1] || (suivi.status === 'ready' ? 'En route vers toi' : 'Reçue');
+  const libelle = suivi.status === 'arrived' ? 'Livreur au point' : (ETAPES[suivi.mode] || ETAPES.shop).find(([k]) => k === suivi.status)?.[1] || (suivi.status === 'ready' ? 'En route' : 'Reçue');
   p.innerHTML = `<span class="track-pill__dot"></span><span>n° ${esc(suivi.number)} · ${esc(libelle)}</span>`;
 }
 
@@ -631,7 +516,6 @@ function confettis() {
 /* ── Branchements ─────────────────────────────────────────── */
 export function initCheckout() {
   construire();
-  q('[data-photo-req]').hidden = !R().beach_photo_required;
 
   q('[data-modes]').addEventListener('click', (e) => {
     const b = e.target.closest('[data-mode]');
@@ -645,31 +529,14 @@ export function initCheckout() {
     const l = panier.lignes().find((x) => x.cle === cle);
     if (l) panier.setQty(cle, l.qty + Number(b.dataset.delta));
   });
-  q('[data-upsell]').addEventListener('click', (e) => {
-    const b = e.target.closest('[data-idee]');
-    if (!b) return;
-    const p = trouverProduit(b.dataset.idee);
-    if (p.variantes.length || p.groupes.some((g) => g.id === 'temperature')) ouvrirFiche(p);
-    else ajouter(p, choixParDefaut(p), null, 1, b.querySelector('.art'));
+  q('[data-points]').addEventListener('change', (e) => {
+    if (e.target.name !== 'point') return;
+    cacherErreur();
+    const id = e.target.value;
+    panier.setPoint(id);
+    q(`[data-points] input[value="${CSS.escape(id)}"]`)?.focus({ preventScroll: true });
   });
-  q('[data-locate]').addEventListener('click', localiser);
-  $$('[data-photo-input]', panel).forEach((input) => input.addEventListener('change', async () => {
-    const f = input.files?.[0];
-    input.value = '';
-    if (!f) return;
-    if (!f.type.startsWith('image/')) return toast('Ce fichier n’est pas une image.');
-    try {
-      const { blob, apercu } = await compresser(f, estDemo() ? 800 : 1280);
-      etat.photo = apercu;
-      etat.photoBlob = blob;
-      majPhoto();
-      cacherErreur();
-    } catch {
-      toast('Impossible de lire cette photo, essaie avec une autre.');
-    }
-  }));
-  q('[data-photo-remove]').addEventListener('click', () => { etat.photo = null; etat.photoBlob = null; majPhoto(); });
-  q('[data-landmark]').addEventListener('input', () => etat.etape === 3 && majRecap());
+  q('[data-proche]').addEventListener('click', plusProche);
   q('[data-creneaux]').addEventListener('change', (e) => { etat.creneau = e.target.value; });
   const form = q('[data-form]');
   form.addEventListener('input', (e) => {
@@ -679,27 +546,14 @@ export function initCheckout() {
   form.addEventListener('submit', (e) => { e.preventDefault(); envoyer(); });
 
   q('[data-next]').addEventListener('click', () => {
-    const n = etat.etape;
-    if (n === 1) {
-      const b = blocage();
-      if (b) return montrerErreur(b);
-      if (panier.sousTotal() < minimum()) return montrerErreur(`Le minimum pour la livraison plage est de ${euroCourt(minimum())}.`);
-      return allerA(panier.mode === 'plage' ? 2 : 'retrait');
+    if (etat.vue === 'suivi') return fermerPanneau();
+    if (!panier.nb()) {
+      if (document.body.dataset.page === 'carte') return fermerPanneau();
+      if (history.state?.panneau) window.addEventListener('popstate', () => { window.location.href = 'carte'; }, { once: true });
+      fermerPanneau();
+      return;
     }
-    if (n === 2) {
-      if (!etat.position) return montrerErreur('Place ton épingle sur la carte (ou touche « Me localiser ») pour qu’on te trouve.');
-      if (!dansLaZone(etat.position)) return montrerErreur(`Ta position est en dehors de la zone de livraison (${CONFIG.zone.nom}).`);
-      if (R().beach_photo_required && !etat.photo) return montrerErreur('Ajoute une petite photo de ton spot : c’est ce qui aide le plus le livreur.');
-      return allerA(3);
-    }
-    if (n === 'retrait') return allerA(3);
-    if (n === 3) return envoyer();
-    fermerPanneau();
-  });
-  q('[data-back]').addEventListener('click', () => {
-    const f = flux();
-    const i = f.indexOf(etat.etape);
-    allerA(i > 0 ? f[i - 1] : 1);
+    envoyer();
   });
   panel.addEventListener('click', (e) => {
     const b = e.target.closest('[data-close-panel]');
@@ -713,10 +567,10 @@ export function initCheckout() {
     fermerPanneau();
   });
 
-  panier.onChange(majPanier);
-  majPanier();
+  panier.onChange(() => { if (etat.vue === 'commande') majCommande(); });
+  majCommande();
   window.addEventListener('popstate', () => fermerPanneau(true));
-  document.addEventListener('click', (e) => { if (e.target.closest('[data-track-pill]')) ouvrirPanneau(4); });
+  document.addEventListener('click', (e) => { if (e.target.closest('[data-track-pill]')) ouvrirPanneau('suivi'); });
   document.addEventListener('visibilitychange', () => { if (!document.hidden && minuteurSuivi) interroger(); });
   document.addEventListener('keydown', (e) => {
     const fiche = document.querySelector('#fiche-produit:not([hidden])');

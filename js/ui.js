@@ -1,7 +1,7 @@
 // Éléments communs à toutes les pages : en-tête, menu mobile, statut d'ouverture,
 // panier, suivi de commande, apparitions au défilement, effet 3D.
-import { CONFIG } from './config.js';
-import { chargerCatalogue, catalogue, estDemo } from './data.js';
+import { CONFIG } from './reglages.js';
+import { chargerCatalogue, catalogue, estDemo, trouverPoint } from './data.js';
 import { illustration, defsGlobales } from './illustrations.js';
 import { panier, nettoyerPanier } from './cart.js';
 import { etatOuverture, JOURS, heure } from './horaires.js';
@@ -36,6 +36,7 @@ export async function initUI() {
   });
   initPanier();
   initCheckout();
+  pointDepuisQR();
   initModes();
   initTilt();
 }
@@ -61,8 +62,8 @@ function textes() {
   $$('[data-loyalty-only]').forEach((el) => { el.hidden = !CONFIG.lienCarteFidelite; });
   $$('[data-fees]').forEach((el) => {
     el.textContent = CONFIG.fraisLivraison
-      ? `Elle coûte ${euro(CONFIG.fraisLivraison)}, ajoutés au total de ta commande.`
-      : 'Non, elle est offerte dès le minimum de commande.';
+      ? `La livraison coûte ${euro(CONFIG.fraisLivraison)}, ajoutés au total.`
+      : 'La livraison est offerte.';
   });
 }
 
@@ -191,19 +192,36 @@ function initModes() {
   });
 }
 
+/* ── QR code d'un point de livraison : /carte?point=panneau-ady ── */
+// Le client qui scanne le panneau sur la plage arrive avec son point déjà choisi.
+function pointDepuisQR() {
+  const cle = new URLSearchParams(location.search).get('point');
+  if (!cle) return;
+  const pt = trouverPoint(cle);
+  if (!pt) return;
+  panier.setMode('plage');
+  panier.setPoint(pt.id);
+  toast(`Livraison au point « ${pt.nom} »`);
+  history.replaceState(history.state, '', location.pathname + location.hash);
+}
+
 /* ── Panier : compteurs, barre mobile ─────────────────────── */
 function initPanier() {
   document.body.insertAdjacentHTML('beforeend', `<button class="cartbar" type="button" data-cartbar data-open-cart hidden>
       <span class="cartbar__count" data-cart-count>0</span>
       <span class="cartbar__label">Mon panier<small data-cartbar-mode></small></span>
       <span class="cartbar__total" data-cart-total>0,00 €</span>
-    </button>`);
+    </button>
+    <a class="cartbar cartbar--vide" href="carte" data-cartbar-vide hidden><span class="cartbar__label">Commander<small>Livré sur la plage ou à emporter</small></span>${icon('arrow', 'icon--arrow')}</a>`);
+  const sansBoutonVide = ['carte', 'cgv', 'mentions', 'confidentialite', '404'].includes(document.body.dataset.page);
   const maj = () => {
     const n = panier.nb();
     $$('[data-cart-count]').forEach((el) => (el.textContent = n));
     $$('[data-cart-total]').forEach((el) => (el.textContent = euro(panier.sousTotal())));
     $$('[data-cartbar-mode]').forEach((el) => (el.textContent = panier.mode === 'plage' ? 'Livré sur la plage' : 'Retrait au shop'));
     $('[data-cartbar]').hidden = n === 0;
+    // panier vide : sur téléphone, un bouton « Commander » reste toujours à portée de pouce
+    $('[data-cartbar-vide]').hidden = n > 0 || sansBoutonVide;
   };
   panier.onChange(maj);
   maj();

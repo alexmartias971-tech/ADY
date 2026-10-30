@@ -1,5 +1,5 @@
 // Carte fidélité façon Wallet : effet 3D au survol, tampons qui se posent un à un
-import { CONFIG } from './config.js';
+import { CONFIG } from './reglages.js';
 import { beanSVG, reduceMotion, pointeurFin, esc } from './utils.js';
 import { picto, icon } from './icons.js';
 

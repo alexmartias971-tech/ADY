@@ -21,8 +21,8 @@
   <link rel="stylesheet" href="css/fonts.css">
   <link rel="stylesheet" href="css/style.css">
   <script src="config.js" defer></script>
-  <script src="js/demo-seed.js" defer></script>
-  <script src="js/demo-db.js" defer></script>
+  <script src="js/demo/demo-seed.js" defer></script>
+  <script src="js/demo/demo-db.js" defer></script>
   <script type="module" src="js/main.js"></script>
 </head>
 <body data-page="le-shop" data-hero="cream">
@@ -60,8 +60,8 @@
     </nav>
     <div class="mobile-menu__foot">
       <span class="status" data-status hidden></span>
-      <a class="btn btn--light btn--lg btn--block" href="carte" data-set-mode="plage">Livré sur la plage</a>
-      <a class="btn btn--ghost btn--lg btn--block" href="carte" data-set-mode="shop">Je passe au shop</a>
+      <a class="btn btn--light btn--lg btn--block" href="carte" data-set-mode="plage">Livre-moi sur la plage</a>
+      <a class="btn btn--ghost btn--lg btn--block" href="carte" data-set-mode="shop">Je passe le chercher</a>
     </div>
   </div>
   <main id="contenu">
@@ -70,7 +70,7 @@
         <div>
           <p class="kicker">Le shop</p>
           <h1 class="h1">Passe nous voir</h1>
-          <p class="lead">Un coffee shop à l’esprit californien, posé à Durivage, Sainte-Anne, à 5 minutes à pied de la plage de la Caravelle.</p>
+          <p class="lead">Un coffee shop californien à Durivage, Sainte-Anne. À 5 minutes à pied de la plage de la Caravelle.</p>
           <p class="visit__proof"><i data-picto="star"></i><span data-proof>2 300+ personnes nous suivent déjà sur Instagram</span></p>
           <div class="actions" style="margin-top:28px">
             <a class="btn btn--lg" data-directions href="#" target="_blank" rel="noopener"><i data-icon="route"></i> Itinéraire</a>
@@ -95,13 +95,30 @@
       </div>
     </section>
 
+    <section class="section reel-sec" aria-labelledby="titre-reel">
+      <div class="container">
+        <div class="section-head section-head--split">
+          <div>
+            <p class="kicker reveal">Le shop en vrai</p>
+            <h2 class="h2 reveal" id="titre-reel">Un coin de Californie, posé en Guadeloupe</h2>
+          </div>
+          <div class="reel__nav reveal"><button class="round-btn" type="button" data-reel-prev aria-label="Photo précédente"><i data-icon="back"></i></button><button class="round-btn" type="button" data-reel-next aria-label="Photo suivante"><i data-icon="arrow"></i></button></div>
+        </div>
+      </div>
+      <div class="reel" data-reel tabindex="0" role="region" aria-label="Photos du shop, à faire défiler">
+        <figure class="reel__card"><div class="photo"><img src="assets/photos/espresso.webp" alt="Un espresso qui coule dans un gobelet ADY" width="900" height="930" loading="lazy" decoding="async"></div><figcaption><b>Extraction lente</b>Un espresso net, servi dans nos gobelets.</figcaption></figure>
+        <figure class="reel__card"><div class="photo"><img src="assets/photos/grains.webp" alt="Grains de café torréfiés et logo ADY" width="900" height="930" loading="lazy" decoding="async"></div><figcaption><b>Café de spécialité</b>Des grains choisis, une machine bien réglée.</figcaption></figure>
+        <figure class="reel__card"><div class="photo"><img src="assets/photos/stickers.webp" alt="Les stickers ADY sur une plage de Guadeloupe" width="900" height="930" loading="lazy" decoding="async"></div><figcaption><b>Jusqu’à ta serviette</b>Livré à pied sur la plage de la Caravelle.</figcaption></figure>
+        <div class="reel__card reel__card--text"><p>Maracudja, goyave, gwozey&nbsp;: les fruits d’ici, dans nos verres.</p><a class="btn btn--light" href="carte">Voir la carte <i data-icon="arrow" class="icon--arrow"></i></a></div>
+      </div>
+    </section>
+
     <section class="section" aria-labelledby="titre-esprit">
       <div class="container split split--wide">
         <div class="prose">
           <p class="kicker reveal">L’esprit Ady</p>
           <h2 class="h2 reveal" id="titre-esprit">Californie, version Guadeloupe</h2>
-          <p class="lead reveal">Des boissons glacées généreuses, du bon café et une carte pensée pour le soleil.</p>
-          <p class="reveal">Ady, c’est l’envie d’un coffee shop qui a le goût des matins de la West Coast&nbsp;: un iced latte bien frais, un matcha qui réveille, une citronnade gwozey, un club sandwich à midi, et la mer à deux pas. On prend le temps de bien faire les choses, et on te les apporte jusque sur le sable.</p>
+          <p class="lead reveal">Des boissons glacées généreuses, du bon café, et la mer à deux pas.</p>
           <div class="actions reveal" style="margin-top:26px"><a class="btn" href="carte" data-set-mode="shop">Commander, je passe la chercher <i data-icon="arrow" class="icon--arrow"></i></a></div>
         </div>
         <div class="map-box reveal" data-shop-map aria-label="Carte du shop et de la plage"></div>

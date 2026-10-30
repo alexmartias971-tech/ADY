@@ -1,8 +1,9 @@
-// Panier (gardé dans le navigateur) + mode de commande : « plage » ou « shop »
-import { trouverProduit, prixUnitaire, catalogue } from './data.js';
+// Panier (gardé dans le navigateur) + mode de commande (« plage » ou « shop ») + point de livraison choisi
+import { trouverProduit, prixUnitaire, catalogue, trouverPoint } from './data.js';
 
 const KEY = 'ady-panier-v3';
 const KEY_MODE = 'ady-mode';
+const KEY_POINT = 'ady-point';
 const abonnes = new Set();
 
 const lire = (k, d) => { try { const v = localStorage.getItem(k); return v ? JSON.parse(v) : d; } catch { return d; } };
@@ -10,6 +11,7 @@ const ecrire = (k, v) => { try { localStorage.setItem(k, JSON.stringify(v)); } c
 
 let lignes = lire(KEY, []);
 let mode = lire(KEY_MODE, 'plage') === 'shop' ? 'shop' : 'plage';
+let point = lire(KEY_POINT, null);
 
 const cle = (pid, opts, vid) => `${pid}|${[...opts].sort().join(',')}|${vid || ''}`;
 const prevenir = () => abonnes.forEach((fn) => fn());
@@ -22,6 +24,8 @@ export function nettoyerPanier() {
     const p = trouverProduit(l.pid);
     return p && !p.epuise && l.opts.every((id) => catalogue.choix[id]) && (!p.variantes.length || p.variantes.some((v) => v.id === l.vid && !v.epuise));
   });
+  // point de livraison retiré ou désactivé entre-temps : on l'oublie
+  if (point && !trouverPoint(point)) { point = null; ecrire(KEY_POINT, null); }
   if (lignes.length !== avant) sauver(); else prevenir();
 }
 
@@ -31,6 +35,13 @@ export const panier = {
   setMode(m) {
     mode = m === 'shop' ? 'shop' : 'plage';
     ecrire(KEY_MODE, mode);
+    prevenir();
+  },
+  // point de livraison sur la plage (id), mémorisé pour la prochaine commande
+  get point() { return point; },
+  setPoint(id) {
+    point = id || null;
+    ecrire(KEY_POINT, point);
     prevenir();
   },
   ajouter(pid, opts = [], vid = null, qty = 1) {

@@ -110,3 +110,12 @@ with p as (insert into public.products (category_id,name,description,price,iced,
 insert into public.product_variants (product_id,label,sort) select p.id, v.label, v.sort from p, (values ('S',0),('M',1),('L',2),('XL',3)) as v(label,sort);
 with p as (insert into public.products (category_id,name,description,price,iced,signature,featured,badge,image,sort) values ('merch','T-shirt ADY Club crème','Crème, imprimé rouge et palmiers.',25,false,false,false,null,'assets/merch/creme.webp',2) returning id)
 insert into public.product_variants (product_id,label,sort) select p.id, v.label, v.sort from p, (values ('S',0),('M',1),('L',2),('XL',3)) as v(label,sort);
+
+-- Points de livraison de départ (dessins provisoires) : à repositionner et à
+-- photographier sur place depuis le back-office (Points plage → « Prendre ma
+-- position ici » et « Changer la photo »).
+insert into public.delivery_points (slug, name, hint, lat, lng, photo_url, sort) values
+  ('panneau-ady', 'Panneau ADY', 'Au milieu de la plage, le panneau rouge ADY Coffee Shop', 16.21820, -61.39640, 'assets/points/panneau-ady.svg', 0),
+  ('cocotier', 'Le grand cocotier', 'Côté ouest de la plage, sous le grand cocotier', 16.21960, -61.39820, 'assets/points/cocotier.svg', 1),
+  ('la-pointe', 'Côté pointe', 'Côté est, au bout de la plage vers la pointe', 16.21743, -61.39519, 'assets/points/pointe.svg', 2)
+on conflict (slug) do nothing;

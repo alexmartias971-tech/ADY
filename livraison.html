@@ -4,7 +4,7 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
   <title>Livraison sur la plage de la Caravelle · Ady Coffee Shop</title>
-  <meta name="description" content="Commande depuis ta serviette : position GPS, photo de ton spot, livré à pied en 15 à 20 minutes. Dès 5 €, paiement à la livraison.">
+  <meta name="description" content="Commande depuis ta serviette, choisis ton point de livraison sur la plage : livré à pied en 15 à 20 minutes. Dès 5 €, paiement à la livraison.">
   <meta name="theme-color" content="#BF472C">
   <link rel="icon" href="assets/favicon.svg" type="image/svg+xml">
   <link rel="apple-touch-icon" href="assets/apple-touch-icon.png">
@@ -13,7 +13,7 @@
   <meta property="og:locale" content="fr_FR">
   <meta property="og:site_name" content="Ady Coffee Shop">
   <meta property="og:title" content="Livraison sur la plage de la Caravelle · Ady Coffee Shop">
-  <meta property="og:description" content="Commande depuis ta serviette : position GPS, photo de ton spot, livré à pied en 15 à 20 minutes. Dès 5 €, paiement à la livraison.">
+  <meta property="og:description" content="Commande depuis ta serviette, choisis ton point de livraison sur la plage : livré à pied en 15 à 20 minutes. Dès 5 €, paiement à la livraison.">
   <meta property="og:image" content="assets/og-image.jpg">
   <meta name="twitter:card" content="summary_large_image">
   <link rel="preload" href="assets/fonts/londrina-solid-900-latin.woff2" as="font" type="font/woff2" crossorigin>
@@ -21,8 +21,8 @@
   <link rel="stylesheet" href="css/fonts.css">
   <link rel="stylesheet" href="css/style.css">
   <script src="config.js" defer></script>
-  <script src="js/demo-seed.js" defer></script>
-  <script src="js/demo-db.js" defer></script>
+  <script src="js/demo/demo-seed.js" defer></script>
+  <script src="js/demo/demo-db.js" defer></script>
   <script type="module" src="js/main.js"></script>
 </head>
 <body data-page="livraison" data-hero="terra">
@@ -60,8 +60,8 @@
     </nav>
     <div class="mobile-menu__foot">
       <span class="status" data-status hidden></span>
-      <a class="btn btn--light btn--lg btn--block" href="carte" data-set-mode="plage">Livré sur la plage</a>
-      <a class="btn btn--ghost btn--lg btn--block" href="carte" data-set-mode="shop">Je passe au shop</a>
+      <a class="btn btn--light btn--lg btn--block" href="carte" data-set-mode="plage">Livre-moi sur la plage</a>
+      <a class="btn btn--ghost btn--lg btn--block" href="carte" data-set-mode="shop">Je passe le chercher</a>
     </div>
   </div>
   <main id="contenu">
@@ -70,7 +70,7 @@
         <div>
           <p class="kicker">Livraison plage</p>
           <h1 class="h1" style="font-size:clamp(56px,7.4vw,112px)">Livré les pieds dans le sable</h1>
-          <p class="lead">On livre toute la plage de la Caravelle, à pied, depuis le shop. Tu restes allongé, on s’occupe du reste.</p>
+          <p class="lead">Tu choisis ta boisson et ton point sur la plage. On te l’apporte à pied, depuis le shop.</p>
           <ul class="pills">
             <li><i data-icon="bag"></i><span>Dès <span data-min-order>5 €</span></span></li>
             <li><i data-icon="clock"></i><span data-delay>15 à 20 min</span></li>
@@ -85,14 +85,13 @@
     <section class="section" aria-labelledby="titre-etapes">
       <div class="container">
         <div class="section-head">
-          <p class="kicker reveal">En quatre étapes</p>
+          <p class="kicker reveal">En trois gestes</p>
           <h2 class="h2 reveal" id="titre-etapes">Comment ça marche</h2>
         </div>
         <ol class="how">
-          <li class="reveal"><i data-picto="cup"></i><span class="label">Étape 1</span><h3>Choisis</h3><p>Ajoute tes boissons et douceurs au panier. Minimum <span data-min-order>5 €</span>.</p></li>
-          <li class="reveal"><i data-picto="pin"></i><span class="label">Étape 2</span><h3>Dis-nous où tu es</h3><p>Ton téléphone te demande ta position&nbsp;: accepte, et le point se place sur la carte de la plage. Sinon, touche la carte à l’endroit où tu es.</p></li>
-          <li class="reveal"><i data-picto="camera"></i><span class="label">Étape 3</span><h3>Photographie ton spot</h3><p>Ta serviette, ton parasol, un repère&nbsp;: une photo et le livreur te trouve du premier coup.</p></li>
-          <li class="reveal"><i data-picto="hat"></i><span class="label">Étape 4</span><h3>On arrive</h3><p>Tu suis ta commande en direct, livrée en <span data-delay>15 à 20 min</span> environ. Tu paies sur place, en espèces ou par carte.</p></li>
+          <li class="reveal"><i data-picto="cup"></i><span class="label">1</span><h3>Choisis</h3><p>Ta boisson, en un geste. Minimum <span data-min-order>5 €</span>.</p></li>
+          <li class="reveal"><i data-picto="pin"></i><span class="label">2</span><h3>Dis-nous où</h3><p>Choisis ton point sur la plage. Tu as scanné le QR code d’un panneau&nbsp;? Il est déjà choisi.</p></li>
+          <li class="reveal"><i data-picto="hat"></i><span class="label">3</span><h3>C’est là</h3><p>En <span data-delay>15 à 20 min</span>, ta commande t’attend au point. Un message te prévient. Tu paies sur place.</p></li>
         </ol>
       </div>
     </section>
@@ -100,12 +99,12 @@
     <section class="section section--tight" id="zone" aria-labelledby="titre-zone">
       <div class="container split">
         <div>
-          <p class="kicker reveal">La zone</p>
-          <h2 class="h2 reveal" id="titre-zone">Toute la plage de la Caravelle</h2>
-          <p class="lead reveal">On livre partout dans le cercle. Si ta position est en dehors, le site te prévient avant que tu commandes.</p>
-          <p class="muted reveal">Le shop est à 5 minutes à pied&nbsp;: c’est ce qui nous permet d’arriver vite, et avec des glaçons encore entiers.</p>
+          <p class="kicker reveal">Sur la plage</p>
+          <h2 class="h2 reveal" id="titre-zone">Les points de livraison</h2>
+          <p class="lead reveal">Chaque numéro est un point. Choisis le plus proche de toi&nbsp;: le livreur t’y attend.</p>
+          <ol class="points-liste reveal" data-points-liste></ol>
         </div>
-        <div class="map-box reveal" data-zone-map aria-label="Carte de la zone de livraison"></div>
+        <div class="map-box reveal" data-zone-map aria-label="Carte des points de livraison"></div>
       </div>
     </section>
 
@@ -116,16 +115,11 @@
           <h2 class="h2 reveal" id="titre-faq">Tes questions</h2>
         </div>
         <div class="faq">
-          <details class="reveal"><summary>Il y a un minimum de commande&nbsp;? <i data-icon="plus"></i></summary><p>Oui, pour la livraison&nbsp;: <span data-min-order>5 €</span>. C’est ce qui nous permet de faire l’aller-retour à pied jusqu’à toi. Pas de minimum si tu passes au shop.</p></details>
-          <details class="reveal"><summary>Combien de temps ça prend&nbsp;? <i data-icon="plus"></i></summary><p><span data-delay>15 à 20 min</span> en général, un peu plus aux heures de pointe.</p></details>
-          <details class="reveal"><summary>Comment je paie&nbsp;? <i data-icon="plus"></i></summary><p>À la livraison, en espèces ou par carte bancaire. Rien à payer en ligne.</p></details>
-          <details class="reveal"><summary>Pourquoi une photo de mon spot&nbsp;? <i data-icon="plus"></i></summary><p>Sur une plage, le GPS d’un téléphone peut se tromper de plusieurs mètres, et tout le monde a une serviette. Une photo de ton parasol ou d’un repère, et le livreur te trouve du premier coup.</p></details>
-          <details class="reveal"><summary>Comment je suis ma commande&nbsp;? <i data-icon="plus"></i></summary><p>Juste après la validation, le suivi s’affiche en direct&nbsp;: reçue, en préparation, en route. Tu peux fermer la page&nbsp;: la pastille en haut de l’écran te ramène au suivi.</p></details>
-          <details class="reveal"><summary>Et si je change de place&nbsp;? <i data-icon="plus"></i></summary><p>Pas de souci&nbsp;: le livreur a ton numéro et t’appelle s’il ne te trouve pas.</p></details>
-          <details class="reveal"><summary>La livraison est payante&nbsp;? <i data-icon="plus"></i></summary><p data-fees>Non, elle est offerte dès le minimum de commande.</p></details>
-          <details class="reveal"><summary>Je peux plutôt passer la chercher&nbsp;? <i data-icon="plus"></i></summary><p>Oui&nbsp;: choisis «&nbsp;Je passe au shop&nbsp;» sur la carte. Pas de minimum, et c’est prêt à l’heure que tu choisis.</p></details>
-          <details class="reveal"><summary>Ma carte fidélité marche aussi&nbsp;? <i data-icon="plus"></i></summary><p>Oui&nbsp;: montre ton QR code au livreur au moment de payer, il scanne ta carte. Dix tampons, un café offert.<span data-loyalty-only> Pas encore de carte&nbsp;? <a data-loyalty-link href="fidelite" target="_blank" rel="noopener">Crée-la en 10 secondes</a>.</span></p></details>
-          <details class="reveal"><summary>Vous livrez d’autres plages&nbsp;? <i data-icon="plus"></i></summary><p>Pour l’instant, uniquement la plage de la Caravelle. Le site vérifie ta position avant la commande.</p></details>
+          <details class="reveal"><summary>Comment on se retrouve&nbsp;? <i data-icon="plus"></i></summary><p>Le livreur va au point que tu as choisi et t’envoie un message en arrivant. Ton téléphone affiche aussi «&nbsp;Ton livreur est là&nbsp;». Tu le rejoins, tu paies, c’est fini.</p></details>
+          <details class="reveal"><summary>Il y a un minimum&nbsp;? <i data-icon="plus"></i></summary><p>Oui, <span data-min-order>5 €</span> pour la livraison. <span data-fees>La livraison est offerte.</span> Pas de minimum si tu passes au shop.</p></details>
+          <details class="reveal"><summary>Combien de temps&nbsp;? <i data-icon="plus"></i></summary><p><span data-delay>15 à 20 min</span> en général, un peu plus aux heures de pointe.</p></details>
+          <details class="reveal"><summary>Comment je paie&nbsp;? <i data-icon="plus"></i></summary><p>Sur place, au livreur&nbsp;: en espèces ou par carte bancaire.</p></details>
+          <details class="reveal"><summary>Ma carte fidélité marche aussi&nbsp;? <i data-icon="plus"></i></summary><p>Oui&nbsp;: le livreur scanne ton QR code au moment de payer.<span data-loyalty-only> Pas encore de carte&nbsp;? <a data-loyalty-link href="fidelite" target="_blank" rel="noopener">Crée-la en 10 secondes</a>.</span></p></details>
         </div>
       </div>
     </section>

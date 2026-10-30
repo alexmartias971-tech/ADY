@@ -5,15 +5,31 @@
 
 create extension if not exists pgcrypto;
 
--- ---------- Admins (comptes qui ont accès au back-office) ----------
+-- ---------- L'équipe (comptes qui ont accès à /admin ou /livreur) ----------
+--   gerant  : tout le back-office (/admin) et l'espace livreur
+--   livreur : uniquement l'espace livreur (/livreur) : les livraisons plage
 create table if not exists public.admins (
   user_id uuid primary key references auth.users(id) on delete cascade,
   created_at timestamptz not null default now()
 );
+alter table public.admins add column if not exists role text not null default 'gerant';
+do $$ begin
+  alter table public.admins add constraint admins_role_check check (role in ('gerant','livreur'));
+exception when duplicate_object then null; end $$;
 
+-- gérant
 create or replace function public.is_admin() returns boolean
 language sql stable security definer set search_path = public as $$
+  select exists (select 1 from public.admins where user_id = auth.uid() and role = 'gerant');
+$$;
+-- gérant ou livreur
+create or replace function public.is_staff() returns boolean
+language sql stable security definer set search_path = public as $$
   select exists (select 1 from public.admins where user_id = auth.uid());
+$$;
+create or replace function public.mon_role() returns text
+language sql stable security definer set search_path = public as $$
+  select role from public.admins where user_id = auth.uid();
 $$;
 
 -- ---------- Carte ----------
@@ -89,12 +105,24 @@ create table if not exists public.settings (
   stamps_goal int not null default 10,
   updated_at timestamptz not null default now()
 );
--- zone de livraison plage (centre et rayon calés sur la plage de la Caravelle dans OpenStreetMap)
-alter table public.settings add column if not exists beach_lat double precision not null default 16.2181;
-alter table public.settings add column if not exists beach_lng double precision not null default -61.3965;
-alter table public.settings add column if not exists beach_radius int not null default 420;
-alter table public.settings add column if not exists beach_photo_required boolean not null default true;
 insert into public.settings (id) values (1) on conflict do nothing;
+
+-- ---------- Points de livraison sur la plage ----------
+-- Repères fixes posés par le shop (panneau ADY, grand cocotier…). Le client choisit
+-- le sien, le livreur l'y retrouve : pas de photo ni de position à envoyer par le client.
+-- Le « slug » sert au QR code imprimé sur place : /carte?point=slug
+create table if not exists public.delivery_points (
+  id uuid primary key default gen_random_uuid(),
+  slug text not null unique check (slug ~ '^[a-z0-9-]{1,40}$'),
+  name text not null,
+  hint text not null default '',
+  lat double precision not null,
+  lng double precision not null,
+  photo_url text,
+  active boolean not null default true,
+  sort int not null default 0,
+  created_at timestamptz not null default now()
+);
 
 -- ---------- Commandes ----------
 create table if not exists public.orders (
@@ -102,16 +130,14 @@ create table if not exists public.orders (
   number bigint generated always as identity,
   token uuid not null default gen_random_uuid() unique,   -- sert au client pour suivre sa commande
   mode text not null check (mode in ('shop','plage')),
-  status text not null default 'new' check (status in ('new','preparing','ready','delivering','done','cancelled')),
+  status text not null default 'new' check (status in ('new','preparing','ready','delivering','arrived','done','cancelled')),
   customer_name text not null,
   phone text,
   pickup_when text,
   note text,
   spot text,
-  lat double precision,
+  lat double precision,                       -- position du point de livraison (plage)
   lng double precision,
-  accuracy int,
-  photo_path text,
   loyalty_code text,
   reward_claimed boolean not null default false,
   subtotal numeric(8,2) not null default 0,
@@ -121,6 +147,13 @@ create table if not exists public.orders (
   updated_at timestamptz not null default now()
 );
 create index if not exists orders_created on public.orders (created_at desc);
+-- point de livraison choisi (livraison plage) ; lat/lng reprennent sa position
+alter table public.orders add column if not exists point_id uuid references public.delivery_points(id) on delete set null;
+-- « arrived » : le livreur est au point et attend le client
+alter table public.orders drop constraint if exists orders_status_check;
+alter table public.orders add constraint orders_status_check check (status in ('new','preparing','ready','delivering','arrived','done','cancelled'));
+-- motif affiché au client quand le shop refuse ou annule sa commande
+alter table public.orders add column if not exists cancel_reason text;
 
 create table if not exists public.order_items (
   id uuid primary key default gen_random_uuid(),
@@ -172,6 +205,7 @@ declare
   pr public.products;
   va public.product_variants;
   cat public.categories;
+  pt public.delivery_points;
   q int;
   sub numeric := 0;
   cheapest numeric := null;
@@ -193,7 +227,7 @@ begin
   if v_mode not in ('shop','plage') then raise exception 'Mode de commande inconnu.'; end if;
   if v_mode = 'plage' and not s.beach_open then raise exception 'La livraison plage est fermée pour le moment.'; end if;
   if v_name = '' then raise exception 'Ajoute ton nom et ton prénom.'; end if;
-  if v_mode = 'plage' and v_phone = '' then raise exception 'Ajoute ton numéro pour que le livreur puisse t''appeler.'; end if;
+  if v_mode = 'plage' and v_phone = '' then raise exception 'Ajoute ton numéro : on te prévient quand ta commande est au point.'; end if;
   if jsonb_typeof(p->'items') <> 'array' or jsonb_array_length(p->'items') = 0 then raise exception 'Ta commande est vide.'; end if;
   -- anti-abus : un même numéro ne peut pas enchaîner les commandes, et un plafond protège le shop d'une avalanche
   if v_phone <> '' and (select count(*) from public.orders where phone = v_phone and created_at > now() - interval '10 minutes') >= 3 then
@@ -202,26 +236,19 @@ begin
   if (select count(*) from public.orders where status = 'new' and created_at > now() - interval '15 minutes') >= 40 then
     raise exception 'Le shop reçoit beaucoup de commandes en ce moment. Réessaie dans quelques minutes.';
   end if;
-  -- livraison plage : position dans la zone (petite tolérance pour le GPS) et photo du spot
+  -- livraison plage : un point de livraison actif, choisi par le client
   if v_mode = 'plage' then
-    if (p->>'lat') is null or (p->>'lng') is null then raise exception 'Place ton épingle sur la carte pour qu''on te trouve.'; end if;
-    if 2 * 6371000 * asin(sqrt(
-         power(sin(radians(((p->>'lat')::double precision - s.beach_lat) / 2)), 2)
-         + cos(radians(s.beach_lat)) * cos(radians((p->>'lat')::double precision))
-         * power(sin(radians(((p->>'lng')::double precision - s.beach_lng) / 2)), 2))) > s.beach_radius * 1.15 then
-      raise exception 'Ta position est en dehors de la zone de livraison (plage de la Caravelle).';
-    end if;
-    if s.beach_photo_required and coalesce(p->>'photo_path', '') !~ '^[0-9a-f-]{36}\.(jpg|jpeg|png|webp)$' then
-      raise exception 'Ajoute une photo de ton spot pour que le livreur te trouve.';
-    end if;
+    if coalesce(p->>'point_id', '') !~ '^[0-9a-f-]{36}$' then raise exception 'Choisis ton point de livraison sur la plage.'; end if;
+    select * into pt from public.delivery_points where id = (p->>'point_id')::uuid and active;
+    if not found then raise exception 'Ce point de livraison n''est plus disponible. Choisis-en un autre.'; end if;
   end if;
   if jsonb_array_length(p->'items') > 30 then raise exception 'Commande trop longue.'; end if;
 
-  insert into public.orders (mode, customer_name, phone, pickup_when, note, spot, lat, lng, accuracy, photo_path, loyalty_code, reward_claimed)
+  insert into public.orders (mode, customer_name, phone, pickup_when, note, spot, lat, lng, point_id, loyalty_code, reward_claimed)
   values (v_mode, v_name, nullif(v_phone,''),
-          left(p->>'when', 40), left(p->>'note', 240), left(p->>'spot', 160),
-          (p->>'lat')::double precision, (p->>'lng')::double precision, (p->>'accuracy')::int,
-          case when (p->>'photo_path') ~ '^[0-9a-f-]{36}\.(jpg|jpeg|png|webp)$' then p->>'photo_path' end,
+          case when v_mode = 'shop' then left(p->>'when', 40) end, left(p->>'note', 240),
+          case when v_mode = 'plage' then pt.name || coalesce(' · ' || nullif(left(trim(p->>'spot'), 120), ''), '') end,
+          pt.lat, pt.lng, pt.id,
           nullif(left(p->>'loyalty_code', 20), ''), coalesce((p->>'reward_claimed')::boolean, false))
   returning * into o;
 
@@ -304,14 +331,34 @@ end $$;
 -- Suivi d'une commande par le client (avec son jeton secret)
 create or replace function public.order_status(p_token uuid) returns jsonb
 language sql stable security definer set search_path = public as $$
-  select jsonb_build_object('number', number, 'status', status, 'mode', mode, 'total', total, 'created_at', created_at)
+  select jsonb_build_object('number', number, 'status', status, 'mode', mode, 'total', total, 'created_at', created_at, 'reason', cancel_reason)
   from public.orders where token = p_token;
 $$;
 
+-- Espace livreur : faire avancer une livraison plage, et rien d'autre
+--   préparée → en route → au point → livrée
+create or replace function public.livreur_avance(p_id uuid, p_status text) returns jsonb
+language plpgsql security definer set search_path = public as $$
+declare o public.orders;
+begin
+  if not public.is_staff() then raise exception 'Accès refusé.'; end if;
+  select * into o from public.orders where id = p_id for update;
+  if not found or o.mode <> 'plage' then raise exception 'Livraison introuvable.'; end if;
+  if not (
+       (p_status = 'delivering' and o.status in ('preparing','ready'))
+    or (p_status = 'arrived' and o.status = 'delivering')
+    or (p_status = 'done' and o.status in ('delivering','arrived'))
+  ) then raise exception 'Cette commande a déjà changé d''étape. Actualise la page.'; end if;
+  update public.orders set status = p_status where id = p_id;
+  return jsonb_build_object('status', p_status);
+end $$;
+
 revoke all on function public.place_order(jsonb) from public;
 revoke all on function public.order_status(uuid) from public;
+revoke all on function public.livreur_avance(uuid, text) from public, anon;
 grant execute on function public.place_order(jsonb) to anon, authenticated;
 grant execute on function public.order_status(uuid) to anon, authenticated;
+grant execute on function public.livreur_avance(uuid, text) to authenticated;
 
 -- =====================================================================
 -- Sécurité (RLS)
@@ -326,6 +373,7 @@ alter table public.option_choices enable row level security;
 alter table public.product_option_groups enable row level security;
 alter table public.orders enable row level security;
 alter table public.order_items enable row level security;
+alter table public.delivery_points enable row level security;
 
 drop policy if exists "admins lisent leur ligne" on public.admins;
 create policy "admins lisent leur ligne" on public.admins for select to authenticated using (user_id = auth.uid());
@@ -340,26 +388,37 @@ do $$ declare t text; begin
   end loop;
 end $$;
 
--- les commandes ne sont visibles que par les admins (le site passe par place_order)
+-- points de livraison : les actifs sont publics, l'équipe voit tout, le gérant modifie
+drop policy if exists "points publics" on public.delivery_points;
+create policy "points publics" on public.delivery_points for select to anon, authenticated using (active or public.is_staff());
+drop policy if exists "admins points" on public.delivery_points;
+create policy "admins points" on public.delivery_points for all to authenticated using (public.is_admin()) with check (public.is_admin());
+
+-- les commandes ne sont visibles que par l'équipe (le site passe par place_order)
 drop policy if exists "admins commandes" on public.orders;
 create policy "admins commandes" on public.orders for all to authenticated using (public.is_admin()) with check (public.is_admin());
 drop policy if exists "admins lignes" on public.order_items;
 create policy "admins lignes" on public.order_items for all to authenticated using (public.is_admin()) with check (public.is_admin());
+-- le livreur lit les commandes plage (pour livrer) ; il les fait avancer avec livreur_avance()
+drop policy if exists "livreurs lisent les livraisons" on public.orders;
+create policy "livreurs lisent les livraisons" on public.orders for select to authenticated using (public.is_staff() and mode = 'plage');
+drop policy if exists "livreurs lisent les lignes" on public.order_items;
+create policy "livreurs lisent les lignes" on public.order_items for select to authenticated
+  using (public.is_staff() and exists (select 1 from public.orders o where o.id = order_id and o.mode = 'plage'));
 
 -- =====================================================================
--- Photos du spot (livraison plage) : le client dépose, seuls les admins lisent
+-- Photos des points de livraison : publiques, déposées par les admins
 -- =====================================================================
 insert into storage.buckets (id, name, public, file_size_limit, allowed_mime_types)
-values ('spots', 'spots', false, 2097152, array['image/jpeg','image/png','image/webp'])
-on conflict (id) do update set public = false, file_size_limit = 2097152, allowed_mime_types = array['image/jpeg','image/png','image/webp'];
+values ('points', 'points', true, 3145728, array['image/jpeg','image/png','image/webp'])
+on conflict (id) do update set public = true, file_size_limit = 3145728, allowed_mime_types = array['image/jpeg','image/png','image/webp'];
 
-drop policy if exists "dépôt photo spot" on storage.objects;
-create policy "dépôt photo spot" on storage.objects for insert to anon, authenticated
-  with check (bucket_id = 'spots' and name ~ '^[0-9a-f-]{36}\.(jpg|jpeg|png|webp)$');
-drop policy if exists "admins lisent les photos" on storage.objects;
-create policy "admins lisent les photos" on storage.objects for select to authenticated using (bucket_id = 'spots' and public.is_admin());
-drop policy if exists "admins suppriment les photos" on storage.objects;
-create policy "admins suppriment les photos" on storage.objects for delete to authenticated using (bucket_id = 'spots' and public.is_admin());
+drop policy if exists "admins déposent les photos des points" on storage.objects;
+create policy "admins déposent les photos des points" on storage.objects for insert to authenticated with check (bucket_id = 'points' and public.is_admin());
+drop policy if exists "admins remplacent les photos des points" on storage.objects;
+create policy "admins remplacent les photos des points" on storage.objects for update to authenticated using (bucket_id = 'points' and public.is_admin());
+drop policy if exists "admins suppriment les photos des points" on storage.objects;
+create policy "admins suppriment les photos des points" on storage.objects for delete to authenticated using (bucket_id = 'points' and public.is_admin());
 
 -- =====================================================================
 -- Temps réel : le back-office reçoit les nouvelles commandes instantanément
@@ -370,18 +429,16 @@ exception when duplicate_object then null; end $$;
 
 -- =====================================================================
 -- Durées de conservation (voir la page Confidentialité)
---   • téléphone, position, repère et note : effacés 30 jours après la commande ;
---   • photo du spot : supprimée 7 jours après (le back-office efface le fichier
---     à son ouverture, via l'API de stockage, puis vide photo_path).
+--   • téléphone, repère et note : effacés 30 jours après la commande.
 -- =====================================================================
 create or replace function public.purge_donnees() returns jsonb
 language plpgsql security definer set search_path = public as $$
 declare n int;
 begin
   if auth.uid() is not null and not public.is_admin() then raise exception 'Accès refusé.'; end if;
-  update public.orders set phone = null, lat = null, lng = null, accuracy = null, spot = null, note = null
+  update public.orders set phone = null, spot = null, note = null
    where created_at < now() - interval '30 days'
-     and (phone is not null or lat is not null or spot is not null or note is not null);
+     and (phone is not null or spot is not null or note is not null);
   get diagnostics n = row_count;
   return jsonb_build_object('effacees', n);
 end $$;

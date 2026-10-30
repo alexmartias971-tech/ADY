@@ -21,8 +21,8 @@
   <link rel="stylesheet" href="css/fonts.css">
   <link rel="stylesheet" href="css/style.css">
   <script src="config.js" defer></script>
-  <script src="js/demo-seed.js" defer></script>
-  <script src="js/demo-db.js" defer></script>
+  <script src="js/demo/demo-seed.js" defer></script>
+  <script src="js/demo/demo-db.js" defer></script>
   <script type="module" src="js/main.js"></script>
   <meta name="robots" content="noindex">
 </head>
@@ -61,8 +61,8 @@
     </nav>
     <div class="mobile-menu__foot">
       <span class="status" data-status hidden></span>
-      <a class="btn btn--light btn--lg btn--block" href="carte" data-set-mode="plage">Livré sur la plage</a>
-      <a class="btn btn--ghost btn--lg btn--block" href="carte" data-set-mode="shop">Je passe au shop</a>
+      <a class="btn btn--light btn--lg btn--block" href="carte" data-set-mode="plage">Livre-moi sur la plage</a>
+      <a class="btn btn--ghost btn--lg btn--block" href="carte" data-set-mode="shop">Je passe le chercher</a>
     </div>
   </div>
   <main id="contenu">
@@ -79,24 +79,23 @@
         <h2>Ce que nous recevons</h2>
         <ul>
           <li><b>Pour toute commande&nbsp;:</b> tes nom et prénom, ta commande, ton mode de paiement choisi, ton éventuelle note, et pour un retrait, l’heure de passage. Ton téléphone si tu le donnes.</li>
-          <li><b>Pour une livraison sur la plage, en plus&nbsp;:</b> ton téléphone, ta position au moment de la commande (avec ta permission, demandée par ton navigateur) et la photo de ton spot. Évite d’y faire figurer d’autres personnes.</li>
+          <li><b>Pour une livraison sur la plage, en plus&nbsp;:</b> ton téléphone, le point de livraison que tu choisis et, si tu l’indiques, un signe pour te reconnaître.</li>
         </ul>
-        <p>Sans nom et prénom, nous ne pouvons pas te remettre ta commande&nbsp;; sans téléphone, position et photo, nous ne pouvons pas te livrer sur la plage (le retrait au shop reste possible). Ta position n’est lue qu’une fois, quand tu commandes&nbsp;: nous ne te suivons pas.</p>
+        <p>Sans nom et prénom, nous ne pouvons pas te remettre ta commande&nbsp;; sans téléphone, nous ne pouvons pas te livrer sur la plage (le retrait au shop reste possible). Si tu utilises «&nbsp;Trouver le point le plus proche&nbsp;», ta position est lue par ton téléphone uniquement pour trier les points&nbsp;: elle ne nous est jamais envoyée.</p>
 
         <h2>Pourquoi, et sur quelle base</h2>
         <ul>
           <li>Préparer, livrer et remettre ta commande, te contacter si besoin, afficher son suivi&nbsp;: <b>exécution du contrat</b>.</li>
-          <li>Éviter les fausses commandes et sécuriser le service (limites d’envoi, vérification de la zone)&nbsp;: <b>intérêt légitime</b>.</li>
+          <li>Éviter les fausses commandes et sécuriser le service (limites d’envoi)&nbsp;: <b>intérêt légitime</b>.</li>
         </ul>
         <p>Aucune publicité, aucune revente, aucune prospection, aucune décision automatisée.</p>
 
         <h2>Qui y a accès</h2>
-        <p>Uniquement l’équipe du shop, depuis l’espace équipe protégé par mot de passe. Nos prestataires techniques hébergent les données pour notre compte&nbsp;: <b>Supabase</b> (base de données et photos, dans un espace privé) et <b>Vercel</b> (hébergement du site). L’affichage des cartes charge des images depuis les serveurs d’<b>OpenStreetMap</b>, qui reçoivent alors ton adresse IP. Les transferts hors de l’Union européenne sont encadrés par les garanties prévues par le RGPD (décision d’adéquation ou clauses contractuelles types).</p>
+        <p>Uniquement l’équipe du shop (gérant et livreurs), depuis l’espace équipe protégé par mot de passe. Pour te prévenir que ta commande est au point, le livreur peut t’envoyer un SMS, un message WhatsApp ou t’appeler depuis son téléphone&nbsp;; avec WhatsApp, ton numéro et ce message passent par les services de WhatsApp (Meta). Nos prestataires techniques hébergent les données pour notre compte&nbsp;: <b>Supabase</b> (base de données) et <b>Vercel</b> (hébergement du site). L’affichage des cartes charge des images depuis les serveurs d’<b>OpenStreetMap</b>, qui reçoivent alors ton adresse IP. Les transferts hors de l’Union européenne sont encadrés par les garanties prévues par le RGPD (décision d’adéquation ou clauses contractuelles types).</p>
 
         <h2>Combien de temps</h2>
         <ul>
-          <li><b>Photo du spot&nbsp;:</b> supprimée 7 jours après la commande.</li>
-          <li><b>Téléphone, position, repère et note&nbsp;:</b> effacés 30 jours après la commande.</li>
+          <li><b>Téléphone, signe et note&nbsp;:</b> effacés 30 jours après la commande.</li>
           <li><b>Contenu et montant de la commande, nom&nbsp;:</b> conservés pour la gestion et la comptabilité du shop, durée&nbsp;: <span class="demo-info">DEMO</span>.</li>
           <li><b>Dans ton navigateur&nbsp;:</b> le panier jusqu’à la commande, le suivi pendant 8 heures et, seulement si tu coches «&nbsp;se souvenir de mes coordonnées&nbsp;», tes nom, prénom et téléphone, jusqu’à ce que tu décoches la case ou vides les données du site.</li>
         </ul>
@@ -108,7 +107,7 @@
         <p>La carte fidélité digitale se crée sur la page de notre prestataire <b>Walty</b> (carte.walty.fr), qui la gère pour le compte du shop. Les informations que tu y saisis (prénom, nom, téléphone ou e-mail) servent à tenir ta carte et tes tampons&nbsp;; ce site ne les reçoit pas, il propose seulement un lien. Leur utilisation et leur suppression sont expliquées sur la page de la carte.</p>
 
         <h2>Téléphone</h2>
-        <p>Ton numéro sert uniquement à ta commande. Tu peux t’inscrire gratuitement sur la liste d’opposition au démarchage téléphonique Bloctel (bloctel.gouv.fr).</p>
+        <p>Ton numéro sert uniquement à ta commande&nbsp;: te prévenir quand elle est au point de livraison, ou te joindre en cas de souci. Tu peux t’inscrire gratuitement sur la liste d’opposition au démarchage téléphonique Bloctel (bloctel.gouv.fr).</p>
 
         <h2>Cookies</h2>
         <p>Aucun cookie publicitaire ni outil de mesure d’audience. Le site garde seulement dans ton navigateur ce qui est nécessaire à son fonctionnement (voir «&nbsp;Combien de temps&nbsp;»), ce qui ne demande pas de consentement.</p>

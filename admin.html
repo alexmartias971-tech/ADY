@@ -9,7 +9,8 @@
 <link rel="icon" href="assets/favicon.svg" type="image/svg+xml">
 <link rel="apple-touch-icon" href="assets/apple-touch-icon.png">
 <link rel="stylesheet" href="css/fonts.css">
-<link rel="stylesheet" href="admin.css">
+<link rel="stylesheet" href="vendor/leaflet/leaflet.css">
+<link rel="stylesheet" href="css/admin.css">
 </head>
 <body>
 
@@ -32,32 +33,39 @@
     <img src="assets/logo.webp" alt="" width="40" height="40"><span class="demo-pill" data-demo-pill hidden>Démo</span>
     <nav class="tabs" role="tablist" aria-label="Sections">
       <button role="tab" aria-selected="true" data-view="orders">Commandes <span class="badge" data-new-count hidden></span></button>
+      <button role="tab" aria-selected="false" data-view="stock">Épuisé ?</button>
       <button role="tab" aria-selected="false" data-view="menu">Carte &amp; prix</button>
-      <button role="tab" aria-selected="false" data-view="stock">Stock</button>
+      <button role="tab" aria-selected="false" data-view="points">Points plage</button>
       <button role="tab" aria-selected="false" data-view="settings">Réglages</button>
     </nav>
     <div class="top__right">
-      <label class="switch" title="Commandes en ligne"><input type="checkbox" data-quick="orders_open"><span></span>Commandes</label>
-      <label class="switch" title="Livraison plage"><input type="checkbox" data-quick="beach_open"><span></span>Plage</label>
-      <button class="iconbtn" type="button" data-sound aria-pressed="false" title="Son des nouvelles commandes">🔕</button>
-      <button class="iconbtn" type="button" data-logout>Déconnexion</button>
+      <label class="switch" title="Accepter les commandes en ligne"><input type="checkbox" data-quick="orders_open"><span></span>Commandes</label>
+      <label class="switch" title="Livraison sur la plage"><input type="checkbox" data-quick="beach_open"><span></span>Plage</label>
+      <button class="iconbtn" type="button" data-sound aria-pressed="false" title="Son des nouvelles commandes">Son coupé</button>
+      <a class="iconbtn iconbtn--lien" href="livreur">Espace livreur</a>
     </div>
   </header>
 
   <!-- COMMANDES -->
   <section class="view" data-view-panel="orders">
     <div class="kpis">
-      <div><b data-kpi="count">0</b><span>commandes aujourd'hui</span></div>
-      <div><b data-kpi="revenue">0,00 €</b><span>encaissé (terminées)</span></div>
+      <div><b data-kpi="count">0</b><span>commandes</span></div>
+      <div><b data-kpi="revenue">0,00 €</b><span>encaissé</span></div>
       <div><b data-kpi="open">0</b><span>en cours</span></div>
-      <div><b data-kpi="beach">0</b><span>livraisons plage</span></div>
-      <label class="day">Jour<input type="date" data-day></label>
+      <div><b data-kpi="beach">0</b><span>plage</span></div>
+      <label class="day"><span>Jour</span><input type="date" data-day></label>
     </div>
     <p class="live" data-live>Connexion au direct…</p>
-    <div class="board">
-      <div class="col" data-col="new"><h2>Nouvelles</h2><div class="col__list"></div></div>
+    <div class="board-tabs" role="tablist" aria-label="Étapes" data-board-tabs>
+      <button type="button" role="tab" data-col-tab="new" aria-selected="true">À valider <span data-col-count="new">0</span></button>
+      <button type="button" role="tab" data-col-tab="preparing" aria-selected="false">En préparation <span data-col-count="preparing">0</span></button>
+      <button type="button" role="tab" data-col-tab="ready" aria-selected="false">Prêtes · plage <span data-col-count="ready">0</span></button>
+      <button type="button" role="tab" data-col-tab="done" aria-selected="false">Terminées <span data-col-count="done">0</span></button>
+    </div>
+    <div class="board" data-board-col="new">
+      <div class="col" data-col="new"><h2>À valider</h2><div class="col__list"></div></div>
       <div class="col" data-col="preparing"><h2>En préparation</h2><div class="col__list"></div></div>
-      <div class="col" data-col="ready"><h2>Prêtes · en route</h2><div class="col__list"></div></div>
+      <div class="col" data-col="ready"><h2>Prêtes · plage</h2><div class="col__list"></div></div>
       <div class="col" data-col="done"><h2>Terminées</h2><div class="col__list"></div></div>
     </div>
   </section>
@@ -75,11 +83,22 @@
   <!-- STOCK -->
   <section class="view" data-view-panel="stock" hidden>
     <div class="view__head">
-      <h1>Stock</h1>
-      <p>« Non suivi » = jamais en rupture automatique. Un stock à 0 affiche « Épuisé » sur le site. Chaque commande retire le stock, une annulation le remet.</p>
+      <h1>Épuisé ?</h1>
+      <p>Un produit en rupture&nbsp;: décoche-le, il s’affiche « Épuisé » sur le site tout de suite. Pour les t-shirts, tu peux suivre le nombre restant par taille.</p>
       <button class="btn btn--ghost btn--small" type="button" data-restore-all>Tout remettre en vente</button>
     </div>
     <div data-stock></div>
+  </section>
+
+  <!-- POINTS DE LIVRAISON -->
+  <section class="view" data-view-panel="points" hidden>
+    <div class="view__head">
+      <h1>Points plage</h1>
+      <p>Les repères où le livreur attend les clients (panneau ADY, grand cocotier…). <b>Glisse un numéro sur la carte</b> pour placer le point, ou touche «&nbsp;Prendre ma position ici&nbsp;» quand tu es dessus. Chaque point a besoin d’une photo pour être proposé aux clients.</p>
+      <button class="btn btn--small" type="button" data-add-point>Ajouter un point</button>
+    </div>
+    <div class="points-map" data-points-map aria-label="Carte des points : glisse un numéro pour le déplacer"></div>
+    <div class="points-admin" data-points-admin></div>
   </section>
 
   <!-- REGLAGES -->
@@ -92,12 +111,12 @@
       <label>Plats salés servis à partir de<input type="time" name="food_from"></label>
       <label>Plats salés servis jusqu'à<input type="time" name="food_to"></label>
       <label>Tampons avant le café offert<input type="number" name="stamps_goal" min="1" max="30"></label>
-      <label class="switch switch--big"><input type="checkbox" name="beach_photo_required"><span></span>Photo du spot obligatoire (livraison plage)</label>
-      <label>Rayon de la zone de livraison (m)<input type="number" name="beach_radius" min="50" max="3000" step="10"></label>
-      <label>Centre de la zone : latitude<input type="number" name="beach_lat" step="0.0001"></label>
-      <label>Centre de la zone : longitude<input type="number" name="beach_lng" step="0.0001"></label>
       <button class="btn" type="submit">Enregistrer les réglages</button>
     </form>
+    <div class="compte">
+      <a class="btn btn--ghost" href="livreur">Ouvrir l’espace livreur</a>
+      <button class="btn btn--ghost" type="button" data-logout>Se déconnecter</button>
+    </div>
     <div class="demo-box" data-demo-box hidden>
       <h2>Mode démo</h2>
       <p>Les données de la démo sont gardées dans ce navigateur. Les commandes passées sur le site depuis ce même navigateur arrivent ici en direct.</p>
@@ -106,13 +125,29 @@
   </section>
 </div>
 
-<div class="lightbox" data-lightbox hidden><button class="iconbtn" type="button" data-lightbox-close>Fermer</button><img alt="Photo du spot envoyée par le client"></div>
+<div class="lightbox" data-lightbox hidden><button class="iconbtn" type="button" data-lightbox-close>Fermer</button><img alt="Photo du point de livraison"></div>
+<div class="affiche" data-affiche hidden>
+  <div class="affiche__barre"><button class="btn btn--small" type="button" data-affiche-imprimer>Imprimer</button><button class="iconbtn" type="button" data-affiche-fermer>Fermer</button></div>
+  <div class="affiche__page" data-affiche-page></div>
+</div>
+<div class="motif" data-motif hidden role="dialog" aria-modal="true" aria-labelledby="motif-titre">
+  <form class="motif__box" data-motif-form>
+    <h2 id="motif-titre" data-motif-titre>Refuser la commande</h2>
+    <p class="muted">Le client voit le motif sur son téléphone.</p>
+    <div class="motif__choix" data-motif-choix></div>
+    <div class="motif__epuise" data-motif-epuise hidden><p><b>Marquer épuisé sur le site&nbsp;:</b></p><div data-motif-produits></div></div>
+    <label class="motif__autre" data-motif-autre hidden>Motif<input type="text" maxlength="120" name="autre" placeholder="Ex. : machine en panne"></label>
+    <div class="motif__actions"><button class="btn btn--ghost" type="button" data-motif-fermer>Retour</button><button class="btn btn--danger" type="submit">Refuser</button></div>
+  </form>
+</div>
 <div class="toast" role="status" aria-live="polite"></div>
 
 <script src="vendor/supabase/supabase.js"></script>
 <script src="config.js"></script>
-<script src="js/demo-seed.js"></script>
-<script src="js/demo-db.js"></script>
-<script src="admin.js"></script>
+<script src="js/demo/demo-seed.js"></script>
+<script src="js/demo/demo-db.js"></script>
+<script src="vendor/qrcode/qrcode.js"></script>
+<script src="vendor/leaflet/leaflet.js"></script>
+<script src="js/admin.js"></script>
 </body>
 </html>

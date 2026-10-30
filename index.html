@@ -21,8 +21,8 @@
   <link rel="stylesheet" href="css/fonts.css">
   <link rel="stylesheet" href="css/style.css">
   <script src="config.js" defer></script>
-  <script src="js/demo-seed.js" defer></script>
-  <script src="js/demo-db.js" defer></script>
+  <script src="js/demo/demo-seed.js" defer></script>
+  <script src="js/demo/demo-db.js" defer></script>
   <script type="module" src="js/main.js"></script>
 </head>
 <body data-page="home" data-hero="terra">
@@ -60,30 +60,30 @@
     </nav>
     <div class="mobile-menu__foot">
       <span class="status" data-status hidden></span>
-      <a class="btn btn--light btn--lg btn--block" href="carte" data-set-mode="plage">Livré sur la plage</a>
-      <a class="btn btn--ghost btn--lg btn--block" href="carte" data-set-mode="shop">Je passe au shop</a>
+      <a class="btn btn--light btn--lg btn--block" href="carte" data-set-mode="plage">Livre-moi sur la plage</a>
+      <a class="btn btn--ghost btn--lg btn--block" href="carte" data-set-mode="shop">Je passe le chercher</a>
     </div>
   </div>
   <main id="contenu">
     <section class="hero on-terra">
       <div class="hero__grid">
         <div class="hero__text">
-          <p class="kicker">Californian coffee shop · Sainte-Anne</p>
-          <h1 class="hero__title h1"><span class="line"><span class="hero__title-small">Une véritable</span></span><span class="line"><span>Adyction</span></span></h1>
-          <p class="hero__lead lead">Iced latte, matcha, citronnade gwozey. Au shop, ou livrés sur ta serviette à la plage de la Caravelle.</p>
+          <p class="kicker">ADY Coffee Shop · Plage de la Caravelle</p>
+          <h1 class="hero__title h1"><span class="line"><span class="hero__title-small">Bouge pas.</span></span><span class="line"><span>Ton café arrive.</span></span></h1>
+          <p class="hero__lead lead">Iced latte, matcha, citronnade gwozey. Livrés sur la plage, en 15 minutes.</p>
           <div class="hero__modes" role="group" aria-label="Comment veux-tu commander ?">
             <a class="modecard modecard--plage" href="carte" data-set-mode="plage">
               <i data-picto="wave"></i>
-              <span><b>Livré sur la plage</b><small>Caravelle · dès <span data-min-order>5 €</span> · <span data-delay>15 à 20 min</span></small></span>
+              <span><b>Livre-moi sur la plage</b><small>Dès <span data-min-order>5 €</span> · <span data-delay>15 à 20 min</span> · tu paies à l’arrivée</small></span>
               <i data-icon="arrow" class="icon--arrow"></i>
             </a>
             <a class="modecard" href="carte" data-set-mode="shop">
               <i data-picto="cup"></i>
-              <span><b>Je passe au shop</b><small>Commande avant, c’est prêt à ton arrivée</small></span>
+              <span><b>Je passe le chercher</b><small>Prêt quand tu arrives · sans minimum</small></span>
               <i data-icon="arrow" class="icon--arrow"></i>
             </a>
           </div>
-          <p class="hero__meta"><span class="status" data-status hidden></span><span>Paiement sur place&nbsp;: espèces ou carte</span></p>
+          <p class="hero__meta"><span class="status" data-status hidden></span></p>
         </div>
         <div class="poster" data-poster>
           <div class="poster__3d">
@@ -109,81 +109,27 @@
     <section class="section signatures" aria-labelledby="titre-signatures">
       <div class="container">
         <div class="section-head section-head--split">
-          <div>
-            <p class="kicker reveal">Les signatures</p>
-            <h2 class="h2 reveal" id="titre-signatures">Commence par celles-là</h2>
-          </div>
+          <h2 class="h2 reveal" id="titre-signatures">Les plus commandées</h2>
           <a class="link-arrow reveal" href="carte">Toute la carte <i data-icon="arrow"></i></a>
         </div>
         <div class="sig-track" data-signatures></div>
       </div>
     </section>
 
-    <section class="story" id="livraison" aria-labelledby="titre-livraison">
-      <div class="container story__intro section-head section-head--center">
-        <p class="kicker reveal">Livraison plage</p>
-        <h2 class="h2 reveal" id="titre-livraison">Livré les pieds<br>dans le sable</h2>
-        <p class="lead reveal">Le shop est à 5 minutes à pied de la Caravelle. Tu commandes depuis ta serviette, on te l’apporte.</p>
-      </div>
-      <div class="story__track" data-story>
-        <div class="story__sticky">
-          <div class="scene" data-scene></div>
-          <div class="story__panel">
-            <ol class="story__steps">
-              <li class="story__step is-active"><span class="story__num">01 / 04</span><h3>Tu commandes</h3><p>Tu choisis tes boissons sans quitter ta serviette, puis tu prends ton coin de plage en photo. Dès <span data-min-order>5 €</span>.</p></li>
-              <li class="story__step"><span class="story__num">02 / 04</span><h3>On prépare, on file</h3><p>Ta commande est préparée au shop et part aussitôt à pied vers la plage. Tu vois sur ton téléphone où elle en est.</p></li>
-              <li class="story__step story__step--photo"><div><span class="story__num">03 / 04</span><h3>On te trouve</h3><p>Pas besoin de crier ton prénom&nbsp;: grâce à ta photo, le livreur repère ton parasol du premier coup.</p></div><svg viewBox="-6 -6 136 156" aria-hidden="true"><g transform="rotate(-5 60 70)">
-              <rect x="3" y="4" width="120" height="140" rx="4" fill="#2a1810" opacity=".18"/><rect width="120" height="140" rx="4" fill="#fffaf2" stroke="#2a1810" stroke-width="3"/>
-              <rect x="9" y="9" width="102" height="44" fill="#a9d3e3"/><rect x="9" y="50" width="102" height="18" fill="#3f97ae"/><rect x="9" y="66" width="102" height="39" fill="#f2cfa6"/>
-              <path d="M40 92 L94 92 L86 102 L32 102Z" fill="#bf472c"/><path d="M63 96 L66 46" stroke="#2a1810" stroke-width="2.6"/>
-              <path d="M36 50 Q66 22 96 50 Q88 46 81 50 Q73 46 66 50 Q58 46 51 50 Q43 46 36 50Z" fill="#f4c33f" stroke="#2a1810" stroke-width="2.6" stroke-linejoin="round"/>
-              <text x="60" y="128" text-anchor="middle" font-family="Londrina Solid, sans-serif" font-size="14" fill="#2a1810">mon spot !</text></g></svg></li>
-              <li class="story__step"><span class="story__num">04 / 04</span><h3>C’est livré</h3><p>En <span data-delay>15 à 20 min</span> environ. Tu paies sur place, en espèces ou par carte.</p></li>
-            </ol>
-            <div class="story__bar" aria-hidden="true"><span></span><span></span><span></span><span></span></div>
-          </div>
-          <div class="story__hint" aria-hidden="true">Fais défiler <i data-icon="arrow"></i></div>
-        </div>
-      </div>
-      <div class="container story__end">
-        <a class="btn btn--lg" href="carte" data-set-mode="plage">Commander sur la plage <i data-icon="arrow" class="icon--arrow"></i></a>
-        <a class="link-arrow" href="livraison">Tout savoir sur la livraison <i data-icon="arrow"></i></a>
-      </div>
-    </section>
-
-    <section class="section reel-sec" aria-labelledby="titre-reel">
-      <div class="container">
-        <div class="section-head section-head--split">
-          <div>
-            <p class="kicker reveal">Le shop en vrai</p>
-            <h2 class="h2 reveal" id="titre-reel">Un coin de Californie, posé en Guadeloupe</h2>
-          </div>
-          <div class="reel__nav reveal"><button class="round-btn" type="button" data-reel-prev aria-label="Photo précédente"><i data-icon="back"></i></button><button class="round-btn" type="button" data-reel-next aria-label="Photo suivante"><i data-icon="arrow"></i></button></div>
-        </div>
-      </div>
-      <div class="reel" data-reel tabindex="0" role="region" aria-label="Photos du shop, à faire défiler">
-        <figure class="reel__card"><div class="photo"><img src="assets/photos/espresso.webp" alt="Un espresso qui coule dans un gobelet ADY" width="900" height="930" loading="lazy" decoding="async"></div><figcaption><b>Extraction lente</b>Un espresso net, servi dans nos gobelets.</figcaption></figure>
-        <figure class="reel__card"><div class="photo"><img src="assets/photos/grains.webp" alt="Grains de café torréfiés et logo ADY" width="900" height="930" loading="lazy" decoding="async"></div><figcaption><b>Café de spécialité</b>Des grains choisis, une machine bien réglée.</figcaption></figure>
-        <figure class="reel__card"><div class="photo"><img src="assets/photos/stickers.webp" alt="Les stickers ADY sur une plage de Guadeloupe" width="900" height="930" loading="lazy" decoding="async"></div><figcaption><b>Jusqu’à ta serviette</b>Livré à pied sur la plage de la Caravelle.</figcaption></figure>
-        <div class="reel__card reel__card--text"><p>Maracudja, goyave, gwozey&nbsp;: les fruits d’ici, dans nos verres.</p><a class="btn btn--light" href="carte">Voir la carte <i data-icon="arrow" class="icon--arrow"></i></a></div>
-      </div>
-    </section>
-
-    <section class="build" aria-labelledby="titre-build">
-      <div class="build__track" data-build>
-        <div class="build__sticky">
-          <div class="build__stage"><div class="build__scene" data-build-scene></div></div>
-          <div class="build__text">
-            <p class="kicker">Coup de cœur</p>
-            <h2 class="build__title" id="titre-build">Le maracudja matcha tonic, monté face à la mer</h2>
-            <ol class="build__steps">
-              <li class="is-active"><span>1</span>Des glaçons, beaucoup.</li>
-              <li><span>2</span>Le sirop de maracudja.</li>
-              <li><span>3</span>Le tonic, bien pétillant.</li>
-              <li><span>4</span>Le matcha, versé doucement par-dessus.</li>
-              <li><span>5</span>La paille, le demi-maracudja, direction la plage.</li>
-            </ol>
-            <button class="btn btn--lg build__add" type="button" data-build-add>Je le veux · <span data-build-price>6,50 €</span></button>
+    <section class="section express" id="livraison" aria-labelledby="titre-express">
+      <div class="container express__grid">
+        <div class="scene-frame express__scene reveal"><div class="scene" data-scene-loop></div></div>
+        <div class="express__text">
+          <p class="kicker reveal">Livraison plage</p>
+          <h2 class="h2 reveal" id="titre-express">20 secondes pour commander</h2>
+          <ol class="express__steps">
+            <li class="reveal"><span class="express__n">1</span><p><b>Choisis.</b> Ta boisson, en un geste.</p></li>
+            <li class="reveal"><span class="express__n">2</span><p><b>Dis-nous où.</b> Le panneau ADY, le grand cocotier… Choisis ton point sur la plage.</p></li>
+            <li class="reveal"><span class="express__n">3</span><p><b>C’est là.</b> En <span data-delay>15 à 20 min</span>, ta commande t’attend au point. Un message te prévient. Tu paies sur place.</p></li>
+          </ol>
+          <div class="actions reveal">
+            <a class="btn btn--lg" href="carte" data-set-mode="plage">Je commande <i data-icon="arrow" class="icon--arrow"></i></a>
+            <a class="link-arrow" href="livraison">Les points sur la plage <i data-icon="arrow"></i></a>
           </div>
         </div>
       </div>
@@ -194,28 +140,10 @@
         <div>
           <p class="kicker reveal">Carte fidélité</p>
           <h2 class="h2 reveal" id="titre-fidelite">Le 10ᵉ est pour nous</h2>
-          <p class="lead reveal">Un tampon par boisson, au shop comme sur la plage. Dix tampons, un café offert.</p>
-          <ul class="check-list reveal">
-            <li><i data-picto="card"></i><span><b>Dans ton téléphone.</b> La carte s’ajoute à Apple Wallet ou Google Wallet&nbsp;: impossible de l’oublier au fond du sac de plage.</span></li>
-            <li><i data-picto="wave"></i><span><b>Même livré sur la plage.</b> Montre ton QR code au livreur au moment de payer&nbsp;: il scanne ta carte, rien à remplir.</span></li>
-            <li><i data-picto="gift"></i><span><b>La récompense sans y penser.</b> Au dixième tampon, ton café offert est déduit au moment du scan.</span></li>
-          </ul>
+          <p class="lead reveal">Un tampon par boisson. Dix tampons, un café offert. La carte vit dans ton téléphone.</p>
           <div class="reveal" data-loyalty-cta="clair"></div>
-          <a class="link-arrow link-arrow--light reveal" href="fidelite" style="margin-top:22px">Comment ça marche <i data-icon="arrow"></i></a>
         </div>
         <div class="wallet-stage reveal" data-wallet-stage></div>
-      </div>
-    </section>
-
-    <section class="section merch" id="merch" aria-labelledby="titre-merch">
-      <div class="container merch__grid">
-        <figure class="merch__photo reveal"><div class="photo"><img src="assets/photos/merch-portant.webp" alt="Le portant de t-shirts ADY dans le coffee shop, à côté des chaises rouges" width="1022" height="1000" loading="lazy" decoding="async"></div><span class="merch__stamp">En vrai au shop</span></figure>
-        <div class="merch__body">
-          <p class="kicker reveal">Merch</p>
-          <h2 class="h2 reveal" id="titre-merch">Les t-shirts sont arrivés</h2>
-          <p class="lead reveal">Le maillot Californian et les t-shirts ADY Coffee Club. Réserve ta taille ici&nbsp;: tu le récupères au comptoir, ou il arrive sur la plage avec ton iced latte.</p>
-          <div class="merch__list" data-merch></div>
-        </div>
       </div>
     </section>
 
@@ -227,8 +155,7 @@
             <p class="kicker reveal">Le shop</p>
             <h2 class="h2 reveal" id="titre-visite">Passe nous voir</h2>
           </div>
-          <p class="visit__address reveal"><span data-address>Durivage, 97180 Sainte-Anne, Guadeloupe</span><br><span class="muted">À 5 minutes à pied de la plage de la Caravelle. Sur place, à emporter, ou livré sur ta serviette.</span></p>
-          <p class="visit__proof reveal"><i data-picto="star"></i><span data-proof>2 300+ personnes nous suivent déjà sur Instagram</span></p>
+          <p class="visit__address reveal"><span data-address>Durivage, 97180 Sainte-Anne, Guadeloupe</span><br><span class="muted">À 5 minutes à pied de la plage de la Caravelle.</span></p>
           <div class="reveal"><span class="status" data-status hidden></span></div>
           <ul class="hours reveal" data-hours></ul>
           <div class="actions reveal">

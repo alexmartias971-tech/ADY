@@ -1,7 +1,7 @@
 // La carte, façon ardoise du shop : une section par catégorie, les signatures encadrées
 // comme sur les écrans au-dessus du comptoir, la navigation collante et le panier à droite.
-import { CONFIG } from '../config.js';
-import { catalogue, trouverProduit, libelleOptions, plageSale, enService } from '../data.js';
+import { CONFIG } from '../reglages.js';
+import { catalogue, trouverProduit, trouverPoint, libelleOptions, plageSale, enService } from '../data.js';
 import { ligneProduit, carteProduit, brancherCartes, ton } from '../produits.js';
 import { panier } from '../cart.js';
 import { ouvrirPanneau } from '../checkout.js';
@@ -55,7 +55,8 @@ function section(c) {
 function modes() {
   const box = $('[data-carte-modes]');
   if (!box) return;
-  const plageOuverte = catalogue.reglages.beach_open !== false;
+  const plageOuverte = catalogue.reglages.beach_open !== false && catalogue.points.length > 0;
+  const ligne = $('[data-point-choisi]');
   const maj = () => {
     if (!plageOuverte && panier.mode === 'plage') panier.setMode('shop');
     $$('[data-mode]', box).forEach((b) => {
@@ -64,7 +65,12 @@ function modes() {
       b.classList.toggle('is-on', on);
     });
     box.style.setProperty('--x', panier.mode === 'shop' ? '100%' : '0%');
-    $$('[data-mode-info]').forEach((el) => (el.hidden = el.dataset.modeInfo !== panier.mode));
+    // point de livraison déjà choisi (QR code du panneau, ou commande précédente)
+    const pt = panier.mode === 'plage' ? trouverPoint(panier.point) : null;
+    if (ligne) {
+      ligne.hidden = !pt;
+      if (pt) ligne.innerHTML = `${icon('pin')}<span>Livraison au point <b>${esc(pt.nom)}</b> · modifiable au moment de commander</span>`;
+    }
   };
   const plage = $('[data-mode="plage"]', box);
   if (!plageOuverte && plage) {
@@ -124,7 +130,8 @@ function aside() {
     const st = panier.sousTotal();
     const plage = panier.mode === 'plage';
     const min = Number(catalogue.reglages.beach_min ?? CONFIG.commandeMinimum);
-    const tete = `<h2>Ton panier</h2><p class="cart-aside__mode">${icon(plage ? 'pin' : 'bag')} ${plage ? 'Livré sur la plage' : 'Retrait au shop'}</p>`;
+    const pt = plage ? trouverPoint(panier.point) : null;
+    const tete = `<h2>Ton panier</h2><p class="cart-aside__mode">${icon(plage ? 'pin' : 'bag')} ${plage ? (pt ? `Livré au point ${esc(pt.nom)}` : 'Livré sur la plage') : 'Retrait au shop'}</p>`;
     if (!lignes.length) {
       box.innerHTML = `${tete}<p class="cart-aside__empty">Il est vide pour l’instant. Touche le ${icon('plus')} d’une boisson pour l’ajouter.</p>`;
       return;
@@ -138,10 +145,10 @@ function aside() {
       }).join('')}</ul>
       <div class="totals"><div class="totals__grand"><span>Total</span><span>${euro(st + (plage ? CONFIG.fraisLivraison : 0))}</span></div></div>
       ${manque ? `<p class="form-error" style="margin:0 0 12px">Encore ${euro(min - st)} pour le minimum de livraison (${euroCourt(min)}).</p>` : ''}
-      <button class="btn btn--block" type="button" data-checkout ${manque ? 'disabled' : ''}>${plage ? 'Où es-tu ?' : 'Je passe quand ?'} ${icon('arrow', 'icon--arrow')}</button>
+      <button class="btn btn--block" type="button" data-checkout ${manque ? 'disabled' : ''}>Commander ${icon('arrow', 'icon--arrow')}</button>
       <button class="link-arrow" type="button" data-open-cart style="margin-top:14px">Modifier le panier</button>`;
   };
-  box.addEventListener('click', (e) => { if (e.target.closest('[data-checkout]')) ouvrirPanneau(2); });
+  box.addEventListener('click', (e) => { if (e.target.closest('[data-checkout]')) ouvrirPanneau(); });
   panier.onChange(maj);
   maj();
 }

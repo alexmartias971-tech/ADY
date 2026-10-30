@@ -1,6 +1,7 @@
 // Carte interactive (Leaflet + OpenStreetMap), chargée seulement quand on en a besoin
-import { CONFIG } from './config.js';
-import { zone } from './data.js';
+import { CONFIG } from './reglages.js';
+import { catalogue } from './data.js';
+import { esc } from './utils.js';
 
 let chargement = null;
 
@@ -28,17 +29,18 @@ export function iconeShop(L) {
   return L.divIcon({ className: '', html: '<div class="ady-shop" title="Ady Coffee Shop"><svg viewBox="0 0 728 584"><use href="assets/brand.svg#st-head"/></svg></div>', iconSize: [46, 46], iconAnchor: [23, 23] });
 }
 
-export function iconePin(L) {
+// Repère d'un point de livraison : drapeau terracotta numéroté
+export function iconePoint(L, n) {
   return L.divIcon({
-    className: 'ady-pin',
-    html: '<svg viewBox="0 0 40 52" aria-hidden="true"><path d="M20 50 C 6 34 2 26 2 19 A18 18 0 0 1 38 19 C 38 26 34 34 20 50Z" fill="#bf472c" stroke="#2a1810" stroke-width="3"/><circle cx="20" cy="19" r="7" fill="#fbe9d6"/></svg>',
-    iconSize: [40, 52],
-    iconAnchor: [20, 50],
+    className: 'ady-point',
+    html: `<span class="ady-point__n">${n}</span>`,
+    iconSize: [36, 36],
+    iconAnchor: [18, 18],
   });
 }
 
-// Carte « vitrine » : zone de livraison + shop (pages Livraison et Le shop)
-export async function carteVitrine(el, { centrer = 'zone' } = {}) {
+// Carte « vitrine » : points de livraison + shop (pages Livraison et Le shop)
+export async function carteVitrine(el, { centrer = 'points' } = {}) {
   let L;
   try {
     L = await chargerLeaflet();
@@ -46,18 +48,24 @@ export async function carteVitrine(el, { centrer = 'zone' } = {}) {
     el.innerHTML = '<p style="padding:20px">La carte n’a pas pu se charger.</p>';
     return null;
   }
-  const z = zone();
-  const map = L.map(el, { scrollWheelZoom: false, zoomControl: true }).setView([z.centre.lat, z.centre.lng], 15);
+  const c = CONFIG.zone.centre;
+  const map = L.map(el, { scrollWheelZoom: false, zoomControl: true }).setView([c.lat, c.lng], 16);
   map.attributionControl.setPrefix('<a href="https://leafletjs.com" target="_blank" rel="noopener">Leaflet</a>');
   L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', {
     maxZoom: 19,
     attribution: '© <a href="https://www.openstreetmap.org/copyright" target="_blank" rel="noopener">OpenStreetMap</a>',
   }).addTo(map);
-  L.circle([z.centre.lat, z.centre.lng], { radius: z.rayonMetres, color: '#bf472c', weight: 3, dashArray: '8 8', fillColor: '#bf472c', fillOpacity: 0.08, interactive: false }).addTo(map);
+  const bornes = L.latLngBounds([]);
+  catalogue.points.forEach((p, i) => {
+    L.marker([p.lat, p.lng], { icon: iconePoint(L, i + 1), title: p.nom, keyboard: false })
+      .bindPopup(`<div class="point-pop">${p.photo ? `<img src="${esc(p.photo)}" alt="">` : ''}<b>${esc(p.nom)}</b>${p.indication ? `<span>${esc(p.indication)}</span>` : ''}</div>`, { maxWidth: 220 })
+      .addTo(map);
+    bornes.extend([p.lat, p.lng]);
+  });
   if (CONFIG.shop) L.marker([CONFIG.shop.lat, CONFIG.shop.lng], { icon: iconeShop(L), keyboard: false, title: 'Ady Coffee Shop' }).addTo(map);
-  const bornes = L.latLng(z.centre.lat, z.centre.lng).toBounds(z.rayonMetres * 2);
+  if (!bornes.isValid()) bornes.extend([c.lat, c.lng]);
   if (centrer === 'shop' && CONFIG.shop) bornes.extend([CONFIG.shop.lat, CONFIG.shop.lng]);
-  map.fitBounds(bornes, { padding: [20, 20], animate: false });
+  map.fitBounds(bornes.pad(0.25), { maxZoom: 17, animate: false });
   setTimeout(() => map.invalidateSize(), 100);
   return map;
 }

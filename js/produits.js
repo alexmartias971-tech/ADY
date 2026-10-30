@@ -6,9 +6,8 @@ import { icon } from './icons.js';
 import { $, $$, euro, esc, toast, reduceMotion } from './utils.js';
 import { ouvrirFiche } from './sheet.js';
 
-export const TONS = { cafeinees: 'var(--peach)', matcha: 'var(--sage)', gourmandes: 'var(--sand)', rafraichissements: 'var(--sky)', sale: 'var(--sun)', merch: 'var(--cream-3)' };
+const TONS = { cafeinees: 'var(--peach)', matcha: 'var(--sage)', gourmandes: 'var(--sand)', rafraichissements: 'var(--sky)', sale: 'var(--sun)', merch: 'var(--cream-3)' };
 export const ton = (p) => TONS[p.cat] || 'var(--sand)';
-const aOptions = (p) => p.groupes.length > 0 || p.variantes.length > 0;
 const flocon = '<svg class="flake" viewBox="0 0 24 24" aria-hidden="true"><g fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M12 2v20M3.3 7l17.4 10M3.3 17L20.7 7"/><path d="M9 3.5l3 2.5 3-2.5M9 20.5l3-2.5 3 2.5"/></g></svg>';
 
 function boutonAjout(p, petit = false) {
@@ -83,8 +82,6 @@ export function ajouter(p, opts, vid, qty, sourceEl) {
   voler(sourceEl);
   toast(`${qty > 1 ? `${qty} × ` : ''}${p.nom}${o ? ` (${o})` : ''} ajouté`);
 }
-
-export { aOptions };
 
 function cible() {
   const bar = $('[data-cartbar]');

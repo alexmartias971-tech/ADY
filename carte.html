@@ -21,8 +21,8 @@
   <link rel="stylesheet" href="css/fonts.css">
   <link rel="stylesheet" href="css/style.css">
   <script src="config.js" defer></script>
-  <script src="js/demo-seed.js" defer></script>
-  <script src="js/demo-db.js" defer></script>
+  <script src="js/demo/demo-seed.js" defer></script>
+  <script src="js/demo/demo-db.js" defer></script>
   <script type="module" src="js/main.js"></script>
 </head>
 <body data-page="carte" data-hero="cream">
@@ -60,37 +60,26 @@
     </nav>
     <div class="mobile-menu__foot">
       <span class="status" data-status hidden></span>
-      <a class="btn btn--light btn--lg btn--block" href="carte" data-set-mode="plage">Livré sur la plage</a>
-      <a class="btn btn--ghost btn--lg btn--block" href="carte" data-set-mode="shop">Je passe au shop</a>
+      <a class="btn btn--light btn--lg btn--block" href="carte" data-set-mode="plage">Livre-moi sur la plage</a>
+      <a class="btn btn--ghost btn--lg btn--block" href="carte" data-set-mode="shop">Je passe le chercher</a>
     </div>
   </div>
   <main id="contenu">
     <section class="page-hero carte-hero">
       <div class="container">
         <div class="carte-hero__grid">
-          <div>
-            <p class="kicker">Commande en ligne</p>
+          <div class="carte-hero__titre">
             <h1 class="h1">La carte</h1>
+            <span class="status" data-status hidden></span>
           </div>
-          <div class="modes modes--big" role="radiogroup" aria-label="Comment veux-tu ta commande ?" data-carte-modes>
-            <button type="button" role="radio" data-mode="plage"><i data-picto="wave"></i><span><b>Livré sur la plage</b><small>Caravelle · dès <span data-min-order>5 €</span></small></span></button>
-            <button type="button" role="radio" data-mode="shop"><i data-picto="cup"></i><span><b>Je passe au shop</b><small>Prête à ton arrivée</small></span></button>
+          <div class="carte-hero__mode">
+            <div class="modes modes--big" role="radiogroup" aria-label="Comment veux-tu ta commande ?" data-carte-modes>
+              <button type="button" role="radio" data-mode="plage"><i data-picto="wave"></i><span><b>Livré sur la plage</b><small>Dès <span data-min-order>5 €</span> · <span data-delay>15 à 20 min</span></small></span></button>
+              <button type="button" role="radio" data-mode="shop"><i data-picto="cup"></i><span><b>Je passe au shop</b><small>Prête à ton arrivée</small></span></button>
+            </div>
+            <p class="point-choisi" data-point-choisi hidden></p>
           </div>
         </div>
-        <ul class="pills" data-mode-info="plage">
-          <li><i data-icon="pin"></i>Plage de la Caravelle</li>
-          <li><i data-icon="clock"></i><span data-delay>15 à 20 min</span></li>
-          <li><i data-icon="bag"></i><span>Dès <span data-min-order>5 €</span></span></li>
-          <li><i data-icon="card"></i>Paiement à la livraison</li>
-          <li><span class="status" data-status hidden></span></li>
-        </ul>
-        <ul class="pills" data-mode-info="shop" hidden>
-          <li><i data-icon="pin"></i>Durivage, Sainte-Anne</li>
-          <li><i data-icon="clock"></i>Prête à l’heure que tu choisis</li>
-          <li><i data-icon="bag"></i>Pas de minimum</li>
-          <li><i data-icon="card"></i>Paiement au comptoir</li>
-          <li><span class="status" data-status hidden></span></li>
-        </ul>
       </div>
     </section>
     <section class="menu-page" aria-label="Produits">

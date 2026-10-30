@@ -1,10 +1,9 @@
 // ─────────────────────────────────────────────────────────────
 //  Données du site : carte, réglages, commandes, suivi.
 //  • Supabase (back-office /admin) dès que config.js est rempli ;
-//  • sinon le mode démo (petite base dans le navigateur, js/demo-db.js).
+//  • sinon le mode démo (petite base dans le navigateur, js/demo/demo-db.js).
 //  Les prix sont toujours recalculés par la base au moment de la commande.
 // ─────────────────────────────────────────────────────────────
-import { CONFIG } from './config.js';
 
 const cfg = () => window.ADY_CONFIG || {};
 export const estDemo = () => !(cfg().supabaseUrl && cfg().supabaseAnonKey);
@@ -37,8 +36,8 @@ export const catalogue = {
   pret: false,
   reglages: {
     orders_open: true, beach_open: true, beach_min: 5, food_from: '11:00', food_to: '15:00', stamps_goal: 10,
-    beach_lat: CONFIG.zone.centre.lat, beach_lng: CONFIG.zone.centre.lng, beach_radius: CONFIG.zone.rayonMetres, beach_photo_required: true,
   },
+  points: [],
   categories: [],
   produits: [],
   choix: {},
@@ -54,14 +53,17 @@ export function chargerCatalogue() {
 async function charger() {
   const sb = await client();
   const q = (t) => sb.from(t).select('*');
-  const [c, p, v, g, ch, l, s] = await Promise.all([
+  const [c, p, v, g, ch, l, s, pts] = await Promise.all([
     q('categories').order('sort'), q('products').eq('archived', false).order('sort'), q('product_variants').order('sort'),
     q('option_groups').order('sort'), q('option_choices').order('sort'), q('product_option_groups').order('sort'),
     sb.from('settings').select('*').eq('id', 1).single(),
+    q('delivery_points').eq('active', true).order('sort'),
   ]);
-  const err = [c, p, v, g, ch, l].find((r) => r.error);
+  const err = [c, p, v, g, ch, l, pts].find((r) => r.error);
   if (err) throw new Error(err.error.message || 'La carte n’a pas pu se charger.');
   if (s.data) Object.assign(catalogue.reglages, s.data);
+  // points de livraison sur la plage (panneau ADY, grand cocotier…)
+  catalogue.points = pts.data.map((x) => ({ id: x.id, slug: x.slug, nom: x.name, indication: x.hint || '', lat: x.lat, lng: x.lng, photo: x.photo_url || null }));
 
   const groupes = Object.fromEntries(g.data.map((x) => [x.id, x]));
   catalogue.choix = Object.fromEntries(ch.data.map((x) => [x.id, { id: x.id, groupe: x.group_id, label: x.label, delta: Number(x.price_delta), defaut: !!x.is_default, dispo: x.available !== false, sort: x.sort }]));
@@ -94,7 +96,7 @@ async function charger() {
 }
 
 export const trouverProduit = (id) => parId.get(id);
-export const zone = () => ({ centre: { lat: catalogue.reglages.beach_lat, lng: catalogue.reglages.beach_lng }, rayonMetres: catalogue.reglages.beach_radius, nom: CONFIG.zone.nom });
+export const trouverPoint = (cle) => catalogue.points.find((x) => x.id === cle || x.slug === cle);
 
 // Choix par défaut d'un produit (un par groupe), ex. « Chaud », « Lait de vache »
 export function choixParDefaut(p) {
@@ -117,13 +119,6 @@ export function libelleOptions(pid, opts = [], vid = null) {
   return out.join(', ');
 }
 
-// La boisson est-elle servie glacée ? (choix « Glacé » ou recette froide par nature)
-export function estGlace(p, opts = []) {
-  const temp = opts.map((id) => catalogue.choix[id]).find((c) => c?.groupe === 'temperature');
-  if (temp) return /^glac/i.test(temp.label);
-  return /^(iced|.*tonic|affogato|citronnade|thé glacé|jus)/i.test(p.nom);
-}
-
 /* ── Horaires du salé (heure de Guadeloupe) ───────────────── */
 function heureGuadeloupe() {
   return new Intl.DateTimeFormat('fr-FR', { timeZone: 'America/Guadeloupe', hour: '2-digit', minute: '2-digit', hour12: false }).format(new Date());
@@ -137,16 +132,6 @@ export function enService(p) {
 }
 
 /* ── Commande & suivi ─────────────────────────────────────── */
-const uuid = () => (crypto.randomUUID ? crypto.randomUUID() : 'xxxxxxxx-xxxx-4xxx-8xxx-xxxxxxxxxxxx'.replace(/x/g, () => ((Math.random() * 16) | 0).toString(16)));
-
-export async function envoyerPhoto(blob) {
-  const sb = await client();
-  const chemin = `${uuid()}.jpg`;
-  const r = await sb.storage.from('spots').upload(chemin, blob, { contentType: 'image/jpeg' });
-  if (r.error) throw new Error(r.error.message || 'La photo n’a pas pu être envoyée.');
-  return chemin;
-}
-
 export async function passerCommande(payload) {
   const sb = await client();
   const { data, error } = await sb.rpc('place_order', { p: payload });
@@ -157,5 +142,5 @@ export async function passerCommande(payload) {
 export async function statutCommande(token) {
   const sb = await client();
   const { data } = await sb.rpc('order_status', { p_token: token });
-  return data; // { number, status, mode, total, created_at }
+  return data; // { number, status, mode, total, created_at, reason }
 }

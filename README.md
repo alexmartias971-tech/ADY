@@ -1,132 +1,186 @@
-# Ady Coffee Shop — site + commande (plage ou à emporter) + back-office
+# Ady Coffee Shop
 
-Site du **Californian coffee shop Ady** (Durivage, Sainte-Anne, Guadeloupe).
-HTML/CSS/JS **sans étape de build**. Les commandes, la carte et les réglages vivent dans **Supabase** ; l’équipe gère tout depuis **`/admin`**.
+Site du **Californian coffee shop Ady** (Durivage, Sainte-Anne, Guadeloupe) : vitrine, commande en ligne **livrée sur la plage de la Caravelle** ou **à retirer au shop**, suivi de commande en direct, back-office pour le gérant et espace pour le livreur.
 
-| Page | Fichier | Rôle |
-|---|---|---|
-| Accueil | `index.html` | Le parcours complet, voir ci-dessous |
-| La carte | `carte.html` | Carte façon ardoise du shop, choix plage / shop, panier latéral |
-| Livraison plage | `livraison.html` | Fonctionnement, zone sur la carte, questions fréquentes |
-| Fidélité | `fidelite.html` | Carte Wallet interactive, comment l’utiliser en ligne |
-| Le shop | `le-shop.html` | Photos, adresse, horaires, contact, carte |
-| Back-office | `admin.html` | Commandes en direct, carte & prix, stock, réglages |
-| CGV, mentions, confidentialité, 404 | `cgv.html`, `mentions-legales.html`, `confidentialite.html`, `404.html` | Infos manquantes marquées **DEMO** (en bleu) |
+- HTML, CSS et JavaScript **sans étape de build** : ce qui est dans le dossier est exactement ce qui est mis en ligne.
+- Commandes, carte, stock et réglages dans **Supabase** ; le gérant gère tout depuis **`/admin`**, le livreur suit ses livraisons sur **`/livreur`**.
+- Tant que `config.js` est vide, tout tourne en **mode démo** dans le navigateur (rien à installer).
 
-## Le parcours client (pourquoi chaque bloc est à sa place)
+---
 
-Les gens sont sur la plage, au soleil, avec un téléphone : tout est pensé pour commander en quelques gestes.
+## Démarrer en 1 minute
 
-1. **Affiche + deux grosses entrées** « Livré sur la plage » / « Je passe au shop ». C’est la première décision, elle règle tout le reste (minimum, photo, paiement). Elle est visible sans défiler sur un téléphone.
-2. **Les signatures** (gérées dans le back-office, « mise en avant ») : la plupart des commandes, ajoutables en un geste.
-3. **« Livré les pieds dans le sable »** raconté au défilement : répond à la vraie inquiétude (« comment ils vont me trouver ? ») avant le passage en caisse.
-4. **Le shop en vrai** : les photos (avec le grain), pour la confiance et l’envie.
-5. **Le maracudja matcha tonic monté couche par couche** au défilement, avec son bouton « Je le veux » : le désir, puis l’action.
-6. **Fidélité** : un tampon par boisson, même livré sur la plage : le livreur scanne le QR code au moment de payer (rien à saisir sur le site).
-7. **T-shirts** : vente additionnelle, taille à choisir, récupérée au comptoir ou livrée avec la boisson.
-8. **Passe nous voir** : adresse, horaires, preuve sociale Instagram.
+```bash
+npx serve .
+```
 
-**Le tunnel de commande** (panneau qui s’ouvre depuis le panier, sur toutes les pages) :
-- *Plage* : panier (minimum 5 €, suggestions) → position GPS automatique, ajustable, puis **photo du spot obligatoire** → nom, prénom, téléphone, paiement (espèces / carte) → bouton « Commander avec obligation de paiement » → **suivi en direct** (reçue, en préparation, en route, livrée).
-- *Shop* : panier (pas de minimum) → heure de passage → nom, prénom, paiement au comptoir → suivi (reçue, en préparation, prête au comptoir).
-- *Fidélité* : pas de numéro à taper. Le client montre son QR code au livreur ou au comptoir au moment de payer ; le café offert est déduit à ce moment-là.
-- *Carte fidélité digitale (Walty)* : le bouton « Créer ma carte » ouvre https://carte.walty.fr/ady-coffee-shop (accueil, page Fidélité avec un QR code à scanner sur ordinateur, FAQ livraison, étape Contact et écran de suivi : « Un tampon sur cette commande ? »). Le lien se règle dans `js/config.js` (`lienCarteFidelite`) ; vide, les boutons disparaissent.
-- On peut fermer la page : la pastille en haut de l’écran ramène au suivi.
+Puis ouvre l’adresse affichée (souvent http://localhost:3000).
 
-## Comment le shop reçoit les commandes
+- Il faut un petit serveur : les pages ne marchent pas en double-cliquant sur le fichier, et les liens sont « sans .html » (`/carte`, `/livraison`…), ce que `serve` gère comme Vercel. Évite l’extension *Live Server*, qui ne les gère pas.
+- **Démo complète** : passe une commande sur le site, puis ouvre `/admin` dans le **même navigateur** (identifiant **demo.com@gmail.com**, mot de passe **demo**) et accepte-la. Ouvre ensuite `/livreur` (même compte) : « Je pars avec », « Je suis au point »… Le client voit chaque étape sur le site, jusqu’à « Ton livreur est là ».
+- Le bandeau « Site de démonstration » disparaît tout seul quand `config.js` est rempli.
+- **QR code d’un point de livraison** : ouvre `/carte?point=panneau-ady`, le point est déjà choisi.
 
-Sur le **back-office `/admin`**, onglet **Commandes** : une page web qui marche sur tablette, téléphone ou ordinateur (une tablette posée au comptoir, page ouverte, c’est l’idéal).
-- La commande arrive **en direct** (Supabase Realtime), avec un **son** (bouton « Son » à activer une fois en haut du back-office) et une **notification** du navigateur (à autoriser la première fois).
-- Chaque commande affiche : numéro, nom et prénom, téléphone (cliquable), articles et options, note, paiement choisi ; pour la plage, le **repère**, la **position sur Google Maps** et la **photo du spot**.
-- Un bouton fait avancer la commande : *Accepter et préparer* → *Partie en livraison* / *Prête au comptoir* → *Livrée* / *Récupérée*. *Annuler* remet le stock.
-- Les commandes sont enregistrées dans la base **Supabase** (PostgreSQL hébergé), jamais dans le site lui-même.
+---
 
-## Comment marche le suivi de commande
+## Arborescence
 
-1. Quand le client valide, la base renvoie un **numéro** et un **jeton secret** (impossible à deviner).
-2. Le téléphone du client demande l’étape de sa commande toutes les 6 secondes avec ce jeton (`order_status`). La réponse ne contient que le numéro, l’étape et le total : aucune donnée personnelle.
-3. Quand l’équipe appuie sur un bouton dans `/admin`, l’étape change en base ; le client la voit au passage suivant, avec une petite notification à l’écran.
-4. Le suivi est gardé 8 heures sur le téléphone : si le client ferme la page, la pastille en haut de l’écran le ramène au suivi.
+```
+ady-coffee-shop/
+├── index.html              Accueil
+├── carte.html              La carte (façon ardoise) + panier
+├── livraison.html          Livraison plage : étapes, points de livraison, questions
+├── fidelite.html           Carte fidélité (lien Walty, QR code)
+├── le-shop.html            Photos, adresse, horaires, contact
+├── cgv.html                Conditions générales de vente
+├── mentions-legales.html   Mentions légales
+├── confidentialite.html    Politique de confidentialité
+├── 404.html                Page introuvable
+├── admin.html              Back-office du gérant (/admin)
+├── livreur.html            Espace livreur (/livreur)
+├── config.js               ★ Connexion Supabase (vide = mode démo)
+├── vercel.json             URL sans .html + en-têtes de sécurité
+│
+├── css/
+│   ├── style.css           Tout le style du site (sommaire en tête du fichier)
+│   ├── fonts.css           Polices, hébergées sur le site
+│   └── admin.css           Style du back-office et de l’espace livreur
+│
+├── js/
+│   ├── main.js             Point d’entrée de chaque page (+ écran de chargement)
+│   ├── boot.js             Mini-script lu avant l’affichage (chargement une fois par visite)
+│   ├── reglages.js         ★ Textes, contact, horaires, paiements, liens
+│   ├── data.js             Lecture de la carte, envoi des commandes, suivi
+│   ├── cart.js             Panier et mode (plage / shop), gardés dans le navigateur
+│   ├── ui.js               Commun à toutes les pages : en-tête, statut, panier…
+│   ├── produits.js         Cartes et lignes produit, ajout au panier
+│   ├── sheet.js            Fiche produit (options, taille, allergènes)
+│   ├── checkout.js         Commande sur un seul écran et suivi en direct
+│   ├── loyalty.js          Carte fidélité animée + bouton « Créer ma carte »
+│   ├── map.js              Cartes OpenStreetMap (Leaflet)
+│   ├── horaires.js         Ouvert / fermé
+│   ├── icons.js            Pictogrammes et icônes
+│   ├── illustrations.js    Dessins des boissons et plats (SVG générés)
+│   ├── scene.js            Scène « Livré les pieds dans le sable »
+│   ├── utils.js            Petits outils
+│   ├── admin.js            Back-office du gérant
+│   ├── livreur.js          Espace livreur
+│   ├── pages/              Script propre à chaque page (accueil, carte…)
+│   └── demo/               Mode démo : fausse base dans le navigateur (à ignorer en production)
+│
+├── assets/                 Images, logo (brand.svg), photos, t-shirts, points de livraison, polices
+├── vendor/                 Bibliothèques incluses : Leaflet (cartes), supabase-js, qrcode (affiches)
+└── supabase/
+    ├── schema.sql          Base de données, règles de sécurité, fonctions de commande
+    └── seed.sql            La carte de départ (à lancer une seule fois)
+```
 
-## 0. Mode démo (rien à configurer)
+---
 
-Tant que `config.js` est vide, le site et le back-office tournent en démo, dans le navigateur :
-- passe une commande sur le site, puis ouvre **`/admin`** dans le **même navigateur** : identifiant **demo.com@gmail.com**, mot de passe **demo** ;
-- fais avancer la commande : le client voit l’étape changer en direct sur le site (toutes les 6 s) ;
-- bouton « Réinitialiser la démo » dans Réglages.
+## Où modifier quoi
 
-Dès que `config.js` est rempli, la démo se coupe toute seule et tout passe par Supabase. En démo, un bandeau « Site de démonstration » s’affiche en haut de chaque page ; il disparaît avec la démo.
-
-## 1. Supabase (10 min)
-
-1. Crée un projet sur supabase.com. Région : **eu-west-3 (Paris)** conseillée pour le RGPD (`us-east-1` est un peu plus rapide depuis la Guadeloupe).
-2. **SQL Editor** : colle `supabase/schema.sql`, *Run*. Puis `supabase/seed.sql`, *Run* (la carte actuelle, une seule fois).
-   Si la base existait déjà : relance seulement `schema.sql`, il ajoute ce qui manque sans toucher aux données.
-3. **Authentication → Providers → Email** : désactive « Allow new users to sign up ».
-4. **Authentication → Users → Add user** : crée le compte du gérant (e-mail + mot de passe).
-5. Donne-lui l’accès au back-office (SQL Editor) :
-   ```sql
-   insert into public.admins (user_id)
-   select id from auth.users where email = 'email-du-gerant@exemple.com';
-   ```
-6. **Project Settings → API** : copie `Project URL` et la clé `anon public` dans `config.js` :
-   ```js
-   window.ADY_CONFIG = { supabaseUrl: "https://xxxx.supabase.co", supabaseAnonKey: "eyJ..." };
-   ```
-   La clé *anon* est faite pour être publique : la sécurité repose sur les règles de la base (voir plus bas). Ne mets **jamais** la clé `service_role` dans le site.
-
-## 2. Mise en ligne (GitHub → Vercel)
-
-1. Sur GitHub, *Add file → Upload files* et glisse **le contenu** du dossier (`index.html` à la racine), puis *Commit changes*.
-   Si le dépôt contient une ancienne version, supprime d’abord les fichiers qui n’existent plus : `api/`, `js/app.js`, `js/menu.js`, `assets/insta/`.
-2. Sur Vercel : *Add New… → Project → Import* le dépôt. Nom du projet **en minuscules** (ex. `ady-coffee-shop`), *Application Preset* : **Other**, ne touche ni à Build ni à Output, *Deploy*.
-3. Vercel redéploie tout seul à chaque *commit*. Le back-office est sur `https://ton-site/admin`.
-
-## 3. Le back-office (`/admin`)
-
-- **Commandes** : arrivent en direct (son + notification). Un bouton fait avancer chaque commande ; le client le voit sur son téléphone. Pour la plage : position sur Google Maps, photo du spot, repère, numéro de carte fidélité. Annuler remet le stock.
-- **Carte & prix** : nom, prix, description, **allergènes** (obligatoires, affichés dans la fiche produit), options (chaud/glacé, lait, sirop, format), mise en avant (« Commence par celles-là ») avec étiquette, ordre, en vente / épuisé.
-- **Stock** : optionnel, par produit et par taille de t-shirt. À 0, le site affiche « Épuisé ».
-- **Réglages** : couper les commandes en ligne ou la livraison plage d’un clic, minimum plage, horaires du salé, tampons fidélité, **photo obligatoire, rayon et centre de la zone de livraison**.
-
-## 4. Sécurité
-
-- **Côté base** : prix et total recalculés par la base ; stock vérifié et décrémenté dans la même opération ; plats salés refusés hors horaires ; livraison refusée hors zone ou sans photo ; pas plus de 3 commandes en 10 minutes pour un même numéro, et un plafond global contre les avalanches de fausses commandes.
-- **Accès** : commandes, téléphones et photos lisibles uniquement par les comptes admins (règles RLS) ; photos dans un espace privé, nom de fichier imposé, 2 Mo maximum, images uniquement. Inscription publique désactivée (étape 1.3).
-- **Navigateur** (`vercel.json`) : politique de sécurité du contenu (CSP) qui n’autorise que le site, Supabase et les tuiles OpenStreetMap, HTTPS forcé (HSTS), site impossible à intégrer dans une autre page, permissions limitées à la position et à l’appareil photo.
-- Les images de produits doivent être dans `assets/` (ou le stockage Supabase) : une image hébergée ailleurs serait bloquée par la CSP.
-
-## 5. Conformité (RGPD, vente à distance)
-
-Ce qui est en place :
-- **Aucun appel à un service tiers inutile** : polices et bibliothèques hébergées sur le site (pas de Google Fonts, pas de CDN). Pas de cookie, pas de mesure d’audience, donc pas de bandeau cookies à afficher.
-- **Pages** : mentions légales, CGV (rétractation 14 jours pour les t-shirts avec formulaire, exclusion pour les boissons et plats, garanties légales, fidélité, médiation, Bloctel), politique de confidentialité.
-- **Tunnel** : lien vers les CGV et la confidentialité avant de commander, bouton « Commander avec obligation de paiement » (art. L221-14), allergènes affichés avant l’ajout au panier, « se souvenir de moi » décoché par défaut.
-- **Durées de conservation appliquées** : photos supprimées après 7 jours, téléphone / position / repère / note effacés après 30 jours. La purge tourne chaque jour si l’extension `pg_cron` est disponible (installée par `schema.sql`), et à chaque ouverture du back-office.
-- **Confirmation sur support durable** : le ticket de caisse remis à la livraison ou au retrait (prévu dans les CGV).
-
-Tout ce qui est marqué **DEMO** dans les pages légales doit être complété avant d’ouvrir les commandes (voir ci-dessous).
-
-## 6. À compléter avant l’ouverture
-
-- **Pages légales** (`cgv.html`, `mentions-legales.html`, `confidentialite.html`, générées depuis les mêmes textes) : forme juridique et capital, SIREN/RCS, TVA, directeur de la publication, e-mail et téléphone, région Supabase, **médiateur de la consommation** (adhésion obligatoire), délai de conservation d’une commande non retirée, conduite si le client est introuvable, durée de conservation comptable. Tous ces endroits sont marqués **DEMO**.
-- **Allergènes** de chaque produit : dans le back-office, *Carte & prix*.
-- `js/config.js` : **téléphone**, **WhatsApp**, **horaires réels** (ceux du site sont provisoires), position exacte du shop (`shop`), et le chiffre d’abonnés Instagram (`preuveSociale`) à vérifier.
-- Zone de livraison : centre et rayon à vérifier sur place (Réglages du back-office).
-
-## 7. Fichiers utiles
-
-| Fichier | Contenu |
+| Je veux changer… | Où |
 |---|---|
-| `config.js` | Connexion Supabase (vide = démo) |
-| `js/config.js` | Textes, contact, horaires, paiements, zone par défaut |
-| `js/data.js` | Lecture de la carte, envoi de la commande, suivi |
-| `js/checkout.js` | Tunnel de commande et suivi en direct |
-| `js/illustrations.js`, `js/scene.js`, `js/build.js` | Illustrations et animations (dessinées en SVG, rien à télécharger) |
-| `js/boot.js`, `js/loader.js` | Écran de chargement (une fois par visite) |
-| `css/fonts.css`, `assets/fonts/` | Polices hébergées sur le site |
-| `vendor/` | Leaflet (cartes) et supabase-js, hébergés sur le site |
-| `supabase/schema.sql`, `supabase/seed.sql` | Base de données et carte de départ |
-| `assets/photos/`, `assets/merch/` | Photos du shop et des t-shirts (remplaçables, mêmes noms) |
+| Prix, produits (ajouter, retirer), descriptions, allergènes, options | Back-office `/admin` → *Carte & prix* (rien à coder) |
+| Un produit en rupture | Back-office `/admin` → *Épuisé ?* (un interrupteur), ou directement en refusant une commande |
+| Points de livraison sur la plage : nom, photo, position (glisser sur la carte), QR code à imprimer | Back-office `/admin` → *Points plage* |
+| Comptes de l’équipe (gérant, livreur) | Supabase, voir « Mise en service » |
+| Minimum plage, horaires du salé, couper les commandes ou la livraison | Back-office `/admin` → *Réglages* |
+| Téléphone, WhatsApp, horaires d’ouverture, adresse, Instagram, lien de la carte fidélité, délai de livraison | `js/reglages.js` |
+| Connexion à la base | `config.js` (voir « Mise en service ») |
+| Couleurs | Variables en haut de `css/style.css` (`--terra`, `--cream`…) |
+| Un texte d’une page | Le fichier `.html` de la page |
+| L’en-tête ou le pied de page | Ils sont répétés dans chaque fichier `.html` : à modifier dans tous |
+| Une photo | `assets/photos/` ou `assets/merch/` (même nom de fichier = rien d’autre à changer) |
+| Un dessin de boisson | `js/illustrations.js` (le dessin est choisi d’après le nom du produit) |
+| Les textes légaux | `cgv.html`, `mentions-legales.html`, `confidentialite.html` (les infos manquantes sont marquées **DEMO**) |
 
-Les cartes utilisent © OpenStreetMap (bibliothèque Leaflet incluse dans `vendor/`).
+---
+
+## Comment ça marche
+
+### Le parcours client
+Pensé pour quelqu’un sur la plage, au soleil, avec son téléphone : commander en 20 secondes.
+
+1. **Accueil** : « Bouge pas. Ton café arrive. » et deux gros boutons, « Livre-moi sur la plage » ou « Je passe le chercher », visibles sans défiler.
+2. **Les plus commandées** (mises en avant dans le back-office), ajoutables en un geste.
+3. **20 secondes pour commander** : trois étapes courtes (Choisis, Dis-nous où, C’est là).
+4. **Fidélité**, puis **passe nous voir** (adresse, horaires).
+
+Une barre « Commander » reste en bas de l’écran sur toutes les pages.
+
+### Les points de livraison
+Le shop pose des repères fixes sur la plage (le panneau ADY, le grand cocotier…), chacun avec **sa photo** et sa position. Le client choisit le sien en commandant ; le livreur l’y attend et le prévient. Chaque point a son **QR code** à coller sur le panneau : en le scannant, le client arrive sur la carte avec son point déjà choisi. Le bouton « Trouver le point le plus proche » trie les points avec la position du téléphone, sans jamais l’envoyer.
+
+### La commande
+Un seul écran, qui s’ouvre depuis le panier.
+- **Plage** : le panier (minimum 5 €), **1.** le point de livraison (déjà choisi si on vient du QR code) et un signe facultatif, **2.** prénom, nom, téléphone, paiement, puis « Commander avec obligation de paiement » → **suivi en direct**.
+- **Shop** : le panier (pas de minimum), **1.** l’heure de passage, **2.** prénom, nom, paiement au comptoir → suivi.
+- Les infos du client et son dernier point sont mémorisés s’il le demande : la fois suivante, c’est 3 gestes.
+- **Fidélité** : rien à saisir. Le client montre son QR code au livreur ou au comptoir au moment de payer.
+
+### Le gérant (`/admin`)
+Idéal sur une tablette au comptoir, et pensé aussi pour le téléphone (une étape à la fois).
+- **Commandes** : chaque commande arrive **en direct** avec un son (bouton « Son », à activer une fois). **Accepter** ou **Refuser** : le refus demande un motif que le client voit (« Un produit est épuisé », « Trop de commandes »…) ; pour un produit épuisé, une case le marque « Épuisé » sur le site en même temps. Ensuite : *Prête : le livreur part* → *Livreur au point* → *Livrée* (plage) ou *Prête au comptoir* → *Récupérée* (shop).
+- **Épuisé ?** : un interrupteur par produit. **Carte & prix** : ajouter, modifier, retirer un produit, options et suppléments.
+- **Points plage** : glisser chaque numéro sur la carte (ou « Prendre ma position ici » sur place), changer la photo, imprimer le QR code. Un point sans photo n’est pas proposé aux clients.
+- **Réglages** : couper les commandes ou la livraison plage, minimum, horaires du salé.
+
+### Le livreur (`/livreur`)
+Sur son téléphone, de gros boutons, trois gestes par livraison :
+1. **À récupérer au shop** : les commandes plage acceptées. « Je pars avec ».
+2. **À livrer** : la photo du point, son nom, le signe du client, ce qu’il faut encaisser. « Itinéraire » puis **« Je suis au point »** : le téléphone du client affiche aussitôt « Ton livreur est là » avec la photo du point, et le livreur envoie un **message WhatsApp ou SMS déjà écrit** en un geste (ou appelle).
+3. **« Livrée et encaissée »**. En bas : les livraisons du jour et le total encaissé.
+
+L’écran reste allumé pendant les livraisons, et un son prévient quand une nouvelle commande est à récupérer.
+
+### Le suivi
+À la commande, la base renvoie un numéro et un **jeton secret**. Le téléphone du client demande l’étape toutes les 6 secondes (`order_status`, qui ne renvoie ni nom ni téléphone) : Reçue → En préparation → En route → **Ton livreur est là** → Livrée. Une commande refusée affiche le motif et « Rien à payer ». Le suivi reste 8 heures sur le téléphone : une pastille en haut de l’écran y ramène.
+
+---
+
+## Mise en service
+
+### 1. Supabase (10 min)
+1. Crée un projet sur supabase.com. Région : **eu-west-3 (Paris)** conseillée pour le RGPD.
+2. *SQL Editor* : colle `supabase/schema.sql` puis *Run*. Ensuite `supabase/seed.sql` puis *Run* (une seule fois). Si la base existe déjà, relance seulement `schema.sql` : il ajoute ce qui manque sans toucher aux données.
+3. *Authentication → Providers → Email* : désactive « Allow new users to sign up ».
+4. *Authentication → Users → Add user* : crée le compte du gérant, et un compte par livreur.
+5. Donne-leur l’accès (*SQL Editor*) :
+   ```sql
+   -- le gérant : tout le back-office (/admin) et l'espace livreur
+   insert into public.admins (user_id, role)
+   select id, 'gerant' from auth.users where email = 'email-du-gerant@exemple.com';
+   -- un livreur : uniquement /livreur (les livraisons plage)
+   insert into public.admins (user_id, role)
+   select id, 'livreur' from auth.users where email = 'email-du-livreur@exemple.com';
+   ```
+6. *Project Settings → API* : copie `Project URL` et la clé `anon public` dans `config.js`.
+   La clé *anon* est faite pour être publique (la sécurité repose sur les règles de la base). Ne mets **jamais** la clé `service_role` dans le site.
+7. **Les points de livraison** : `/admin` → *Points plage*. Glisse chaque numéro à sa place sur la carte (ou, sur la plage, touche « Prendre ma position ici »), puis « Changer la photo ». Imprime chaque « QR code à imprimer » et colle-le sur son panneau. Sans point actif, la livraison plage n’est pas proposée.
+
+### 2. GitHub → Vercel
+1. Envoie le contenu du dossier sur GitHub (`index.html` à la racine).
+2. Vercel : *Add New… → Project → Import*, nom du projet **en minuscules**, preset **Other**, ne touche ni à Build ni à Output, *Deploy*.
+3. Chaque *commit* redéploie le site. Le back-office est sur `https://ton-site/admin`, l’espace livreur sur `https://ton-site/livreur`.
+
+---
+
+## Sécurité et conformité
+
+- **Base** : prix et totaux recalculés côté serveur, stock vérifié, livraison plage acceptée seulement vers un point actif, anti-abus (3 commandes en 10 min par numéro). Les commandes ne sont lisibles que par l’équipe ; un livreur ne voit que les livraisons plage et ne peut que les faire avancer (`livreur_avance`), sans toucher à la carte, aux prix ni aux réglages. Les photos des points sont publiques et seul le gérant peut les déposer.
+- **Navigateur** (`vercel.json`) : CSP (seuls le site, Supabase et les tuiles OpenStreetMap sont autorisés), HSTS, site non intégrable ailleurs. Une image hébergée sur un autre site serait bloquée : mets-la dans `assets/`.
+- **RGPD** : polices et bibliothèques hébergées sur le site (aucun appel à Google ni à un CDN), pas de cookie ni de mesure d’audience. Le client n’envoie ni photo ni position. Téléphone, signe et note effacés après 30 jours (purge quotidienne via `pg_cron`, et à chaque ouverture du back-office). Le message du livreur peut passer par WhatsApp : c’est indiqué dans la page Confidentialité.
+- **Vente à distance** : CGV (rétractation 14 jours pour les t-shirts avec formulaire), lien CGV + confidentialité avant de commander, bouton « Commander avec obligation de paiement », allergènes affichés dans chaque fiche produit.
+
+## À compléter avant l’ouverture
+
+- **Pages légales** : tout ce qui est marqué **DEMO** (forme juridique, SIREN, TVA, gérant, contact, région Supabase, **médiateur de la consommation**, délais).
+- **Allergènes** de chaque produit : back-office → *Carte & prix*.
+- `js/reglages.js` : téléphone, WhatsApp, **horaires réels** (ceux du site sont provisoires), position exacte du shop, chiffre d’abonnés Instagram à vérifier.
+- **Points de livraison** : les trois points de départ sont des dessins à des positions approximatives. Remplace-les par de vraies photos, place-les sur la carte et pose les QR codes (back-office → *Points plage*).
+- **Paiement en ligne** : pas encore en place (paiement à la livraison ou au comptoir). Il peut s’ajouter avec Stripe Checkout et une petite fonction serveur sur Vercel, quand le shop a son compte Stripe.
+
+---
+
+Cartes © contributeurs OpenStreetMap (Leaflet). Polices sous licence SIL Open Font License. Carte fidélité digitale : Walty.

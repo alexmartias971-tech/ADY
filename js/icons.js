@@ -52,4 +52,3 @@ export function hydrateIcons(root = document) {
   root.querySelectorAll('[data-icon]').forEach((el) => { el.outerHTML = icon(el.dataset.icon, el.className); });
 }
 
-export const PICTO_NAMES = Object.keys(PICTOS);
