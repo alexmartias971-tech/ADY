@@ -1,0 +1,9 @@
+# Ady Coffee Shop
+
+> Coffee shop à l’esprit californien à Durivage, Sainte-Anne (Guadeloupe), à 5 minutes à pied de la plage de la Caravelle. Iced latte, matcha, citronnade gwozey, plats salés. Commande en ligne : livraison à pied sur la plage de la Caravelle (dès 5 €, 15 à 20 min, payé à l’arrivée) ou à emporter au shop.
+
+- [La carte](https://ady-coffee-shop.vercel.app/carte) : boissons, plats et t-shirts, avec les prix ; commande en ligne.
+- [Livraison sur la plage](https://ady-coffee-shop.vercel.app/livraison) : les points de livraison sur la plage de la Caravelle et le fonctionnement.
+- [Le shop](https://ady-coffee-shop.vercel.app/le-shop) : adresse, horaires, itinéraire, contact.
+- [Carte fidélité](https://ady-coffee-shop.vercel.app/fidelite) : un tampon par boisson, le 10e café offert (Apple Wallet, Google Wallet).
+- Instagram : https://www.instagram.com/adycoffeeshop/

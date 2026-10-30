@@ -104,18 +104,20 @@ with p as (insert into public.products (category_id,name,description,price,iced,
 insert into public.product_option_groups (product_id,group_id,sort) select p.id, g.id, g.sort from p, (values ('format',0)) as g(id,sort);
 with p as (insert into public.products (category_id,name,description,price,iced,signature,featured,badge,image,sort) values ('rafraichissements','Jus d''orange','',4,false,false,false,null,null,6) returning id)
 insert into public.product_option_groups (product_id,group_id,sort) select p.id, g.id, g.sort from p, (values ('format',0)) as g(id,sort);
-with p as (insert into public.products (category_id,name,description,price,iced,signature,featured,badge,image,sort) values ('merch','Maillot ADY Californian','Le maillot rayé crème et rouge, ADY en grand sur le devant.',35,false,false,false,null,'assets/merch/maillot.webp',0) returning id)
+with p as (insert into public.products (category_id,name,description,price,iced,signature,featured,badge,image,sort) values ('merch','Maillot ADY Californian','Le maillot rayé crème et rouge, ADY en grand sur le devant.',35,false,false,false,null,'assets/merch-maillot.webp',0) returning id)
 insert into public.product_variants (product_id,label,sort) select p.id, v.label, v.sort from p, (values ('S',0),('M',1),('L',2),('XL',3)) as v(label,sort);
-with p as (insert into public.products (category_id,name,description,price,iced,signature,featured,badge,image,sort) values ('merch','T-shirt ADY Coffee Club','Rouge, dos illustré « Sainte-Anne | Guadeloupe ».',25,false,false,false,null,'assets/merch/club.webp',1) returning id)
+with p as (insert into public.products (category_id,name,description,price,iced,signature,featured,badge,image,sort) values ('merch','T-shirt ADY Coffee Club','Rouge, dos illustré « Sainte-Anne | Guadeloupe ».',25,false,false,false,null,'assets/merch-club.webp',1) returning id)
 insert into public.product_variants (product_id,label,sort) select p.id, v.label, v.sort from p, (values ('S',0),('M',1),('L',2),('XL',3)) as v(label,sort);
-with p as (insert into public.products (category_id,name,description,price,iced,signature,featured,badge,image,sort) values ('merch','T-shirt ADY Club crème','Crème, imprimé rouge et palmiers.',25,false,false,false,null,'assets/merch/creme.webp',2) returning id)
+with p as (insert into public.products (category_id,name,description,price,iced,signature,featured,badge,image,sort) values ('merch','T-shirt ADY Club crème','Crème, imprimé rouge et palmiers.',25,false,false,false,null,'assets/merch-creme.webp',2) returning id)
 insert into public.product_variants (product_id,label,sort) select p.id, v.label, v.sort from p, (values ('S',0),('M',1),('L',2),('XL',3)) as v(label,sort);
 
--- Points de livraison de départ (dessins provisoires) : à repositionner et à
--- photographier sur place depuis le back-office (Points plage → « Prendre ma
--- position ici » et « Changer la photo »).
+-- Points de livraison de départ, d'ouest en est (dessins provisoires) : à ajuster
+-- et à photographier depuis le back-office (Points plage → glisser le numéro sur
+-- la carte, ou « Prendre ma position ici », puis « Changer la photo »).
 insert into public.delivery_points (slug, name, hint, lat, lng, photo_url, sort) values
-  ('panneau-ady', 'Panneau ADY', 'Au milieu de la plage, le panneau rouge ADY Coffee Shop', 16.21820, -61.39640, 'assets/points/panneau-ady.svg', 0),
-  ('cocotier', 'Le grand cocotier', 'Côté ouest de la plage, sous le grand cocotier', 16.21960, -61.39820, 'assets/points/cocotier.svg', 1),
-  ('la-pointe', 'Côté pointe', 'Côté est, au bout de la plage vers la pointe', 16.21743, -61.39519, 'assets/points/pointe.svg', 2)
+  ('le-ponton', 'Le ponton', 'Au bout ouest de la plage, à côté du ponton en bois', 16.21965, -61.39851, 'assets/point-ponton.svg', 0),
+  ('cocotier', 'Le grand cocotier', 'Entre le ponton et le panneau, sous le grand cocotier', 16.21941, -61.39755, 'assets/point-cocotier.svg', 1),
+  ('panneau-ady', 'Panneau ADY', 'Au milieu de la plage, le panneau rouge ADY Coffee Shop', 16.21831, -61.39634, 'assets/point-panneau-ady.svg', 2),
+  ('la-pointe', 'Côté pointe', 'Au sud, juste avant la pointe', 16.21739, -61.39491, 'assets/point-pointe.svg', 3),
+  ('cote-est', 'Côté est', 'De l’autre côté de la pointe, face à la baie', 16.21878, -61.39452, 'assets/point-cote-est.svg', 4)
 on conflict (slug) do nothing;

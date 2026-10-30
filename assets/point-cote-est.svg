@@ -1,0 +1,17 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 300"><title>Côté est, de l’autre côté de la pointe (illustration provisoire)</title>
+<defs><linearGradient id="c" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#93c6da"/><stop offset="1" stop-color="#f7dcc0"/></linearGradient></defs>
+<rect width="400" height="300" fill="url(#c)"/>
+<circle cx="92" cy="74" r="32" fill="#fbe2bd"/>
+<path d="M0 150 C 60 128 120 132 170 150Z" fill="#6f9f9b"/>
+<rect y="150" width="400" height="58" fill="#3f97ae"/>
+<path d="M0 166 q20 -6 40 0 t40 0 t40 0 t40 0 t40 0 t40 0 t40 0 t40 0 t40 0 t40 0" fill="none" stroke="#bfe3ea" stroke-width="3"/>
+<g transform="translate(250 170)" stroke="#2a1810" stroke-width="2.6" stroke-linejoin="round"><path d="M-30 0 H30 L22 12 H-22Z" fill="#fffaf2"/><path d="M0 -2 V-48" fill="none"/><path d="M3 -46 L26 -6 H3Z" fill="#bf472c"/><path d="M-3 -40 L-22 -6 H-3Z" fill="#fbe9d6"/></g>
+<path d="M0 206 C 140 196 260 214 400 202 V300 H0Z" fill="#f2cfa6"/>
+<path d="M0 206 C 140 196 260 214 400 202" fill="none" stroke="#fffaf2" stroke-width="5" opacity=".9"/>
+<g stroke="#2a1810" stroke-width="3" stroke-linejoin="round"><path d="M276 268 c-30 2 -42 -22 -26 -38 c-6 -24 20 -36 36 -24 c14 -16 44 -8 44 14 c22 4 24 30 6 40 c-4 14 -30 16 -60 8Z" fill="#6e9a33"/>
+<path d="M292 232 c8 -6 18 -4 22 4 M262 244 c6 -6 16 -6 20 2" fill="none" stroke="#bcd69a" stroke-width="3" stroke-linecap="round"/></g>
+<path d="M120 262 L124 120" stroke="#2a1810" stroke-width="4" stroke-linecap="round"/>
+<path d="M124 122 L188 138 L122 154Z" fill="#bf472c" stroke="#2a1810" stroke-width="3.5" stroke-linejoin="round"/>
+<text x="146" y="143" font-family="Arial Black, Arial, sans-serif" font-weight="900" font-size="14" fill="#fbe9d6">ADY</text>
+<ellipse cx="122" cy="264" rx="18" ry="4" fill="#2a1810" opacity=".18"/>
+</svg>

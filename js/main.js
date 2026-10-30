@@ -19,17 +19,12 @@ function fermerLoader() {
   }, attente);
 }
 
-// Script propre à chaque page (body data-page="…")
-const pages = {
-  home: () => import('./pages/home.js'),
-  carte: () => import('./pages/carte.js'),
-  livraison: () => import('./pages/livraison.js'),
-  fidelite: () => import('./pages/fidelite.js'),
-  'le-shop': () => import('./pages/shop.js'),
-};
+// Script propre à chaque page (body data-page="…"), tous dans pages.js
+const pages = { home: 'initHome', carte: 'initCarte', livraison: 'initLivraison', fidelite: 'initFidelite', 'le-shop': 'initShop' };
+const init = pages[document.body.dataset.page];
 
 initUI()
-  .then(() => pages[document.body.dataset.page]?.())
-  .then((m) => m?.init())
+  .then(() => (init ? import('./pages.js') : null))
+  .then((m) => m?.[init]())
   .catch((e) => console.error(e))
   .finally(fermerLoader);

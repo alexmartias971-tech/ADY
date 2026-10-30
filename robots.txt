@@ -1,0 +1,8 @@
+User-agent: *
+Allow: /
+Disallow: /admin
+Disallow: /livreur
+Disallow: /apercu
+Disallow: /api/
+
+Sitemap: https://ady-coffee-shop.vercel.app/sitemap.xml

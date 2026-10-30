@@ -1,19 +1,20 @@
+// Commande sur un seul écran, suivi en direct, et visionneuse des photos de points
+import { CONFIG } from './reglages.js';
+import { catalogue, trouverProduit, trouverPoint, libelleOptions, passerCommande, statutCommande, enService, estDemo, panier } from './data.js';
+import { illustration } from './illustrations.js';
+import { etatOuverture, icon, $, $$, euro, euroCourt, esc, toast, beanSVG, distanceMetres, reduceMotion } from './utils.js';
+import { livreurSeul } from './scene.js';
+import { ton } from './produits.js';
+
+/* ═════════════════════════════════════════════════════════════
+   Commande et suivi
+   ═════════════════════════════════════════════════════════════ */
 // ─────────────────────────────────────────────────────────────
 //  Commande express, sur un seul écran (pensée pour le téléphone) :
 //  le panier, puis 1. le point de livraison sur la plage (ou l'heure
 //  de retrait au shop), 2. nom, prénom, téléphone, paiement, et un
 //  bouton. Ensuite, le suivi en direct (accessible depuis l'en-tête).
 // ─────────────────────────────────────────────────────────────
-import { CONFIG } from './reglages.js';
-import { catalogue, trouverProduit, trouverPoint, libelleOptions, passerCommande, statutCommande, enService, estDemo } from './data.js';
-import { illustration } from './illustrations.js';
-import { panier } from './cart.js';
-import { etatOuverture } from './horaires.js';
-import { icon } from './icons.js';
-import { livreurSeul } from './scene.js';
-import { $, $$, euro, euroCourt, esc, toast, beanSVG, distanceMetres, reduceMotion } from './utils.js';
-import { ton } from './produits.js';
-
 const CLE_CLIENT = 'ady-client-v1';
 const CLE_SUIVI = 'ady-suivi-v1';
 const CRENEAUX = ['Dès que possible', 'Dans 15 min', 'Dans 30 min', 'Dans 1 h'];
@@ -262,9 +263,11 @@ function majPoints() {
   q('[data-proche]').hidden = liste.length < 2;
   q('[data-points]').innerHTML = liste.map((p) => {
     const d = etat.distances?.[p.id];
+    const n = catalogue.points.indexOf(p) + 1;
     return `<label class="pt${panier.point === p.id ? ' is-on' : ''}">
       <input type="radio" name="point" value="${esc(p.id)}"${panier.point === p.id ? ' checked' : ''}>
-      <span class="pt__img">${p.photo ? `<img src="${esc(p.photo)}" alt="" loading="lazy">` : icon('pin')}</span>
+      ${p.photo ? `<button class="pt__img" type="button" data-zoom="${esc(p.id)}" aria-label="Voir la photo du point ${esc(p.nom)} en grand"><img src="${esc(p.photo)}" alt="" loading="lazy"><span class="pt__n">${n}</span><span class="pt__loupe">${icon('zoom')}</span></button>`
+        : `<span class="pt__img">${icon('pin')}<span class="pt__n">${n}</span></span>`}
       <span class="pt__txt"><b>${esc(p.nom)}</b>${p.indication ? `<small>${esc(p.indication)}</small>` : ''}${d != null ? `<em>à ${d < 1000 ? `${Math.round(d / 10) * 10} m` : `${(d / 1000).toFixed(1).replace('.', ',')} km`} de toi</em>` : ''}</span>
       <span class="pt__check" aria-hidden="true">${icon('check')}</span>
     </label>`;
@@ -537,6 +540,17 @@ export function initCheckout() {
     q(`[data-points] input[value="${CSS.escape(id)}"]`)?.focus({ preventScroll: true });
   });
   q('[data-proche]').addEventListener('click', plusProche);
+  // la photo d'un point s'ouvre en grand ; on peut le choisir depuis la visionneuse
+  q('[data-points]').addEventListener('click', (e) => {
+    const z = e.target.closest('[data-zoom]');
+    if (!z) return;
+    e.preventDefault();
+    const ordre = [...q('[data-points]').querySelectorAll('input[name="point"]')].map((i) => trouverPoint(i.value)).filter((p) => p && p.photo);
+    ouvrirVisionneuse(ordre.map((p) => ({ ...p, n: catalogue.points.indexOf(p) + 1 })), ordre.findIndex((p) => p.id === z.dataset.zoom), {
+      choisir: (p) => { cacherErreur(); panier.setPoint(p.id); },
+      estChoisi: (p) => panier.point === p.id,
+    });
+  });
   q('[data-creneaux]').addEventListener('change', (e) => { etat.creneau = e.target.value; });
   const form = q('[data-form]');
   form.addEventListener('input', (e) => {
@@ -584,3 +598,105 @@ export function initCheckout() {
   });
   lancerSuivi();
 }
+
+/* ═════════════════════════════════════════════════════════════
+   Visionneuse : la photo d’un point en grand
+   ═════════════════════════════════════════════════════════════ */
+// Visionneuse : la photo d'un point de livraison en grand, avec son nom et son indication.
+// On passe d'un point à l'autre (flèches, glisser du doigt) et on peut le choisir directement.
+export const ouvrirVisionneuse = (() => {
+  let el = null;
+  let liste = [];
+  let index = 0;
+  let options = {};
+  let retour = null;
+
+  function construire() {
+    el = document.createElement('div');
+    el.className = 'vision';
+    el.hidden = true;
+    el.setAttribute('role', 'dialog');
+    el.setAttribute('aria-modal', 'true');
+    el.setAttribute('aria-labelledby', 'vision-titre');
+    el.innerHTML = `<div class="vision__fond" data-v-fermer></div>
+      <figure class="vision__box">
+        <div class="vision__img"><img alt="">
+          <button class="vision__nav vision__nav--prev" type="button" data-v-pas="-1" aria-label="Point précédent">${icon('back')}</button>
+          <button class="vision__nav vision__nav--next" type="button" data-v-pas="1" aria-label="Point suivant">${icon('arrow')}</button>
+          <span class="vision__n" aria-hidden="true"></span>
+        </div>
+        <figcaption><b id="vision-titre"></b><small></small></figcaption>
+        <div class="vision__actions"></div>
+        <button class="round-btn vision__x" type="button" data-v-fermer aria-label="Fermer">${icon('close')}</button>
+      </figure>`;
+    document.body.appendChild(el);
+
+    el.addEventListener('click', (e) => {
+      if (e.target.closest('[data-v-fermer]')) return fermer();
+      const pas = e.target.closest('[data-v-pas]');
+      if (pas) return montrer(index + Number(pas.dataset.vPas));
+      if (e.target.closest('[data-v-choisir]')) {
+        options.choisir?.(liste[index]);
+        fermer();
+      }
+    });
+    // au clavier : Échap ferme, flèches pour passer d'un point à l'autre, Tab reste dans la visionneuse
+    document.addEventListener('keydown', (e) => {
+      if (el.hidden) return;
+      if (e.key === 'Escape') { e.stopPropagation(); fermer(); }
+      else if (e.key === 'ArrowRight') montrer(index + 1);
+      else if (e.key === 'ArrowLeft') montrer(index - 1);
+      else if (e.key === 'Tab') {
+        const f = [...el.querySelectorAll('button')].filter((b) => b.offsetParent !== null);
+        const i = f.indexOf(document.activeElement);
+        e.preventDefault();
+        e.stopPropagation();
+        f[(i + (e.shiftKey ? -1 : 1) + f.length) % f.length]?.focus();
+      }
+    }, true);
+    // au doigt : glisser à gauche ou à droite
+    let x0 = null;
+    el.addEventListener('touchstart', (e) => { x0 = e.touches[0].clientX; }, { passive: true });
+    el.addEventListener('touchend', (e) => {
+      if (x0 === null) return;
+      const dx = e.changedTouches[0].clientX - x0;
+      if (Math.abs(dx) > 50) montrer(index + (dx < 0 ? 1 : -1));
+      x0 = null;
+    });
+    window.addEventListener('popstate', () => { if (!el.hidden) fermer(); });
+  }
+
+  function montrer(i) {
+    index = (i + liste.length) % liste.length;
+    const p = liste[index];
+    const img = el.querySelector('img');
+    img.src = p.photo || '';
+    img.alt = `Photo du point de livraison ${p.nom}`;
+    el.querySelector('.vision__n').textContent = p.n ?? '';
+    el.querySelector('figcaption b').textContent = p.nom;
+    el.querySelector('figcaption small').textContent = p.indication || '';
+    el.querySelectorAll('.vision__nav').forEach((b) => (b.hidden = liste.length < 2));
+    const choisi = options.estChoisi?.(p);
+    el.querySelector('.vision__actions').innerHTML = options.choisir
+      ? `<button class="btn btn--block btn--lg" type="button" data-v-choisir>${choisi ? `${icon('check')} Point choisi` : `Choisir « ${esc(p.nom)} »`}</button>`
+      : '';
+  }
+
+  // points : [{ nom, indication, photo, n }], i : celui à montrer d'abord
+  function ouvrir(points, i = 0, opts = {}) {
+    if (!points.length) return;
+    if (!el) construire();
+    liste = points;
+    options = opts;
+    retour = document.activeElement;
+    el.hidden = false;
+    montrer(i);
+    el.querySelector('.vision__x').focus({ preventScroll: true });
+  }
+
+  function fermer() {
+    el.hidden = true;
+    retour?.focus?.({ preventScroll: true });
+  }
+  return ouvrir;
+})();

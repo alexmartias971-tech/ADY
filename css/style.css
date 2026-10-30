@@ -1,8 +1,41 @@
+/* Polices hébergées sur le site : aucun appel à Google Fonts, donc aucune adresse IP transmise à un tiers.
+   Big Shoulders Stencil, DM Sans, Londrina Solid : licence SIL Open Font License 1.1. */
+@font-face {
+  font-family: 'Big Shoulders Stencil'; font-style: normal; font-weight: 700 800; font-display: swap;
+  src: url(../assets/big-shoulders-stencil-latin.woff2) format('woff2');
+  unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
+}
+@font-face {
+  font-family: 'Big Shoulders Stencil'; font-style: normal; font-weight: 700 800; font-display: swap;
+  src: url(../assets/big-shoulders-stencil-latin-ext.woff2) format('woff2');
+  unicode-range: U+0100-02BA, U+02BD-02C5, U+02C7-02CC, U+02CE-02D7, U+02DD-02FF, U+0304, U+0308, U+0329, U+1D00-1DBF, U+1E00-1E9F, U+1EF2-1EFF, U+2020, U+20A0-20AB, U+20AD-20C4, U+2113, U+2C60-2C7F, U+A720-A7FF;
+}
+@font-face {
+  font-family: 'DM Sans'; font-style: normal; font-weight: 400 700; font-display: swap;
+  src: url(../assets/dm-sans-latin.woff2) format('woff2');
+  unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
+}
+@font-face {
+  font-family: 'DM Sans'; font-style: normal; font-weight: 400 700; font-display: swap;
+  src: url(../assets/dm-sans-latin-ext.woff2) format('woff2');
+  unicode-range: U+0100-02BA, U+02BD-02C5, U+02C7-02CC, U+02CE-02D7, U+02DD-02FF, U+0304, U+0308, U+0329, U+1D00-1DBF, U+1E00-1E9F, U+1EF2-1EFF, U+2020, U+20A0-20AB, U+20AD-20C4, U+2113, U+2C60-2C7F, U+A720-A7FF;
+}
+@font-face {
+  font-family: 'Londrina Solid'; font-style: normal; font-weight: 400; font-display: swap;
+  src: url(../assets/londrina-solid-400-latin.woff2) format('woff2');
+  unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
+}
+@font-face {
+  font-family: 'Londrina Solid'; font-style: normal; font-weight: 900; font-display: swap;
+  src: url(../assets/londrina-solid-900-latin.woff2) format('woff2');
+  unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
+}
+
 /* ═══════════════════════════════════════════════════════════════
    ADY COFFEE SHOP — feuille de style du site
    Terracotta + crème, illustrations sérigraphiées, esprit Californie.
    Titres : Londrina Solid · Étiquettes : Big Shoulders Stencil · Texte : DM Sans
-   (polices déclarées dans fonts.css)
+   (polices déclarées en tête de ce fichier)
 
    SOMMAIRE (l'ordre compte : une règle plus bas l'emporte à égalité)
    1. Fondations : couleurs (:root), base, typo, boutons, en-tête,
@@ -470,7 +503,6 @@ body[data-hero='terra'] .site-header:not(.is-scrolled) .burger { background: rgb
 .how h3 { font-size: 28px; text-transform: uppercase; margin: 8px 0 8px; }
 .how p { margin: 0; color: var(--ink-2); font-size: 16px; }
 .map-box { border-radius: var(--r-l); overflow: hidden; height: clamp(320px, 40vw, 460px); background: #cfe5e8; box-shadow: 0 0 0 1px rgba(42, 24, 16, .08); }
-.map-box .leaflet-tile-pane { filter: sepia(.3) saturate(1.1) hue-rotate(-8deg); }
 .faq { display: grid; gap: 12px; max-width: 860px; }
 .faq details { background: var(--paper); border-radius: var(--r); box-shadow: 0 0 0 1px rgba(42, 24, 16, .07); overflow: hidden; }
 .faq summary { list-style: none; cursor: pointer; display: flex; justify-content: space-between; align-items: center; gap: 16px; padding: 20px 22px; font: 900 22px/1.1 var(--f-display); text-transform: uppercase; }
@@ -1152,3 +1184,55 @@ body[data-hero='terra'] .site-header:not(.is-scrolled) .track-pill { background:
   .carte-hero__grid { gap: 14px; }
 }
 .modes small [data-delay], .modecard small [data-delay] { white-space: nowrap; }
+
+/* ── Carte illustrée de la plage (Leaflet, sans tuiles) ───── */
+.carte-plage.leaflet-container { background: #6fbccb; }
+.ady-etiquette span { position: absolute; left: 0; top: 0; transform: translate(-50%, -50%) rotate(var(--angle, 0deg)); white-space: nowrap; font: 900 15px/1 var(--f-display); letter-spacing: .06em; text-transform: uppercase; color: var(--ink); text-shadow: 0 0 6px var(--paper), 0 0 2px var(--paper); pointer-events: none; }
+.ady-point__n { border: 2.5px solid var(--ink); }
+
+/* ── Choix du point : grandes photos, qui s'ouvrent en grand ─ */
+.pt { grid-template-columns: 136px minmax(0, 1fr) 28px; gap: 14px; padding: 8px 12px 8px 8px; }
+.pt__img { position: relative; width: 136px; padding: 0; border: 0; font: inherit; cursor: zoom-in; }
+span.pt__img { cursor: inherit; }
+.pt__n, .points-liste__n { position: absolute; left: 6px; top: 6px; width: 26px; height: 26px; border-radius: 50%; display: grid; place-items: center; background: var(--terra); color: var(--cream); font: 800 14px/1 var(--f-label); box-shadow: 0 0 0 2px var(--cream); }
+.pt__loupe { position: absolute; right: 6px; bottom: 6px; width: 30px; height: 30px; border-radius: 50%; display: grid; place-items: center; background: rgba(255, 247, 236, .92); color: var(--ink); box-shadow: 0 2px 6px rgba(42, 24, 16, .25); }
+.pt__loupe .icon { width: 18px; height: 18px; }
+.pt__txt b { font-size: 21px; }
+.pt__txt small { font-size: 14px; }
+@media (max-width: 380px) { .pt { grid-template-columns: 112px minmax(0, 1fr) 24px; gap: 10px; } .pt__img { width: 112px; } }
+.points-liste__img { padding: 0; border: 0; cursor: zoom-in; width: 120px; }
+.points-liste li { grid-template-columns: 120px minmax(0, 1fr); }
+
+.vision { position: fixed; inset: 0; z-index: 400; display: grid; place-items: center; padding: 14px; }
+.vision__fond { position: absolute; inset: 0; background: rgba(42, 24, 16, .82); }
+.vision__box { position: relative; margin: 0; width: min(640px, 100%); max-height: calc(100svh - 28px); overflow: auto; background: var(--paper); border-radius: 24px; padding: 12px 12px 16px; display: grid; gap: 12px; box-shadow: 0 30px 80px -20px rgba(0, 0, 0, .6); }
+.vision__img { position: relative; border-radius: 16px; overflow: hidden; background: var(--cream-2); }
+.vision__img img { display: block; width: 100%; aspect-ratio: 4 / 3; object-fit: cover; }
+.vision__n { position: absolute; left: 10px; top: 10px; width: 36px; height: 36px; border-radius: 50%; display: grid; place-items: center; background: var(--terra); color: var(--cream); font: 800 18px/1 var(--f-label); box-shadow: 0 0 0 3px var(--cream); }
+.vision__nav { position: absolute; top: 50%; translate: 0 -50%; width: 46px; height: 46px; border: 0; border-radius: 50%; display: grid; place-items: center; background: rgba(255, 247, 236, .92); color: var(--ink); cursor: pointer; box-shadow: 0 4px 12px rgba(42, 24, 16, .3); }
+.vision__nav .icon { width: 22px; height: 22px; }
+.vision__nav--prev { left: 10px; }
+.vision__nav--next { right: 10px; }
+.vision figcaption { display: grid; gap: 4px; padding: 0 6px; }
+.vision figcaption b { font: 900 28px/1 var(--f-display); text-transform: uppercase; }
+.vision figcaption small { font-size: 15px; color: var(--ink-2); }
+.vision__actions:empty { display: none; }
+.vision__actions .btn .icon { width: 20px; height: 20px; }
+.vision__x { position: absolute; right: 22px; top: 22px; background: var(--paper); }
+
+/* ── Aperçu en direct (back-office) ────────────────────────── */
+.page-apercu { background: var(--cream); padding: 14px 16px 30px; }
+.page-apercu * { pointer-events: none; }
+.apercu { display: grid; gap: 12px; }
+.apercu__titre { margin: 8px 0 0; font: 800 12px/1 var(--f-label); letter-spacing: .14em; text-transform: uppercase; color: var(--ink-2); }
+.apercu .cat-head h2 { font-size: 34px; }
+.apercu .sigbox { margin-top: 18px; }
+.apercu__carte { max-width: 260px; }
+.apercu__carte .pcard { animation: none; opacity: 1; transform: none; }
+.apercu__allergenes { margin: 0; font-size: 14px; color: var(--ink-2); }
+.apercu__manque { color: var(--terra); font-weight: 700; }
+.apercu__note { margin: 0; font-size: 14px; color: var(--ink-2); }
+.apercu__note--off { color: var(--terra); font-weight: 700; }
+/* grands titres en paragraphe : le titre principal (h1) porte le nom du shop et le lieu, pour Google */
+p.h1 { margin-top: 0; font-family: var(--f-display); font-weight: 900; letter-spacing: .005em; }
+h1.kicker { line-height: 1.2; }

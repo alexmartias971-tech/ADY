@@ -33,6 +33,10 @@ export const CONFIG = {
   zone: {
     nom: 'Plage de la Caravelle',
     centre: { lat: 16.2181, lng: -61.3965 },
+    // carte illustrée de la plage (dessinée d'après OpenStreetMap) et le rectangle qu'elle couvre
+    fond: { image: 'assets/carte-caravelle.svg', bornes: [[16.2146, -61.4014], [16.2246, -61.3910]] },
+    // étiquette posée sur le sable
+    etiquette: { lat: 16.21858, lng: -61.39800, angle: 37 },
   },
   // Position du coffee shop sur la carte (quartier Durivage, À VÉRIFIER : clic droit sur Google Maps → coordonnées)
   shop: { lat: 16.2234, lng: -61.3978 },

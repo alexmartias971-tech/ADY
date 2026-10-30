@@ -8,8 +8,7 @@
 <meta name="theme-color" content="#2A1A14">
 <link rel="icon" href="assets/favicon.svg" type="image/svg+xml">
 <link rel="apple-touch-icon" href="assets/apple-touch-icon.png">
-<link rel="stylesheet" href="css/fonts.css">
-<link rel="stylesheet" href="vendor/leaflet/leaflet.css">
+<link rel="stylesheet" href="css/leaflet.css">
 <link rel="stylesheet" href="css/admin.css">
 </head>
 <body>
@@ -36,6 +35,7 @@
       <button role="tab" aria-selected="false" data-view="stock">Épuisé ?</button>
       <button role="tab" aria-selected="false" data-view="menu">Carte &amp; prix</button>
       <button role="tab" aria-selected="false" data-view="points">Points plage</button>
+      <button role="tab" aria-selected="false" data-view="clients">Clients</button>
       <button role="tab" aria-selected="false" data-view="settings">Réglages</button>
     </nav>
     <div class="top__right">
@@ -74,10 +74,13 @@
   <section class="view" data-view-panel="menu" hidden>
     <div class="view__head">
       <h1>Carte &amp; prix</h1>
-      <p>Chaque modification est enregistrée tout de suite et visible sur le site au prochain chargement.</p>
+      <p><b>Touche un produit pour le modifier</b> : à côté, tu vois tout de suite à quoi il ressemble sur le site. Tout est enregistré automatiquement.</p>
     </div>
     <div data-menu-editor></div>
-    <button class="btn btn--ghost" type="button" data-add-cat>Ajouter une catégorie</button>
+    <div class="menu-bas">
+      <button class="btn btn--ghost" type="button" data-add-cat>Ajouter une catégorie</button>
+    </div>
+    <div data-options-editor></div>
   </section>
 
   <!-- STOCK -->
@@ -101,6 +104,19 @@
     <div class="points-admin" data-points-admin></div>
   </section>
 
+  <!-- CLIENTS : commandes du site + carte fidélité Walty -->
+  <section class="view" data-view-panel="clients" hidden>
+    <div class="view__head">
+      <h1>Clients</h1>
+      <p>Tes clients au même endroit : ce qu’ils commandent sur le site et, avec Walty, leurs tampons de fidélité. Rien n’est effacé chez Walty : cette page ne fait que lire.</p>
+    </div>
+    <div class="walty" data-walty></div>
+    <div class="kpis" data-clients-kpis></div>
+    <label class="recherche">Rechercher<input type="search" placeholder="Nom ou téléphone" data-clients-recherche></label>
+    <div class="clients" data-clients></div>
+    <p class="muted clients__note">Commandes des 90 derniers jours. Les numéros de téléphone des commandes sont effacés au bout de 30 jours (page Confidentialité).</p>
+  </section>
+
   <!-- REGLAGES -->
   <section class="view" data-view-panel="settings" hidden>
     <div class="view__head"><h1>Réglages</h1></div>
@@ -113,6 +129,15 @@
       <label>Tampons avant le café offert<input type="number" name="stamps_goal" min="1" max="30"></label>
       <button class="btn" type="submit">Enregistrer les réglages</button>
     </form>
+    <section class="bloc-reglage">
+      <h2>Paiement en ligne <span class="pill">Pas encore activé</span></h2>
+      <p>Avec <b>Stripe</b>, tes clients pourront payer en commandant&nbsp;: carte, Apple Pay ou Google Pay. L’argent arrive sur ton compte bancaire.</p>
+      <ol>
+        <li>Crée ton compte sur <b>stripe.com</b> (pays&nbsp;: France, avec ton SIRET et ton IBAN).</li>
+        <li>Ton prestataire branche le paiement sur le site. Les clés secrètes ne sont jamais écrites ici ni dans le site&nbsp;: elles restent chez l’hébergeur.</li>
+        <li>Un interrupteur «&nbsp;Proposer le paiement en ligne&nbsp;» apparaîtra ici. Le paiement à la livraison peut rester proposé à côté.</li>
+      </ol>
+    </section>
     <div class="compte">
       <a class="btn btn--ghost" href="livreur">Ouvrir l’espace livreur</a>
       <button class="btn btn--ghost" type="button" data-logout>Se déconnecter</button>
@@ -130,6 +155,42 @@
   <div class="affiche__barre"><button class="btn btn--small" type="button" data-affiche-imprimer>Imprimer</button><button class="iconbtn" type="button" data-affiche-fermer>Fermer</button></div>
   <div class="affiche__page" data-affiche-page></div>
 </div>
+<!-- Fiche d'un produit : les champs à gauche, l'aperçu du site en direct à droite -->
+<div class="fiche" data-fiche hidden role="dialog" aria-modal="true" aria-labelledby="fiche-titre">
+  <div class="fiche__fond" data-fiche-fermer></div>
+  <div class="fiche__box">
+    <form class="fiche__form" data-fiche-form autocomplete="off">
+      <header class="fiche__tete">
+        <h2 id="fiche-titre">Modifier le produit</h2>
+        <button class="btn btn--small" type="button" data-fiche-fermer>Terminé</button>
+      </header>
+      <p class="fiche__etat" data-fiche-etat>Enregistré automatiquement</p>
+      <label class="switch switch--big fiche__vente"><input type="checkbox" data-f="available"><span></span><b data-vente-txt>En vente</b></label>
+      <label class="champ">Nom<input data-f="name" maxlength="60" required></label>
+      <label class="champ champ--prix">Prix<span><input data-f="price" type="number" min="0" step="0.1" inputmode="decimal"> €</span></label>
+      <label class="champ">Description <small>ce que le client lit sous le nom</small><textarea data-f="description" rows="2" maxlength="200" placeholder="Ex. : espresso, lait, caramel, chantilly"></textarea></label>
+      <label class="champ">Allergènes <small>obligatoire (lait, gluten, fruits à coque…)</small><input data-f="allergens" maxlength="160" placeholder="Ex. : lait"></label>
+      <fieldset class="champ"><legend>Le client peut choisir</legend><div class="puces" data-fiche-options></div></fieldset>
+      <fieldset class="champ"><legend>Où le mettre en avant</legend>
+        <label class="switch"><input type="checkbox" data-f="featured"><span></span>Sur l’accueil (les plus commandées)</label>
+        <label class="switch"><input type="checkbox" data-f="signature"><span></span>Dans l’encadré « Signatures » de la carte</label>
+        <label class="champ champ--court">Petite étiquette <small>facultatif</small><input data-f="badge" maxlength="24" placeholder="Ex. : Nouveau, Best-seller"></label>
+      </fieldset>
+      <div class="fiche__bas">
+        <span>Place dans la carte</span>
+        <button class="iconbtn" type="button" data-fiche-move="-1" aria-label="Monter">↑ Monter</button>
+        <button class="iconbtn" type="button" data-fiche-move="1" aria-label="Descendre">↓ Descendre</button>
+        <button class="linkish" type="button" data-fiche-retirer>Retirer de la carte</button>
+      </div>
+    </form>
+    <aside class="fiche__apercu" data-fiche-apercu aria-label="Aperçu sur le site">
+      <p class="fiche__apercu-titre">Sur le site, en direct <button class="iconbtn fiche__apercu-x" type="button" data-fiche-voir>Fermer l’aperçu</button></p>
+      <div class="telephone"><iframe src="apercu" title="Aperçu du produit sur le site" data-apercu-frame></iframe></div>
+    </aside>
+    <button class="btn fiche__voir" type="button" data-fiche-voir>Voir sur le site</button>
+  </div>
+</div>
+
 <div class="motif" data-motif hidden role="dialog" aria-modal="true" aria-labelledby="motif-titre">
   <form class="motif__box" data-motif-form>
     <h2 id="motif-titre" data-motif-titre>Refuser la commande</h2>
@@ -142,12 +203,11 @@
 </div>
 <div class="toast" role="status" aria-live="polite"></div>
 
-<script src="vendor/supabase/supabase.js"></script>
+<script src="js/supabase.js"></script>
 <script src="config.js"></script>
-<script src="js/demo/demo-seed.js"></script>
-<script src="js/demo/demo-db.js"></script>
-<script src="vendor/qrcode/qrcode.js"></script>
-<script src="vendor/leaflet/leaflet.js"></script>
+<script src="js/demo.js"></script>
+<script src="js/qrcode.js"></script>
+<script src="js/leaflet.js"></script>
 <script src="js/admin.js"></script>
 </body>
 </html>

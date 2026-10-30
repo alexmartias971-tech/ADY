@@ -4,25 +4,37 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
   <title>Livraison sur la plage de la Caravelle · Ady Coffee Shop</title>
-  <meta name="description" content="Commande depuis ta serviette, choisis ton point de livraison sur la plage : livré à pied en 15 à 20 minutes. Dès 5 €, paiement à la livraison.">
+  <meta name="description" content="Ton café livré sur la plage de la Caravelle à Sainte-Anne : choisis ton point (ponton, cocotier, panneau ADY…), livré à pied en 15 à 20 min, dès 5 €.">
   <meta name="theme-color" content="#BF472C">
+  <meta name="geo.region" content="GP">
+  <meta name="geo.placename" content="Sainte-Anne, Guadeloupe">
   <link rel="icon" href="assets/favicon.svg" type="image/svg+xml">
   <link rel="apple-touch-icon" href="assets/apple-touch-icon.png">
+  <link rel="manifest" href="site.webmanifest">
   <script src="js/boot.js"></script>
+  <link rel="canonical" href="https://ady-coffee-shop.vercel.app/livraison">
+  <meta property="og:url" content="https://ady-coffee-shop.vercel.app/livraison">
   <meta property="og:type" content="website">
   <meta property="og:locale" content="fr_FR">
   <meta property="og:site_name" content="Ady Coffee Shop">
   <meta property="og:title" content="Livraison sur la plage de la Caravelle · Ady Coffee Shop">
-  <meta property="og:description" content="Commande depuis ta serviette, choisis ton point de livraison sur la plage : livré à pied en 15 à 20 minutes. Dès 5 €, paiement à la livraison.">
-  <meta property="og:image" content="assets/og-image.jpg">
+  <meta property="og:description" content="Ton café livré sur la plage de la Caravelle à Sainte-Anne : choisis ton point (ponton, cocotier, panneau ADY…), livré à pied en 15 à 20 min, dès 5 €.">
+  <meta property="og:image" content="https://ady-coffee-shop.vercel.app/assets/og-image.jpg">
+  <meta property="og:image:width" content="1200">
+  <meta property="og:image:height" content="630">
+  <meta property="og:image:alt" content="Ady Coffee Shop, coffee shop à Sainte-Anne (Guadeloupe)">
   <meta name="twitter:card" content="summary_large_image">
-  <link rel="preload" href="assets/fonts/londrina-solid-900-latin.woff2" as="font" type="font/woff2" crossorigin>
-  <link rel="preload" href="assets/fonts/dm-sans-latin.woff2" as="font" type="font/woff2" crossorigin>
-  <link rel="stylesheet" href="css/fonts.css">
+  <meta name="twitter:title" content="Livraison sur la plage de la Caravelle · Ady Coffee Shop">
+  <meta name="twitter:description" content="Ton café livré sur la plage de la Caravelle à Sainte-Anne : choisis ton point (ponton, cocotier, panneau ADY…), livré à pied en 15 à 20 min, dès 5 €.">
+  <meta name="twitter:image" content="https://ady-coffee-shop.vercel.app/assets/og-image.jpg">
+  <script type="application/ld+json">{"@context":"https://schema.org","@type":"Service","name":"Livraison sur la plage de la Caravelle","serviceType":"Livraison de boissons et de snacks sur la plage","provider":{"@id":"https://ady-coffee-shop.vercel.app/#shop"},"areaServed":{"@type":"Place","name":"Plage de la Caravelle, Sainte-Anne, Guadeloupe"},"offers":{"@type":"Offer","price":"0","priceCurrency":"EUR","description":"Livraison offerte dès 5 € de commande"}}</script>
+  <script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"Comment on se retrouve sur la plage ?","acceptedAnswer":{"@type":"Answer","text":"Le livreur va au point de livraison que tu as choisi (le ponton, le grand cocotier, le panneau ADY…) et t’envoie un message en arrivant. Ton téléphone affiche aussi « Ton livreur est là »."}},{"@type":"Question","name":"Il y a un minimum de commande ?","acceptedAnswer":{"@type":"Answer","text":"Oui, 5 € pour la livraison sur la plage. La livraison est offerte. Pas de minimum si tu passes au shop."}},{"@type":"Question","name":"Combien de temps prend la livraison ?","acceptedAnswer":{"@type":"Answer","text":"15 à 20 minutes en général, un peu plus aux heures de pointe."}},{"@type":"Question","name":"Comment je paie ?","acceptedAnswer":{"@type":"Answer","text":"Sur place, au livreur : en espèces ou par carte bancaire."}},{"@type":"Question","name":"Ma carte fidélité marche aussi ?","acceptedAnswer":{"@type":"Answer","text":"Oui : le livreur scanne ton QR code au moment de payer. Dix tampons, un café offert."}}]}</script>
+  <script type="application/ld+json">{"@context":"https://schema.org","@type":"BreadcrumbList","itemListElement":[{"@type":"ListItem","position":1,"name":"Accueil","item":"https://ady-coffee-shop.vercel.app/"},{"@type":"ListItem","position":2,"name":"Livraison plage","item":"https://ady-coffee-shop.vercel.app/livraison"}]}</script>
+  <link rel="preload" href="assets/londrina-solid-900-latin.woff2" as="font" type="font/woff2" crossorigin>
+  <link rel="preload" href="assets/dm-sans-latin.woff2" as="font" type="font/woff2" crossorigin>
   <link rel="stylesheet" href="css/style.css">
   <script src="config.js" defer></script>
-  <script src="js/demo/demo-seed.js" defer></script>
-  <script src="js/demo/demo-db.js" defer></script>
+  <script src="js/demo.js" defer></script>
   <script type="module" src="js/main.js"></script>
 </head>
 <body data-page="livraison" data-hero="terra">
@@ -68,8 +80,8 @@
     <section class="page-hero on-terra">
       <div class="container split split--wide">
         <div>
-          <p class="kicker">Livraison plage</p>
-          <h1 class="h1" style="font-size:clamp(56px,7.4vw,112px)">Livré les pieds dans le sable</h1>
+          <h1 class="kicker">Livraison sur la plage de la Caravelle</h1>
+          <p class="h1" style="font-size:clamp(56px,7.4vw,112px)">Livré les pieds dans le sable</p>
           <p class="lead">Tu choisis ta boisson et ton point sur la plage. On te l’apporte à pied, depuis le shop.</p>
           <ul class="pills">
             <li><i data-icon="bag"></i><span>Dès <span data-min-order>5 €</span></span></li>

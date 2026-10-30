@@ -26,53 +26,50 @@ Puis ouvre l’adresse affichée (souvent http://localhost:3000).
 ## Arborescence
 
 ```
-ady-coffee-shop/
-├── index.html              Accueil
-├── carte.html              La carte (façon ardoise) + panier
-├── livraison.html          Livraison plage : étapes, points de livraison, questions
-├── fidelite.html           Carte fidélité (lien Walty, QR code)
-├── le-shop.html            Photos, adresse, horaires, contact
-├── cgv.html                Conditions générales de vente
-├── mentions-legales.html   Mentions légales
-├── confidentialite.html    Politique de confidentialité
-├── 404.html                Page introuvable
-├── admin.html              Back-office du gérant (/admin)
-├── livreur.html            Espace livreur (/livreur)
-├── config.js               ★ Connexion Supabase (vide = mode démo)
-├── vercel.json             URL sans .html + en-têtes de sécurité
+ady-coffee-shop/                 75 fichiers, 5 dossiers
+├── index.html                   Accueil
+├── carte.html                   La carte (façon ardoise) + panier
+├── livraison.html               Livraison plage : étapes, points de livraison, questions
+├── fidelite.html                Carte fidélité (lien Walty, QR code)
+├── le-shop.html                 Photos, adresse, horaires, contact
+├── cgv.html, mentions-legales.html, confidentialite.html, 404.html
+├── admin.html                   Back-office du gérant (/admin)
+├── livreur.html                 Espace livreur (/livreur)
+├── apercu.html                  Aperçu en direct d’un produit (affiché dans Carte & prix)
+├── config.js                    ★ Connexion Supabase (vide = mode démo)
+├── vercel.json                  URL sans .html + en-têtes de sécurité
+├── sitemap.xml, robots.txt, llms.txt, site.webmanifest   Référencement (adresse du site écrite dedans)
 │
 ├── css/
-│   ├── style.css           Tout le style du site (sommaire en tête du fichier)
-│   ├── fonts.css           Polices, hébergées sur le site
-│   └── admin.css           Style du back-office et de l’espace livreur
+│   ├── style.css                Tout le style du site, polices comprises (sommaire en tête)
+│   ├── admin.css                Style du back-office et de l’espace livreur
+│   └── leaflet.css              Bibliothèque des cartes
 │
 ├── js/
-│   ├── main.js             Point d’entrée de chaque page (+ écran de chargement)
-│   ├── boot.js             Mini-script lu avant l’affichage (chargement une fois par visite)
-│   ├── reglages.js         ★ Textes, contact, horaires, paiements, liens
-│   ├── data.js             Lecture de la carte, envoi des commandes, suivi
-│   ├── cart.js             Panier et mode (plage / shop), gardés dans le navigateur
-│   ├── ui.js               Commun à toutes les pages : en-tête, statut, panier…
-│   ├── produits.js         Cartes et lignes produit, ajout au panier
-│   ├── sheet.js            Fiche produit (options, taille, allergènes)
-│   ├── checkout.js         Commande sur un seul écran et suivi en direct
-│   ├── loyalty.js          Carte fidélité animée + bouton « Créer ma carte »
-│   ├── map.js              Cartes OpenStreetMap (Leaflet)
-│   ├── horaires.js         Ouvert / fermé
-│   ├── icons.js            Pictogrammes et icônes
-│   ├── illustrations.js    Dessins des boissons et plats (SVG générés)
-│   ├── scene.js            Scène « Livré les pieds dans le sable »
-│   ├── utils.js            Petits outils
-│   ├── admin.js            Back-office du gérant
-│   ├── livreur.js          Espace livreur
-│   ├── pages/              Script propre à chaque page (accueil, carte…)
-│   └── demo/               Mode démo : fausse base dans le navigateur (à ignorer en production)
+│   ├── reglages.js              ★ Textes, contact, horaires, paiements, liens, carte de la plage
+│   ├── main.js                  Point d’entrée de chaque page (+ écran de chargement)
+│   ├── boot.js                  Mini-script lu avant l’affichage (chargement une fois par visite)
+│   ├── ui.js                    Commun à toutes les pages : en-tête, statut, panier, carte fidélité, données pour Google
+│   ├── data.js                  Carte, réglages, commandes, suivi + le panier
+│   ├── produits.js              Cartes et lignes produit, ajout au panier, fiche produit
+│   ├── checkout.js              Commande sur un seul écran, suivi en direct, photos des points en grand
+│   ├── pages.js                 Script propre à chaque page (accueil, carte, livraison…) + cartes de la plage
+│   ├── utils.js                 Icônes, horaires d’ouverture, petits outils
+│   ├── illustrations.js         Dessins des boissons et plats (SVG générés)
+│   ├── scene.js                 Scène « Livré les pieds dans le sable »
+│   ├── apercu.js                Aperçu en direct pour le back-office
+│   ├── admin.js                 Back-office du gérant
+│   ├── livreur.js               Espace livreur
+│   ├── demo.js                  Mode démo : fausse base dans le navigateur (à ignorer en production)
+│   └── leaflet.js, supabase.js, qrcode.js   Bibliothèques incluses (licences en tête de fichier)
 │
-├── assets/                 Images, logo (brand.svg), photos, t-shirts, points de livraison, polices
-├── vendor/                 Bibliothèques incluses : Leaflet (cartes), supabase-js, qrcode (affiches)
+├── assets/                      Toutes les images et polices, à plat :
+│                                logo, brand.svg, carte-caravelle.svg (la plage dessinée),
+│                                photo-*.webp, merch-*.webp (t-shirts), point-*.svg (points de livraison), *.woff2
+├── api/walty.js                 Lien avec la carte fidélité Walty (fonction Vercel, clé secrète côté serveur)
 └── supabase/
-    ├── schema.sql          Base de données, règles de sécurité, fonctions de commande
-    └── seed.sql            La carte de départ (à lancer une seule fois)
+    ├── schema.sql               Base de données, règles de sécurité, fonctions de commande
+    └── seed.sql                 La carte de départ (à lancer une seule fois)
 ```
 
 ---
@@ -81,7 +78,7 @@ ady-coffee-shop/
 
 | Je veux changer… | Où |
 |---|---|
-| Prix, produits (ajouter, retirer), descriptions, allergènes, options | Back-office `/admin` → *Carte & prix* (rien à coder) |
+| Prix, produits (ajouter, retirer), descriptions, allergènes, options | Back-office `/admin` → *Carte & prix* : touche un produit, l’aperçu du site s’affiche à côté (rien à coder) |
 | Un produit en rupture | Back-office `/admin` → *Épuisé ?* (un interrupteur), ou directement en refusant une commande |
 | Points de livraison sur la plage : nom, photo, position (glisser sur la carte), QR code à imprimer | Back-office `/admin` → *Points plage* |
 | Comptes de l’équipe (gérant, livreur) | Supabase, voir « Mise en service » |
@@ -91,7 +88,7 @@ ady-coffee-shop/
 | Couleurs | Variables en haut de `css/style.css` (`--terra`, `--cream`…) |
 | Un texte d’une page | Le fichier `.html` de la page |
 | L’en-tête ou le pied de page | Ils sont répétés dans chaque fichier `.html` : à modifier dans tous |
-| Une photo | `assets/photos/` ou `assets/merch/` (même nom de fichier = rien d’autre à changer) |
+| Une photo | `assets/photo-….webp` ou `assets/merch-….webp` (même nom de fichier = rien d’autre à changer) |
 | Un dessin de boisson | `js/illustrations.js` (le dessin est choisi d’après le nom du produit) |
 | Les textes légaux | `cgv.html`, `mentions-legales.html`, `confidentialite.html` (les infos manquantes sont marquées **DEMO**) |
 
@@ -122,9 +119,11 @@ Un seul écran, qui s’ouvre depuis le panier.
 ### Le gérant (`/admin`)
 Idéal sur une tablette au comptoir, et pensé aussi pour le téléphone (une étape à la fois).
 - **Commandes** : chaque commande arrive **en direct** avec un son (bouton « Son », à activer une fois). **Accepter** ou **Refuser** : le refus demande un motif que le client voit (« Un produit est épuisé », « Trop de commandes »…) ; pour un produit épuisé, une case le marque « Épuisé » sur le site en même temps. Ensuite : *Prête : le livreur part* → *Livreur au point* → *Livrée* (plage) ou *Prête au comptoir* → *Récupérée* (shop).
-- **Épuisé ?** : un interrupteur par produit. **Carte & prix** : ajouter, modifier, retirer un produit, options et suppléments.
-- **Points plage** : glisser chaque numéro sur la carte (ou « Prendre ma position ici » sur place), changer la photo, imprimer le QR code. Un point sans photo n’est pas proposé aux clients.
-- **Réglages** : couper les commandes ou la livraison plage, minimum, horaires du salé.
+- **Épuisé ?** : un interrupteur par produit.
+- **Carte & prix** : chaque produit est une vignette avec son dessin. On la touche : une fiche simple s’ouvre (nom, prix, description, allergènes, options, « sur l’accueil »…) et, à côté, **l’aperçu du site en direct** montre le résultat pendant qu’on tape. Tout est enregistré automatiquement.
+- **Clients** : les clients du site (commandes, montant, dernière visite, plage ou shop) et, quand Walty est relié, leurs **tampons de fidélité** sur la même ligne (voir « Relier Walty »).
+- **Points plage** : glisser chaque numéro sur la carte illustrée (ou « Prendre ma position ici » sur place), changer la photo, imprimer le QR code. Un point sans photo n’est pas proposé aux clients.
+- **Réglages** : couper les commandes ou la livraison plage, minimum, horaires du salé ; c’est aussi là qu’apparaîtra l’interrupteur du **paiement en ligne** (voir plus bas).
 
 ### Le livreur (`/livreur`)
 Sur son téléphone, de gros boutons, trois gestes par livraison :
@@ -160,7 +159,7 @@ L’écran reste allumé pendant les livraisons, et un son prévient quand une n
 7. **Les points de livraison** : `/admin` → *Points plage*. Glisse chaque numéro à sa place sur la carte (ou, sur la plage, touche « Prendre ma position ici »), puis « Changer la photo ». Imprime chaque « QR code à imprimer » et colle-le sur son panneau. Sans point actif, la livraison plage n’est pas proposée.
 
 ### 2. GitHub → Vercel
-1. Envoie le contenu du dossier sur GitHub (`index.html` à la racine).
+1. Envoie le contenu du dossier sur GitHub (`index.html` à la racine). Sur le site GitHub, *Add file → Upload files* accepte 100 fichiers à la fois : le projet en a 75, il passe en une fois (glisse le contenu du dossier, pas le dossier lui-même).
 2. Vercel : *Add New… → Project → Import*, nom du projet **en minuscules**, preset **Other**, ne touche ni à Build ni à Output, *Deploy*.
 3. Chaque *commit* redéploie le site. Le back-office est sur `https://ton-site/admin`, l’espace livreur sur `https://ton-site/livreur`.
 
@@ -169,18 +168,44 @@ L’écran reste allumé pendant les livraisons, et un son prévient quand une n
 ## Sécurité et conformité
 
 - **Base** : prix et totaux recalculés côté serveur, stock vérifié, livraison plage acceptée seulement vers un point actif, anti-abus (3 commandes en 10 min par numéro). Les commandes ne sont lisibles que par l’équipe ; un livreur ne voit que les livraisons plage et ne peut que les faire avancer (`livreur_avance`), sans toucher à la carte, aux prix ni aux réglages. Les photos des points sont publiques et seul le gérant peut les déposer.
-- **Navigateur** (`vercel.json`) : CSP (seuls le site, Supabase et les tuiles OpenStreetMap sont autorisés), HSTS, site non intégrable ailleurs. Une image hébergée sur un autre site serait bloquée : mets-la dans `assets/`.
+- **Navigateur** (`vercel.json`) : CSP (seuls le site et Supabase sont autorisés ; les cartes sont un dessin hébergé sur le site), HSTS, site non intégrable ailleurs. Une image hébergée sur un autre site serait bloquée : mets-la dans `assets/`.
 - **RGPD** : polices et bibliothèques hébergées sur le site (aucun appel à Google ni à un CDN), pas de cookie ni de mesure d’audience. Le client n’envoie ni photo ni position. Téléphone, signe et note effacés après 30 jours (purge quotidienne via `pg_cron`, et à chaque ouverture du back-office). Le message du livreur peut passer par WhatsApp : c’est indiqué dans la page Confidentialité.
 - **Vente à distance** : CGV (rétractation 14 jours pour les t-shirts avec formulaire), lien CGV + confidentialité avant de commander, bouton « Commander avec obligation de paiement », allergènes affichés dans chaque fiche produit.
+
+## Relier Walty (carte fidélité)
+L’onglet *Clients* du back-office affiche les tampons Walty de chaque client à côté de ses commandes. Walty reste la référence : le site lit, ne modifie rien et ne copie rien dans sa base.
+1. Walty fournit une adresse d’API et une clé pour le shop. Réponse attendue de `GET {adresse}/clients` (en-tête `Authorization: Bearer {clé}`) :
+   ```json
+   { "objectif": 10,
+     "stats": { "cartes": 128, "passages_mois": 342, "cadeaux_mois": 21 },
+     "clients": [ { "prenom": "Léa", "nom": "Martin", "telephone": "0690112233", "tampons": 7, "cadeaux": 1, "derniere_visite": "2026-10-28T15:04:00Z" } ] }
+   ```
+2. Vercel → *Settings → Environment Variables* : `WALTY_API_URL`, `WALTY_API_KEY`, `SUPABASE_URL`, `SUPABASE_ANON_KEY` (les mêmes que `config.js`), puis *Redeploy*.
+3. `api/walty.js` vérifie que la demande vient bien du gérant connecté avant de répondre. En démo, l’onglet montre un exemple.
+
+## Paiement en ligne (à venir)
+Pas encore branché : le client paie à la livraison ou au comptoir. Pour l’ajouter : le shop crée son compte **Stripe** (pays France, SIRET, IBAN), puis on ajoute une fonction Vercel qui recalcule le total depuis la base et ouvre la page de paiement Stripe (carte, Apple Pay, Google Pay). Les clés Stripe vont dans les variables Vercel, jamais dans le site. Le back-office a déjà son emplacement : *Réglages → Paiement en ligne*.
+
+## Référencement (Google)
+Déjà fait dans le site : titres et descriptions travaillés page par page, un titre principal (H1) avec le nom et le lieu, adresses canoniques, données structurées (fiche *Café / coffee shop* avec adresse, position, horaires, carte et prix, livraison plage, questions fréquentes), `sitemap.xml`, `robots.txt`, `llms.txt` (pour les assistants IA), manifeste, site rapide, mobile et en HTTPS.
+
+**Adresse du site** : tout est écrit pour `https://ady-coffee-shop.vercel.app`. Si le site a une autre adresse ou un nom de domaine, remplace-la partout (Rechercher / Remplacer dans tous les fichiers).
+
+**Le plus important se passe hors du site** :
+1. **Fiche Google Business Profile** du shop (Google Maps) : catégorie « Coffee shop », adresse exacte, horaires, téléphone, photos, lien vers le site et vers `/carte`. C’est elle qui fait apparaître Ady quand on cherche « coffee shop » autour de Sainte-Anne.
+2. **Avis Google** : la carte d’avis au comptoir et le lien d’avis sur la carte Walty.
+3. **Google Search Console** : ajouter le site et envoyer `sitemap.xml`. Pareil sur Bing Webmaster Tools.
+4. **Lien du site** dans la bio Instagram et partout où le shop est cité (même nom, même adresse, même téléphone).
+5. Fiches sur Apple Plans (Business Connect), TripAdvisor, PagesJaunes.
 
 ## À compléter avant l’ouverture
 
 - **Pages légales** : tout ce qui est marqué **DEMO** (forme juridique, SIREN, TVA, gérant, contact, région Supabase, **médiateur de la consommation**, délais).
 - **Allergènes** de chaque produit : back-office → *Carte & prix*.
-- `js/reglages.js` : téléphone, WhatsApp, **horaires réels** (ceux du site sont provisoires), position exacte du shop, chiffre d’abonnés Instagram à vérifier.
-- **Points de livraison** : les trois points de départ sont des dessins à des positions approximatives. Remplace-les par de vraies photos, place-les sur la carte et pose les QR codes (back-office → *Points plage*).
+- `js/reglages.js` : téléphone, WhatsApp, **horaires réels** (ceux du site sont provisoires, et Google les lit), position exacte du shop, chiffre d’abonnés Instagram à vérifier. La position du shop est aussi écrite dans la fiche Google de `index.html` et `le-shop.html` (`"geo"`).
+- **Points de livraison** : les cinq points de départ (du ponton au côté est) sont des dessins à des positions approximatives. Remplace-les par de vraies photos, place-les sur la carte et pose les QR codes (back-office → *Points plage*).
 - **Paiement en ligne** : pas encore en place (paiement à la livraison ou au comptoir). Il peut s’ajouter avec Stripe Checkout et une petite fonction serveur sur Vercel, quand le shop a son compte Stripe.
 
 ---
 
-Cartes © contributeurs OpenStreetMap (Leaflet). Polices sous licence SIL Open Font License. Carte fidélité digitale : Walty.
+Carte de la plage dessinée d’après les données © contributeurs OpenStreetMap (ODbL), affichée avec Leaflet. Polices sous licence SIL Open Font License. Carte fidélité digitale : Walty.

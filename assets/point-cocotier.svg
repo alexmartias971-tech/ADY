@@ -1,0 +1,18 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 300"><title>Le grand cocotier, côté ouest (illustration provisoire)</title>
+<defs><linearGradient id="c" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#93c6da"/><stop offset="1" stop-color="#f7dcc0"/></linearGradient></defs>
+<rect width="400" height="300" fill="url(#c)"/>
+<circle cx="86" cy="86" r="36" fill="#fbe2bd"/>
+<rect y="150" width="400" height="56" fill="#3f97ae"/>
+<path d="M0 166 q25 -7 50 0 t50 0 t50 0 t50 0 t50 0 t50 0 t50 0 t50 0" fill="none" stroke="#bfe3ea" stroke-width="3"/>
+<path d="M0 204 C 140 214 260 196 400 206 V300 H0Z" fill="#f2cfa6"/>
+<path d="M0 204 C 140 214 260 196 400 206" fill="none" stroke="#fffaf2" stroke-width="5" opacity=".9"/>
+<path d="M228 268 C 236 210 238 150 222 70" fill="none" stroke="#7a4a2a" stroke-width="16" stroke-linecap="round"/>
+<path d="M228 268 C 236 210 238 150 222 70" fill="none" stroke="#2a1810" stroke-width="3" stroke-dasharray="3 12" stroke-linecap="round"/>
+<g fill="#5f8a3a" stroke="#2a1810" stroke-width="3" stroke-linejoin="round">
+<path d="M222 70 C 190 44 150 44 122 66 C 160 58 190 66 222 70Z"/><path d="M222 70 C 196 76 166 98 156 128 C 180 104 200 90 222 70Z"/>
+<path d="M222 70 C 230 40 258 26 290 30 C 262 42 244 54 222 70Z"/><path d="M222 70 C 258 56 296 66 316 92 C 284 80 252 76 222 70Z"/>
+<path d="M222 70 C 246 86 262 110 266 140 C 250 116 236 96 222 70Z"/></g>
+<g fill="#7a4a2a" stroke="#2a1810" stroke-width="2.5"><circle cx="216" cy="78" r="7"/><circle cx="229" cy="80" r="7"/><circle cx="222" cy="88" r="7"/></g>
+<ellipse cx="232" cy="272" rx="40" ry="7" fill="#2a1810" opacity=".16"/>
+<g transform="translate(96 250)"><rect x="-34" y="-6" width="68" height="12" rx="3" fill="#fbe9d6" stroke="#2a1810" stroke-width="2.5"/><path d="M-34 -1 h68" stroke="#bf472c" stroke-width="4"/></g>
+</svg>

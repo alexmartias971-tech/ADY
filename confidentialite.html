@@ -6,23 +6,30 @@
   <title>Confidentialité · Ady Coffee Shop</title>
   <meta name="description" content="Ce que nous faisons de tes données quand tu commandes.">
   <meta name="theme-color" content="#BF472C">
+  <meta name="geo.region" content="GP">
+  <meta name="geo.placename" content="Sainte-Anne, Guadeloupe">
   <link rel="icon" href="assets/favicon.svg" type="image/svg+xml">
   <link rel="apple-touch-icon" href="assets/apple-touch-icon.png">
+  <link rel="manifest" href="site.webmanifest">
   <script src="js/boot.js"></script>
   <meta property="og:type" content="website">
   <meta property="og:locale" content="fr_FR">
   <meta property="og:site_name" content="Ady Coffee Shop">
   <meta property="og:title" content="Confidentialité · Ady Coffee Shop">
   <meta property="og:description" content="Ce que nous faisons de tes données quand tu commandes.">
-  <meta property="og:image" content="assets/og-image.jpg">
+  <meta property="og:image" content="https://ady-coffee-shop.vercel.app/assets/og-image.jpg">
+  <meta property="og:image:width" content="1200">
+  <meta property="og:image:height" content="630">
+  <meta property="og:image:alt" content="Ady Coffee Shop, coffee shop à Sainte-Anne (Guadeloupe)">
   <meta name="twitter:card" content="summary_large_image">
-  <link rel="preload" href="assets/fonts/londrina-solid-900-latin.woff2" as="font" type="font/woff2" crossorigin>
-  <link rel="preload" href="assets/fonts/dm-sans-latin.woff2" as="font" type="font/woff2" crossorigin>
-  <link rel="stylesheet" href="css/fonts.css">
+  <meta name="twitter:title" content="Confidentialité · Ady Coffee Shop">
+  <meta name="twitter:description" content="Ce que nous faisons de tes données quand tu commandes.">
+  <meta name="twitter:image" content="https://ady-coffee-shop.vercel.app/assets/og-image.jpg">
+  <link rel="preload" href="assets/londrina-solid-900-latin.woff2" as="font" type="font/woff2" crossorigin>
+  <link rel="preload" href="assets/dm-sans-latin.woff2" as="font" type="font/woff2" crossorigin>
   <link rel="stylesheet" href="css/style.css">
   <script src="config.js" defer></script>
-  <script src="js/demo/demo-seed.js" defer></script>
-  <script src="js/demo/demo-db.js" defer></script>
+  <script src="js/demo.js" defer></script>
   <script type="module" src="js/main.js"></script>
   <meta name="robots" content="noindex">
 </head>
@@ -91,7 +98,7 @@
         <p>Aucune publicité, aucune revente, aucune prospection, aucune décision automatisée.</p>
 
         <h2>Qui y a accès</h2>
-        <p>Uniquement l’équipe du shop (gérant et livreurs), depuis l’espace équipe protégé par mot de passe. Pour te prévenir que ta commande est au point, le livreur peut t’envoyer un SMS, un message WhatsApp ou t’appeler depuis son téléphone&nbsp;; avec WhatsApp, ton numéro et ce message passent par les services de WhatsApp (Meta). Nos prestataires techniques hébergent les données pour notre compte&nbsp;: <b>Supabase</b> (base de données) et <b>Vercel</b> (hébergement du site). L’affichage des cartes charge des images depuis les serveurs d’<b>OpenStreetMap</b>, qui reçoivent alors ton adresse IP. Les transferts hors de l’Union européenne sont encadrés par les garanties prévues par le RGPD (décision d’adéquation ou clauses contractuelles types).</p>
+        <p>Uniquement l’équipe du shop (gérant et livreurs), depuis l’espace équipe protégé par mot de passe. Pour te prévenir que ta commande est au point, le livreur peut t’envoyer un SMS, un message WhatsApp ou t’appeler depuis son téléphone&nbsp;; avec WhatsApp, ton numéro et ce message passent par les services de WhatsApp (Meta). Nos prestataires techniques hébergent les données pour notre compte&nbsp;: <b>Supabase</b> (base de données) et <b>Vercel</b> (hébergement du site). Les cartes sont des dessins hébergés sur ce site&nbsp;: aucun service de cartographie extérieur n’est appelé. Les transferts hors de l’Union européenne sont encadrés par les garanties prévues par le RGPD (décision d’adéquation ou clauses contractuelles types).</p>
 
         <h2>Combien de temps</h2>
         <ul>
@@ -104,7 +111,7 @@
         <p>Tu peux demander l’accès à tes données, leur rectification, leur effacement, la limitation du traitement, t’y opposer ou en obtenir une copie, en écrivant à l’adresse ci-dessus. Tu peux aussi adresser une réclamation à la CNIL (cnil.fr).</p>
 
         <h2>Carte fidélité</h2>
-        <p>La carte fidélité digitale se crée sur la page de notre prestataire <b>Walty</b> (carte.walty.fr), qui la gère pour le compte du shop. Les informations que tu y saisis (prénom, nom, téléphone ou e-mail) servent à tenir ta carte et tes tampons&nbsp;; ce site ne les reçoit pas, il propose seulement un lien. Leur utilisation et leur suppression sont expliquées sur la page de la carte.</p>
+        <p>La carte fidélité digitale se crée sur la page de notre prestataire <b>Walty</b> (carte.walty.fr), qui la gère pour le compte du shop. Les informations que tu y saisis (prénom, nom, téléphone ou e-mail) servent à tenir ta carte et tes tampons&nbsp;; ce site ne les reçoit pas, il propose seulement un lien. Si le shop relie sa carte Walty à son espace équipe, le gérant y voit aussi les tampons de chaque client à côté de ses commandes&nbsp;: ces informations sont lues chez Walty au moment de l’affichage, sans être copiées dans la base du site. Leur utilisation et leur suppression sont expliquées sur la page de la carte.</p>
 
         <h2>Téléphone</h2>
         <p>Ton numéro sert uniquement à ta commande&nbsp;: te prévenir quand elle est au point de livraison, ou te joindre en cas de souci. Tu peux t’inscrire gratuitement sur la liste d’opposition au démarchage téléphonique Bloctel (bloctel.gouv.fr).</p>

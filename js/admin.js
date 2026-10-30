@@ -51,6 +51,7 @@ $$("[data-view]").forEach((b) => b.addEventListener("click", () => {
   if (b.dataset.view === "menu") loadMenu();
   if (b.dataset.view === "stock") loadMenu();
   if (b.dataset.view === "points") loadPoints();
+  if (b.dataset.view === "clients") loadClients();
 }));
 
 /* ===== Son des nouvelles commandes ===== */
@@ -308,43 +309,155 @@ function optionsEditor() {
       <button class="btn btn--small btn--ghost" type="button" data-add-choice="${esc(g.id)}">Ajouter un choix</button></div>`).join("")}
   </details>`;
 }
-function productRow(p) {
-  return `<div class="prow${p.available ? "" : " is-off"}" data-pid="${p.id}">
-    <input class="prow__name" data-f="name" value="${esc(p.name)}" aria-label="Nom">
-    <input class="prow__price" data-f="price" type="number" min="0" step="0.1" value="${Number(p.price)}" aria-label="Prix en euros">
-    <input class="prow__desc" data-f="description" value="${esc(p.description)}" placeholder="Description (facultatif)" aria-label="Description">
-    <input class="prow__desc" data-f="allergens" value="${esc(p.allergens || "")}" placeholder="Allergènes (ex : lait, gluten, fruits à coque) — obligatoire" aria-label="Allergènes">
-    <div class="prow__opts">
-      ${GROUPS.filter((g) => g.id !== "temperature").map((g) => `<label><input type="checkbox" data-link="${esc(g.id)}" ${LINKS.some((l) => l.product_id === p.id && l.group_id === g.id) ? "checked" : ""}> ${esc(g.name)}</label>`).join("")}
-      <label><input type="checkbox" data-link="temperature" ${LINKS.some((l) => l.product_id === p.id && l.group_id === "temperature") ? "checked" : ""}> Chaud ou glacé</label>
-      <label><input type="checkbox" data-f="featured" ${p.featured ? "checked" : ""}> Mis en avant (suggestions « Avec ça ? »)</label>
-      <input class="prow__badge" data-f="badge" value="${esc(p.badge || "")}" placeholder="Étiquette (ex : Best-seller)" aria-label="Étiquette sur la carte produit">
-      <label><input type="checkbox" data-f="signature" ${p.signature ? "checked" : ""}> Encadré signature</label>
-      <label class="switch"><input type="checkbox" data-f="available" ${p.available ? "checked" : ""}><span></span>En vente</label>
-      <button class="iconbtn" type="button" data-move="-1" title="Monter">↑</button>
-      <button class="iconbtn" type="button" data-move="1" title="Descendre">↓</button>
-      <button class="linkish" type="button" data-archive>Retirer de la carte</button>
-    </div>
-  </div>`;
+// Les dessins des produits viennent du site lui-même : le gérant voit le même visuel que ses clients
+// (dans un script classique, import() part du dossier du script : js/)
+let ILL = null;
+import("./illustrations.js").then((m) => { ILL = m; if (PRODS.length) renderMenuEditor(); });
+const TEINTES = { cafeinees: "#f4b89f", matcha: "#c9d8a6", gourmandes: "#f2d3b0", rafraichissements: "#bfdce5", sale: "#f7d58a", merch: "#efd2b2" };
+const catDe = (p) => CATS.find((c) => c.id === p.category_id) || {};
+const dessin = (p) => (ILL ? ILL.illustration({ nom: p.name, kind: catDe(p).kind, image: p.image, glace: p.iced }) : "");
+function tuile(p) {
+  return `<button class="ptile${p.available ? "" : " is-off"}" type="button" data-edit="${p.id}" style="--teinte:${TEINTES[p.category_id] || "#f2d3b0"}">
+    <span class="ptile__art">${dessin(p)}</span>
+    <span class="ptile__nom">${esc(p.name)}</span>
+    <span class="ptile__prix">${euro(p.price)}</span>
+    <span class="ptile__tags">${p.available ? "" : `<em class="t-off">Épuisé</em>`}${p.featured ? "<em>Accueil</em>" : ""}${p.signature ? "<em>Signature</em>" : ""}${p.allergens ? "" : `<em class="t-warn">Allergènes ?</em>`}</span>
+  </button>`;
 }
 function renderMenuEditor() {
-  $("[data-menu-editor]").innerHTML = optionsEditor() + CATS.map((c) => {
+  $("[data-options-editor]").innerHTML = optionsEditor();
+  $("[data-menu-editor]").innerHTML = CATS.map((c) => {
     const ps = PRODS.filter((p) => p.category_id === c.id);
-    return `<details class="cat" data-cat="${esc(c.id)}" open>
-      <summary><span>${esc(c.title)}</span><small>${ps.length} produit${ps.length > 1 ? "s" : ""}</small></summary>
+    return `<section class="cat" data-cat="${esc(c.id)}">
+      <header class="cat__tete"><h2>${esc(c.title)}</h2><small>${ps.length} produit${ps.length > 1 ? "s" : ""}</small></header>
+      <div class="ptiles">${ps.map(tuile).join("")}<button class="ptile ptile--ajout" type="button" data-add-product><span aria-hidden="true">+</span>Ajouter un produit</button></div>
       <details class="cat__edit"><summary>Modifier la catégorie</summary><div class="cat__meta">
         <label>Titre<input data-cf="title" value="${esc(c.title)}"></label>
         <label>Titre de l'encadré signature<input data-cf="signature_label" value="${esc(c.signature_label || "")}"></label>
         <label>Horaires affichés<input data-cf="hours" value="${esc(c.hours || "")}" placeholder="ex : 11h – 15h"></label>
         <label>Note en bas<input data-cf="footnote" value="${esc(c.footnote || "")}"></label>
       </div></details>
-      <div class="cat__list">${ps.map(productRow).join("") || `<p class="empty">Aucun produit.</p>`}</div>
-      <button class="btn btn--small btn--ghost" type="button" data-add-product>Ajouter un produit</button>
-    </details>`;
+    </section>`;
   }).join("");
+  if (FICHE) remplirOptions(PRODS.find((x) => x.id === FICHE));
 }
-const editor = $("[data-menu-editor]");
-editor.addEventListener("change", async (e) => {
+
+// Enregistre un champ d'un produit (nom, prix, description, en vente…)
+async function sauverProduit(pid, f, el) {
+  let v = el.type === "checkbox" ? el.checked : el.value.trim();
+  if (f === "price") { v = Number(String(v).replace(",", ".")); if (!(v >= 0)) { toast("Prix invalide"); return false; } }
+  if (f === "name" && !v) { toast("Le nom ne peut pas être vide"); return false; }
+  if (f === "badge" || f === "allergens") v = v || null;
+  const { error } = await SB.from("products").update({ [f]: v }).eq("id", pid);
+  if (error) { fail(error); return false; }
+  const p = PRODS.find((x) => x.id === pid); if (p) p[f] = v;
+  renderStock();
+  return true;
+}
+// Ajoute ou retire une option (lait, sirop, taille, chaud ou glacé) pour un produit
+async function sauverOption(pid, gid, oui) {
+  const r = oui
+    ? await SB.from("product_option_groups").insert({ product_id: pid, group_id: gid, sort: (GROUPS.find((g) => g.id === gid) || {}).sort || 0 })
+    : await SB.from("product_option_groups").delete().eq("product_id", pid).eq("group_id", gid);
+  if (r.error) { fail(r.error); return false; }
+  if (oui) LINKS.push({ product_id: pid, group_id: gid }); else LINKS = LINKS.filter((l) => !(l.product_id === pid && l.group_id === gid));
+  return true;
+}
+
+/* ----- Fiche produit : champs simples + aperçu du site en direct ----- */
+let FICHE = null;
+let apercuPret = false;
+const fiche = $("[data-fiche]");
+const ficheForm = $("[data-fiche-form]");
+const cadreApercu = $("[data-apercu-frame]");
+const LIBELLES_OPTIONS = { lait: "Le lait", sirop: "Un sirop", format: "La taille", temperature: "Chaud ou glacé" };
+window.addEventListener("message", (e) => {
+  if (e.origin === location.origin && e.data && e.data.type === "ady-apercu-pret") { apercuPret = true; envoyerApercu(); }
+});
+const champ = (f) => ficheForm.querySelector(`[data-f="${f}"]`);
+function remplirOptions(p) {
+  if (!p) return;
+  $("[data-fiche-options]").innerHTML = GROUPS.map((g) => `<label class="puce"><input type="checkbox" data-link="${esc(g.id)}" ${LINKS.some((l) => l.product_id === p.id && l.group_id === g.id) ? "checked" : ""}><span>${esc(LIBELLES_OPTIONS[g.id] || g.name)}</span></label>`).join("");
+}
+function brouillon() {
+  const p = PRODS.find((x) => x.id === FICHE);
+  if (!p) return null;
+  const d = { ...p };
+  ["name", "price", "description", "allergens", "badge"].forEach((f) => (d[f] = champ(f).value));
+  ["available", "featured", "signature"].forEach((f) => (d[f] = champ(f).checked));
+  return d;
+}
+function envoyerApercu() {
+  const d = brouillon();
+  if (d && apercuPret && cadreApercu.contentWindow) cadreApercu.contentWindow.postMessage({ type: "ady-apercu", produit: d }, location.origin);
+}
+function majVente() { $("[data-vente-txt]").textContent = champ("available").checked ? "En vente" : "Épuisé : pas commandable"; }
+function ouvrirFicheProduit(pid) {
+  const p = PRODS.find((x) => x.id === pid);
+  if (!p) return;
+  FICHE = pid;
+  champ("name").value = p.name; champ("price").value = Number(p.price); champ("description").value = p.description || "";
+  champ("allergens").value = p.allergens || ""; champ("badge").value = p.badge || "";
+  champ("available").checked = !!p.available; champ("featured").checked = !!p.featured; champ("signature").checked = !!p.signature;
+  $("#fiche-titre").textContent = p.name;
+  $("[data-fiche-etat]").textContent = "Enregistré automatiquement";
+  remplirOptions(p); majVente();
+  fiche.classList.remove("is-apercu");
+  fiche.hidden = false;
+  document.documentElement.style.overflow = "hidden";
+  envoyerApercu();
+  $(".fiche__tete [data-fiche-fermer]").focus({ preventScroll: true });
+}
+function fermerFicheProduit() {
+  if (fiche.hidden) return;
+  fiche.hidden = true;
+  document.documentElement.style.overflow = "";
+  const pid = FICHE; FICHE = null;
+  renderMenuEditor();
+  $(`[data-edit="${pid}"]`)?.focus({ preventScroll: true });
+}
+ficheForm.addEventListener("submit", (e) => e.preventDefault());
+ficheForm.addEventListener("input", () => { majVente(); envoyerApercu(); });
+ficheForm.addEventListener("change", async (e) => {
+  if (!FICHE) return;
+  const etat = $("[data-fiche-etat]");
+  etat.textContent = "Enregistrement…";
+  let ok = true;
+  if (e.target.dataset.link) ok = await sauverOption(FICHE, e.target.dataset.link, e.target.checked);
+  else if (e.target.dataset.f) ok = await sauverProduit(FICHE, e.target.dataset.f, e.target);
+  if (e.target.dataset.f === "name" && ok) $("#fiche-titre").textContent = e.target.value.trim();
+  etat.textContent = ok ? "Enregistré ✓" : "Pas enregistré : vérifie ce champ";
+  envoyerApercu();
+});
+fiche.addEventListener("click", async (e) => {
+  if (e.target.closest("[data-fiche-fermer]")) return fermerFicheProduit();
+  if (e.target.closest("[data-fiche-voir]")) return fiche.classList.toggle("is-apercu");
+  const mv = e.target.closest("[data-fiche-move]");
+  if (mv && FICHE) {
+    const p = PRODS.find((x) => x.id === FICHE);
+    const sib = PRODS.filter((x) => x.category_id === p.category_id && x.signature === p.signature);
+    const i = sib.indexOf(p), j = i + Number(mv.dataset.ficheMove);
+    if (j < 0 || j >= sib.length) return toast(j < 0 ? "Il est déjà en premier" : "Il est déjà en dernier");
+    [sib[i], sib[j]] = [sib[j], sib[i]];
+    await Promise.all(sib.map((x, k) => SB.from("products").update({ sort: k }).eq("id", x.id)));
+    sib.forEach((x, k) => (x.sort = k));
+    PRODS.sort((a, b) => a.sort - b.sort);
+    toast(mv.dataset.ficheMove < 0 ? "Monté d’un cran" : "Descendu d’un cran");
+    return;
+  }
+  if (e.target.closest("[data-fiche-retirer]") && FICHE) {
+    if (!confirm("Retirer ce produit de la carte ? (l'historique des commandes est conservé)")) return;
+    const { error } = await SB.from("products").update({ archived: true }).eq("id", FICHE);
+    if (error) return fail(error);
+    fiche.hidden = true; document.documentElement.style.overflow = ""; FICHE = null;
+    toast("Produit retiré de la carte"); loadMenu();
+  }
+});
+addEventListener("keydown", (e) => { if (e.key === "Escape" && !fiche.hidden) fermerFicheProduit(); });
+
+/* ----- La page Carte & prix : vignettes, catégories, options ----- */
+const menuPanel = $('[data-view-panel="menu"]');
+menuPanel.addEventListener("change", async (e) => {
   const oc = e.target.closest("[data-choice-id]");
   if (oc && e.target.dataset.cf2) {
     const f = e.target.dataset.cf2;
@@ -355,55 +468,17 @@ editor.addEventListener("change", async (e) => {
     if (error) return fail(error);
     toast("Enregistré"); return;
   }
-  const lk = e.target.closest("[data-link]");
-  if (lk) {
-    const pid = lk.closest("[data-pid]").dataset.pid, gid = lk.dataset.link;
-    const r = lk.checked
-      ? await SB.from("product_option_groups").insert({ product_id: pid, group_id: gid, sort: (GROUPS.find((g) => g.id === gid) || {}).sort || 0 })
-      : await SB.from("product_option_groups").delete().eq("product_id", pid).eq("group_id", gid);
-    if (r.error) return fail(r.error);
-    if (lk.checked) LINKS.push({ product_id: pid, group_id: gid }); else LINKS = LINKS.filter((l) => !(l.product_id === pid && l.group_id === gid));
-    toast("Enregistré"); return;
-  }
-  const row = e.target.closest("[data-pid]");
-  if (row && e.target.dataset.f) {
-    const f = e.target.dataset.f;
-    let v = e.target.type === "checkbox" ? e.target.checked : e.target.value.trim();
-    if (f === "price") { v = Number(String(v).replace(",", ".")); if (!(v >= 0)) return toast("Prix invalide"); }
-    if (f === "name" && !v) return toast("Le nom ne peut pas être vide");
-    if (f === "badge" || f === "allergens") v = v || null;
-    const { error } = await SB.from("products").update({ [f]: v }).eq("id", row.dataset.pid);
-    if (error) return fail(error);
-    const p = PRODS.find((x) => x.id === row.dataset.pid); if (p) p[f] = v;
-    if (f === "available") row.classList.toggle("is-off", !v);
-    toast("Enregistré"); renderStock();
-    return;
-  }
   const cat = e.target.closest("[data-cat]");
   if (cat && e.target.dataset.cf) {
     const { error } = await SB.from("categories").update({ [e.target.dataset.cf]: e.target.value.trim() || null }).eq("id", cat.dataset.cat);
     if (error) return fail(error);
+    const c = CATS.find((x) => x.id === cat.dataset.cat); if (c) c[e.target.dataset.cf] = e.target.value.trim() || null;
     toast("Enregistré");
   }
 });
-editor.addEventListener("click", async (e) => {
-  const row = e.target.closest("[data-pid]");
-  if (row && e.target.closest("[data-archive]")) {
-    if (!confirm("Retirer ce produit de la carte ? (l'historique des commandes est conservé)")) return;
-    const { error } = await SB.from("products").update({ archived: true }).eq("id", row.dataset.pid);
-    if (error) return fail(error);
-    toast("Produit retiré"); loadMenu(); return;
-  }
-  const mv = e.target.closest("[data-move]");
-  if (row && mv) {
-    const p = PRODS.find((x) => x.id === row.dataset.pid);
-    const sib = PRODS.filter((x) => x.category_id === p.category_id && x.signature === p.signature);
-    const i = sib.indexOf(p), j = i + Number(mv.dataset.move);
-    if (j < 0 || j >= sib.length) return;
-    [sib[i], sib[j]] = [sib[j], sib[i]];
-    await Promise.all(sib.map((x, k) => SB.from("products").update({ sort: k }).eq("id", x.id)));
-    loadMenu(); return;
-  }
+menuPanel.addEventListener("click", async (e) => {
+  const ed = e.target.closest("[data-edit]");
+  if (ed) return ouvrirFicheProduit(ed.dataset.edit);
   const ac = e.target.closest("[data-add-choice]");
   if (ac) {
     const label = prompt("Nom du choix (ex : Lait d'avoine) ?"); if (!label) return;
@@ -415,21 +490,23 @@ editor.addEventListener("click", async (e) => {
   const add = e.target.closest("[data-add-product]");
   if (add) {
     const cat = add.closest("[data-cat]").dataset.cat;
-    const name = prompt("Nom du nouveau produit ?"); if (!name) return;
+    const name = prompt("Nom du nouveau produit ?"); if (!name || !name.trim()) return;
     const price = Number(String(prompt("Prix en euros ?", "5") || "").replace(",", "."));
     if (!(price >= 0)) return toast("Prix invalide");
     const { data, error } = await SB.from("products").insert({ category_id: cat, name: name.trim(), price, sort: 999 }).select().single();
     if (error) return fail(error);
-    if (cat === "merch" || (CATS.find((c) => c.id === cat) || {}).kind === "merch") {
+    if ((CATS.find((c) => c.id === cat) || {}).kind === "merch") {
       await SB.from("product_variants").insert(["S", "M", "L", "XL"].map((label, sort) => ({ product_id: data.id, label, sort })));
     }
-    toast("Produit ajouté"); loadMenu();
+    toast("Produit ajouté : complète sa fiche");
+    await loadMenu();
+    ouvrirFicheProduit(data.id);
   }
 });
 $("[data-add-cat]").addEventListener("click", async () => {
   const title = prompt("Nom de la catégorie ?"); if (!title) return;
   const kind = confirm("Ce sont des boissons ? (OK = boissons, Annuler = plats salés)") ? "drink" : "food";
-  const id = title.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "").replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "") || "cat-" + Date.now();
+  const id = title.toLowerCase().normalize("NFD").replace(/[̀-ͯ]/g, "").replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "") || "cat-" + Date.now();
   const { error } = await SB.from("categories").insert({ id, title: title.trim(), kind, sort: CATS.length });
   if (error) return fail(error);
   toast("Catégorie ajoutée"); loadMenu();
@@ -527,15 +604,22 @@ function renderPoints() {
     : `<p class="empty">Aucun point pour l'instant : la livraison plage n'est pas proposée aux clients tant qu'il n'y en a pas au moins un.</p>`;
   majCartePoints();
 }
-// Carte : chaque numéro se glisse à sa place, la position est enregistrée en le lâchant
-let cartePts = null, cadree = false;
+// Carte : la même illustration de la plage que sur le site ; chaque numéro se glisse à sa place,
+// la position est enregistrée en le lâchant
+let cartePts = null, cadree = false, ZONE = null;
 const reperes = [];
+import("./reglages.js").then(({ CONFIG }) => { ZONE = CONFIG.zone; majCartePoints(); });
 function majCartePoints() {
   const el = $("[data-points-map]");
-  if (!window.L || !el || !el.offsetWidth) return;
+  if (!window.L || !ZONE || !el || !el.offsetWidth) return;
   if (!cartePts) {
-    cartePts = L.map(el, { scrollWheelZoom: false });
-    L.tileLayer("https://tile.openstreetmap.org/{z}/{x}/{y}.png", { maxZoom: 19, attribution: '© <a href="https://www.openstreetmap.org/copyright" target="_blank" rel="noopener">OpenStreetMap</a>' }).addTo(cartePts);
+    cartePts = L.map(el, { scrollWheelZoom: false, zoomSnap: 0.25, maxZoom: 19, maxBoundsViscosity: 1 });
+    const b = L.latLngBounds(ZONE.fond.bornes);
+    L.imageOverlay(ZONE.fond.image, b, { interactive: false }).addTo(cartePts);
+    cartePts.setMaxBounds(b.pad(0.02));
+    cartePts.attributionControl.setPrefix(false);
+    cartePts.attributionControl.addAttribution('Dessin ADY · © <a href="https://www.openstreetmap.org/copyright" target="_blank" rel="noopener">OpenStreetMap</a>');
+    cartePts.setMinZoom(Math.max(14, cartePts.getBoundsZoom(b, true)));
   }
   cartePts.invalidateSize();
   reperes.splice(0).forEach((m) => m.remove());
@@ -641,6 +725,89 @@ $("[data-add-point]").addEventListener("click", async () => {
   if (error) return fail(error);
   toast("Point ajouté au centre de la carte : glisse-le à sa place, puis ajoute sa photo"); loadPoints();
 });
+
+/* ===== Clients : commandes du site + fidélité Walty ===== */
+// Walty reste la source de la carte fidélité : on lit ses données (via /api/walty, la clé reste
+// côté serveur), on ne les modifie pas et on ne les copie pas dans la base du site.
+const WALTY_ESPACE = "https://walty.fr/espace";
+const telCle = (t) => String(t || "").replace(/\D/g, "").slice(-9);
+let WALTY = null;
+let CLIENTS = [];
+async function lireWalty() {
+  if (DEMO) return waltyDemo();
+  try {
+    const { data: { session } } = await SB.auth.getSession();
+    const r = await fetch("/api/walty", { headers: { Authorization: "Bearer " + (session && session.access_token) } });
+    if (!r.ok) return { connecte: false };
+    return { connecte: true, ...(await r.json()) };
+  } catch (e) { return { connecte: false }; }
+}
+// Exemple pour la démo : ce que l'on verrait avec la formule « Tout compris »
+function waltyDemo() {
+  return { connecte: true, exemple: true, objectif: 10,
+    stats: { cartes: 128, passages_mois: 342, cadeaux_mois: 21 },
+    clients: [
+      { prenom: "Léa", nom: "Martin", telephone: "0690 11 22 33", tampons: 7, cadeaux: 1, derniere_visite: new Date(Date.now() - 2 * 864e5).toISOString() },
+      { prenom: "Sarah", nom: "Louis", telephone: "0690 00 00 00", tampons: 10, cadeaux: 2, derniere_visite: new Date(Date.now() - 864e5).toISOString() },
+      { prenom: "Marc", nom: "Dupont", telephone: "", tampons: 3, cadeaux: 0, derniere_visite: new Date(Date.now() - 6 * 864e5).toISOString() },
+      { prenom: "Nadia", nom: "Célestin", telephone: "0691 45 67 89", tampons: 9, cadeaux: 3, derniere_visite: new Date(Date.now() - 3 * 864e5).toISOString() },
+      { prenom: "Yann", nom: "Bordelais", telephone: "0690 98 76 54", tampons: 1, cadeaux: 0, derniere_visite: new Date(Date.now() - 12 * 864e5).toISOString() },
+    ] };
+}
+async function loadClients() {
+  const depuis = new Date(Date.now() - 90 * 864e5).toISOString();
+  const [{ data, error }, walty] = await Promise.all([
+    SB.from("orders").select("customer_name, phone, total, mode, status, created_at").gte("created_at", depuis).order("created_at", { ascending: false }),
+    lireWalty(),
+  ]);
+  if (error) return fail(error);
+  WALTY = walty;
+  // un client = un numéro de téléphone, ou à défaut un nom
+  const parCle = new Map();
+  data.filter((o) => o.status !== "cancelled").forEach((o) => {
+    const cle = telCle(o.phone) || "nom:" + String(o.customer_name).trim().toLowerCase();
+    const c = parCle.get(cle) || { nom: o.customer_name, tel: o.phone || "", commandes: 0, total: 0, plage: 0, derniere: o.created_at };
+    c.commandes++; c.total += Number(o.total); if (o.mode === "plage") c.plage++;
+    if (!c.tel && o.phone) c.tel = o.phone;
+    parCle.set(cle, c);
+  });
+  const liste = [...parCle.values()];
+  // on rapproche chaque carte Walty d'un client du site par le téléphone, sinon par le nom
+  (walty.clients || []).forEach((w) => {
+    const nom = `${w.prenom || ""} ${w.nom || ""}`.trim();
+    const c = liste.find((x) => (telCle(w.telephone) && telCle(x.tel) === telCle(w.telephone)) || x.nom.trim().toLowerCase() === nom.toLowerCase());
+    const fid = { tampons: w.tampons, cadeaux: w.cadeaux, visite: w.derniere_visite };
+    if (c) c.fid = fid;
+    else liste.push({ nom, tel: w.telephone || "", commandes: 0, total: 0, plage: 0, derniere: null, fid });
+  });
+  CLIENTS = liste.sort((a, b) => b.commandes - a.commandes || (b.fid?.tampons || 0) - (a.fid?.tampons || 0));
+  renderWalty(); renderClients();
+}
+function renderWalty() {
+  const w = WALTY || {};
+  $("[data-walty]").innerHTML = w.connecte
+    ? `<div class="walty__tete"><b>Carte fidélité Walty</b><span class="pill pill--ok">${w.exemple ? "Exemple (démo)" : "Connectée"}</span><a class="btn btn--small btn--ghost" href="${WALTY_ESPACE}" target="_blank" rel="noopener">Ouvrir mon espace Walty</a></div>
+       ${w.stats ? `<div class="walty__stats"><div><b>${w.stats.cartes ?? "–"}</b><span>cartes créées</span></div><div><b>${w.stats.passages_mois ?? "–"}</b><span>passages ce mois</span></div><div><b>${w.stats.cadeaux_mois ?? "–"}</b><span>cadeaux offerts ce mois</span></div></div>` : ""}`
+    : `<div class="walty__tete"><b>Carte fidélité Walty</b><span class="pill">Pas encore reliée</span><a class="btn btn--small btn--ghost" href="${WALTY_ESPACE}" target="_blank" rel="noopener">Ouvrir mon espace Walty</a></div>
+       <p class="muted">Une fois reliée (formule « Tout compris »), les tampons de chaque client s’affichent ici, à côté de ses commandes.</p>`;
+}
+const jour = (iso) => (iso ? new Intl.DateTimeFormat("fr-FR", { timeZone: TZ, day: "numeric", month: "short" }).format(new Date(iso)) : "–");
+function renderClients() {
+  const q = $("[data-clients-recherche]").value.trim().toLowerCase();
+  const qTel = q.replace(/\D/g, "");
+  const liste = CLIENTS.filter((c) => !q || c.nom.toLowerCase().includes(q) || (qTel.length > 2 && c.tel.replace(/\D/g, "").includes(qTel)));
+  const site = CLIENTS.filter((c) => c.commandes);
+  const fideles = site.filter((c) => c.commandes > 1).length;
+  const ca = site.reduce((s, c) => s + c.total, 0), nb = site.reduce((s, c) => s + c.commandes, 0);
+  $("[data-clients-kpis]").innerHTML = `<div><b>${site.length}</b><span>clients en ligne</span></div><div><b>${fideles}</b><span>reviennent</span></div><div><b>${euro(nb ? ca / nb : 0)}</b><span>panier moyen</span></div><div><b>${nb ? Math.round(site.reduce((s, c) => s + c.plage, 0) / nb * 100) : 0} %</b><span>livrés plage</span></div>`;
+  const objectif = (WALTY && WALTY.objectif) || (SETTINGS && SETTINGS.stamps_goal) || 10;
+  $("[data-clients]").innerHTML = liste.length ? liste.map((c) => `<article class="client">
+      <div class="client__qui"><b>${esc(c.nom)}</b>${c.tel ? `<a href="tel:${esc(c.tel.replace(/\s/g, ""))}">${esc(c.tel)}</a>` : ""}</div>
+      <div class="client__chiffres">${c.commandes ? `<span><b>${c.commandes}</b> commande${c.commandes > 1 ? "s" : ""}</span><span><b>${euro(c.total)}</b></span><span>dernière : ${jour(c.derniere)}</span>${c.plage ? `<span class="pill pill--plage">plage ×${c.plage}</span>` : ""}` : `<span class="muted">Pas encore commandé en ligne</span>`}</div>
+      <div class="client__fid">${c.fid ? `<span class="tampons" title="${c.fid.tampons} tampons sur ${objectif}">${"●".repeat(Math.min(c.fid.tampons, objectif))}${"○".repeat(Math.max(0, objectif - c.fid.tampons))}</span><small>${c.fid.tampons >= objectif ? "<b>Cadeau prêt</b>" : `${c.fid.tampons}/${objectif} tampons`}${c.fid.cadeaux ? ` · ${c.fid.cadeaux} cadeau${c.fid.cadeaux > 1 ? "x" : ""} reçu${c.fid.cadeaux > 1 ? "s" : ""}` : ""}</small>` : `<small class="muted">${WALTY && WALTY.connecte ? "Pas de carte fidélité" : "Fidélité : Walty pas encore relié"}</small>`}</div>
+    </article>`).join("") : `<p class="empty">${q ? "Aucun client ne correspond." : "Pas encore de client sur les 90 derniers jours."}</p>`;
+}
+$("[data-clients-recherche]").addEventListener("input", renderClients);
 
 /* ===== Démarrage ===== */
 function start() {

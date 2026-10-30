@@ -154,6 +154,9 @@ alter table public.orders drop constraint if exists orders_status_check;
 alter table public.orders add constraint orders_status_check check (status in ('new','preparing','ready','delivering','arrived','done','cancelled'));
 -- motif affiché au client quand le shop refuse ou annule sa commande
 alter table public.orders add column if not exists cancel_reason text;
+-- images du site rangées à plat dans assets/ : on met à jour les chemins déjà enregistrés
+update public.delivery_points set photo_url = replace(photo_url, 'assets/points/', 'assets/point-') where photo_url like 'assets/points/%';
+update public.products set image = replace(image, 'assets/merch/', 'assets/merch-') where image like 'assets/merch/%';
 
 create table if not exists public.order_items (
   id uuid primary key default gen_random_uuid(),
