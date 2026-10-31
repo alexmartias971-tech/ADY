@@ -22,6 +22,7 @@
     <label>Mot de passe<input type="password" name="password" autocomplete="current-password" required></label>
     <button class="btn" type="submit">Se connecter</button>
     <p class="login__err" data-login-err></p>
+    <p class="login__info">Réservé au gérant d’ADY Coffee Shop.</p>
     <p class="login__demo" data-demo-hint hidden>Accès démo : <b>demo.com@gmail.com</b> / <b>demo</b></p>
   </form>
 </main>
@@ -31,16 +32,17 @@
   <header class="top">
     <img src="assets/logo.webp" alt="" width="40" height="40"><span class="demo-pill" data-demo-pill hidden>Démo</span>
     <nav class="tabs" role="tablist" aria-label="Sections">
-      <button role="tab" aria-selected="true" data-view="orders">Commandes <span class="badge" data-new-count hidden></span></button>
-      <button role="tab" aria-selected="false" data-view="stock">Épuisé ?</button>
-      <button role="tab" aria-selected="false" data-view="menu">Carte &amp; prix</button>
-      <button role="tab" aria-selected="false" data-view="points">Points plage</button>
-      <button role="tab" aria-selected="false" data-view="clients">Clients</button>
-      <button role="tab" aria-selected="false" data-view="settings">Réglages</button>
+      <button role="tab" aria-selected="true" data-view="orders"><svg class="ico" viewBox="0 0 24 24" aria-hidden="true"><path d="M5.5 8.5h13l-1 11.5h-11Z"/><path d="M9 8.5V7a3 3 0 0 1 6 0v1.5"/></svg>Commandes <span class="badge" data-new-count hidden></span></button>
+      <button role="tab" aria-selected="false" data-view="stock"><svg class="ico" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="8.5"/><path d="M6 6l12 12"/></svg>Épuisé ?</button>
+      <button role="tab" aria-selected="false" data-view="menu"><svg class="ico" viewBox="0 0 24 24" aria-hidden="true"><rect x="5.5" y="3.5" width="13" height="17" rx="2"/><path d="M9 8h6M9 12h6M9 16h4"/></svg>Carte &amp; prix</button>
+      <button role="tab" aria-selected="false" data-view="points"><svg class="ico" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 21s-7-6.3-7-11.5a7 7 0 0 1 14 0C19 14.7 12 21 12 21Z"/><circle cx="12" cy="9.5" r="2.5"/></svg>Points plage</button>
+      <button role="tab" aria-selected="false" data-view="clients"><svg class="ico" viewBox="0 0 24 24" aria-hidden="true"><circle cx="9" cy="8.5" r="3.2"/><path d="M3.5 19c.8-3.2 3-5 5.5-5s4.7 1.8 5.5 5"/><circle cx="17" cy="9.5" r="2.4"/><path d="M15.6 13.6c2.3.3 4 1.9 4.6 4.9"/></svg>Clients <svg class="ico ico--cadenas" viewBox="0 0 24 24" aria-label="protégé par le code"><rect x="5" y="10.5" width="14" height="9.5" rx="2"/><path d="M8.5 10.5V8a3.5 3.5 0 0 1 7 0v2.5"/></svg></button>
+      <button role="tab" aria-selected="false" data-view="chiffres"><svg class="ico" viewBox="0 0 24 24" aria-hidden="true"><path d="M5 20V11M10 20V5M15 20v-8M20 20v-5"/></svg>Chiffres <svg class="ico ico--cadenas" viewBox="0 0 24 24" aria-label="protégé par le code"><rect x="5" y="10.5" width="14" height="9.5" rx="2"/><path d="M8.5 10.5V8a3.5 3.5 0 0 1 7 0v2.5"/></svg></button>
+      <button role="tab" aria-selected="false" data-view="settings"><svg class="ico" viewBox="0 0 24 24" aria-hidden="true"><path d="M4 7h9M17 7h3M4 17h3M11 17h9"/><circle cx="15" cy="7" r="2"/><circle cx="9" cy="17" r="2"/></svg>Réglages</button>
     </nav>
     <div class="top__right">
-      <label class="switch" title="Accepter les commandes en ligne"><input type="checkbox" data-quick="orders_open"><span></span>Commandes</label>
-      <label class="switch" title="Livraison sur la plage"><input type="checkbox" data-quick="beach_open"><span></span>Plage</label>
+      <label class="switch" title="Accepter les commandes en ligne"><input type="checkbox" data-quick="orders_open"><span></span><i class="long">Commandes en ligne</i><i class="court">Commandes</i></label>
+      <label class="switch" title="Livraison sur la plage"><input type="checkbox" data-quick="beach_open"><span></span><i class="long">Livraison plage</i><i class="court">Plage</i></label>
       <button class="iconbtn" type="button" data-sound aria-pressed="false" title="Son des nouvelles commandes">Son coupé</button>
       <a class="iconbtn iconbtn--lien" href="livreur">Espace livreur</a>
     </div>
@@ -48,14 +50,10 @@
 
   <!-- COMMANDES -->
   <section class="view" data-view-panel="orders">
-    <div class="kpis">
-      <div><b data-kpi="count">0</b><span>commandes</span></div>
-      <div><b data-kpi="revenue">0,00 €</b><span>encaissé</span></div>
-      <div><b data-kpi="open">0</b><span>en cours</span></div>
-      <div><b data-kpi="beach">0</b><span>plage</span></div>
+    <div class="commandes__barre">
+      <p class="live" data-live>Connexion au direct…</p>
       <label class="day"><span>Jour</span><input type="date" data-day></label>
     </div>
-    <p class="live" data-live>Connexion au direct…</p>
     <div class="board-tabs" role="tablist" aria-label="Étapes" data-board-tabs>
       <button type="button" role="tab" data-col-tab="new" aria-selected="true">À valider <span data-col-count="new">0</span></button>
       <button type="button" role="tab" data-col-tab="preparing" aria-selected="false">En préparation <span data-col-count="preparing">0</span></button>
@@ -104,47 +102,69 @@
     <div class="points-admin" data-points-admin></div>
   </section>
 
-  <!-- CLIENTS : commandes du site + carte fidélité Walty -->
+  <!-- CLIENTS et CHIFFRES : réservés au gérant (code secret) -->
   <section class="view" data-view-panel="clients" hidden>
-    <div class="view__head">
-      <h1>Clients</h1>
-      <p>Tes clients au même endroit : ce qu’ils commandent sur le site et, avec Walty, leurs tampons de fidélité. Rien n’est effacé chez Walty : cette page ne fait que lire.</p>
+    <div class="view__head view__head--ligne">
+      <div><h1>Clients</h1><p>Ce que chacun commande sur le site et, avec Walty, ses tampons de fidélité.</p></div>
+      <button class="btn btn--ghost btn--small" type="button" data-verrouiller>Masquer</button>
     </div>
-    <div class="walty" data-walty></div>
-    <div class="kpis" data-clients-kpis></div>
-    <label class="recherche">Rechercher<input type="search" placeholder="Nom ou téléphone" data-clients-recherche></label>
-    <div class="clients" data-clients></div>
-    <p class="muted clients__note">Commandes des 90 derniers jours. Les numéros de téléphone des commandes sont effacés au bout de 30 jours (page Confidentialité).</p>
+    <div data-zone-clients></div>
+  </section>
+
+  <section class="view" data-view-panel="chiffres" hidden>
+    <div class="view__head view__head--ligne">
+      <div><h1>Chiffres</h1><p>Ce que rapportent les commandes en ligne, et ta carte fidélité.</p></div>
+      <button class="btn btn--ghost btn--small" type="button" data-verrouiller>Masquer</button>
+    </div>
+    <div data-zone-chiffres></div>
   </section>
 
   <!-- REGLAGES -->
   <section class="view" data-view-panel="settings" hidden>
-    <div class="view__head"><h1>Réglages</h1></div>
-    <form class="settings" data-settings>
-      <label class="switch switch--big"><input type="checkbox" name="orders_open"><span></span>Commandes en ligne ouvertes</label>
-      <label class="switch switch--big"><input type="checkbox" name="beach_open"><span></span>Livraison plage ouverte</label>
-      <label>Minimum de commande plage (€)<input type="number" name="beach_min" min="0" step="0.5"></label>
-      <label>Plats salés servis à partir de<input type="time" name="food_from"></label>
-      <label>Plats salés servis jusqu'à<input type="time" name="food_to"></label>
-      <label>Tampons avant le café offert<input type="number" name="stamps_goal" min="1" max="30"></label>
-      <button class="btn" type="submit">Enregistrer les réglages</button>
-    </form>
-    <section class="bloc-reglage">
-      <h2>Paiement en ligne <span class="pill">Pas encore activé</span></h2>
-      <p>Avec <b>Stripe</b>, tes clients pourront payer en commandant&nbsp;: carte, Apple Pay ou Google Pay. L’argent arrive sur ton compte bancaire.</p>
-      <ol>
-        <li>Crée ton compte sur <b>stripe.com</b> (pays&nbsp;: France, avec ton SIRET et ton IBAN).</li>
-        <li>Ton prestataire branche le paiement sur le site. Les clés secrètes ne sont jamais écrites ici ni dans le site&nbsp;: elles restent chez l’hébergeur.</li>
-        <li>Un interrupteur «&nbsp;Proposer le paiement en ligne&nbsp;» apparaîtra ici. Le paiement à la livraison peut rester proposé à côté.</li>
-      </ol>
-    </section>
+    <div class="view__head"><h1>Réglages</h1><p>Chaque changement est enregistré tout de suite.</p></div>
+    <div class="reglages">
+      <article class="reglage">
+        <div class="reglage__txt"><h2>Commandes en ligne</h2><p>Coupe-les si tu es débordé&nbsp;: le site affiche que les commandes sont fermées pour le moment.</p></div>
+        <label class="switch switch--big"><input type="checkbox" data-reglage="orders_open"><span></span><b data-etat-reglage="orders_open"></b></label>
+      </article>
+      <article class="reglage">
+        <div class="reglage__txt"><h2>Livraison sur la plage</h2><p>Coupe-la s’il n’y a pas de livreur&nbsp;: les clients peuvent toujours commander à emporter.</p>
+          <label class="champ champ--prix">Minimum pour se faire livrer<span><input type="number" data-reglage="beach_min" min="0" step="0.5" inputmode="decimal"> €</span></label></div>
+        <label class="switch switch--big"><input type="checkbox" data-reglage="beach_open"><span></span><b data-etat-reglage="beach_open"></b></label>
+      </article>
+      <article class="reglage">
+        <div class="reglage__txt"><h2>Heures du salé</h2><p>Sandwichs, frites, plats… En dehors de ces heures, ils restent visibles sur la carte (avec «&nbsp;Dès 11h&nbsp;») mais on ne peut pas les commander.</p>
+          <p class="heures">Servi de <input type="time" data-reglage="food_from" aria-label="Début"> à <input type="time" data-reglage="food_to" aria-label="Fin"></p></div>
+      </article>
+      <article class="reglage">
+        <div class="reglage__txt"><h2>Carte fidélité</h2><p>Les tampons, le cadeau et les messages se règlent dans ton espace Walty. Ici, tu vois seulement les chiffres («&nbsp;Chiffres&nbsp;») et les tampons de chaque client («&nbsp;Clients&nbsp;»).</p></div>
+        <a class="btn btn--ghost btn--small" href="https://walty.fr/espace" target="_blank" rel="noopener">Mon espace Walty</a>
+      </article>
+      <article class="reglage">
+        <div class="reglage__txt"><h2>Code secret du gérant</h2><p>Il protège «&nbsp;Clients&nbsp;» et «&nbsp;Chiffres&nbsp;». Ne le donne pas à ton équipe.</p>
+          <form class="code-form" data-code-form>
+            <label class="champ" data-code-ancien>Code actuel<input type="password" name="ancien" inputmode="numeric" maxlength="6" autocomplete="off"></label>
+            <label class="champ">Nouveau code <small>4 à 6 chiffres</small><input type="password" name="nouveau" inputmode="numeric" maxlength="6" autocomplete="off"></label>
+            <button class="btn btn--small" type="submit">Enregistrer le code</button>
+          </form></div>
+      </article>
+      <article class="reglage">
+        <div class="reglage__txt"><h2>Paiement en ligne <span class="pill">Pas encore activé</span></h2>
+          <p>Tes clients pourront payer en commandant (carte, Apple Pay, Google Pay). <b>Pas besoin de lien Stripe par produit</b>&nbsp;: le site envoie tout le panier à Stripe avec les prix de ta carte, et le client paie le total en une fois. L’argent arrive sur ton compte bancaire.</p>
+          <ol>
+            <li>Tu crées ton compte sur <b>stripe.com</b> (pays&nbsp;: France, avec ton SIRET et ton IBAN).</li>
+            <li>Ton prestataire branche Stripe une seule fois. Les clés restent chez l’hébergeur, jamais sur cet écran.</li>
+            <li>Un interrupteur «&nbsp;Proposer le paiement en ligne&nbsp;» apparaîtra ici. Le paiement à la livraison peut rester proposé.</li>
+          </ol></div>
+      </article>
+    </div>
     <div class="compte">
       <a class="btn btn--ghost" href="livreur">Ouvrir l’espace livreur</a>
       <button class="btn btn--ghost" type="button" data-logout>Se déconnecter</button>
     </div>
     <div class="demo-box" data-demo-box hidden>
       <h2>Mode démo</h2>
-      <p>Les données de la démo sont gardées dans ce navigateur. Les commandes passées sur le site depuis ce même navigateur arrivent ici en direct.</p>
+      <p>Les données de la démo sont gardées dans ce navigateur. Les commandes passées sur le site depuis ce même navigateur arrivent ici en direct. Code secret de la démo&nbsp;: <b>1234</b>.</p>
       <button class="btn btn--ghost" type="button" data-demo-reset>Réinitialiser la démo</button>
     </div>
   </section>
@@ -171,10 +191,21 @@
       <label class="champ">Description <small>ce que le client lit sous le nom</small><textarea data-f="description" rows="2" maxlength="200" placeholder="Ex. : espresso, lait, caramel, chantilly"></textarea></label>
       <label class="champ">Allergènes <small>obligatoire (lait, gluten, fruits à coque…)</small><input data-f="allergens" maxlength="160" placeholder="Ex. : lait"></label>
       <fieldset class="champ"><legend>Le client peut choisir</legend><div class="puces" data-fiche-options></div></fieldset>
-      <fieldset class="champ"><legend>Où le mettre en avant</legend>
-        <label class="switch"><input type="checkbox" data-f="featured"><span></span>Sur l’accueil (les plus commandées)</label>
-        <label class="switch"><input type="checkbox" data-f="signature"><span></span>Dans l’encadré « Signatures » de la carte</label>
-        <label class="champ champ--court">Petite étiquette <small>facultatif</small><input data-f="badge" maxlength="24" placeholder="Ex. : Nouveau, Best-seller"></label>
+      <fieldset class="champ"><legend>Le mettre en avant <small>(le jaune montre où il apparaît)</small></legend>
+        <label class="option-vue">
+          <span class="option-vue__img"><svg viewBox="0 0 64 104" aria-hidden="true"><rect x="2" y="2" width="60" height="100" rx="10" fill="#fff7ec" stroke="#2a1810" stroke-width="3"/><rect x="8" y="10" width="48" height="28" rx="4" fill="#bf472c"/><rect x="12" y="16" width="26" height="4" rx="2" fill="#fbe9d6"/><rect x="12" y="23" width="18" height="4" rx="2" fill="#fbe9d6"/><rect x="12" y="30" width="22" height="4" rx="2" fill="#2a1810"/><rect x="5" y="43" width="54" height="27" rx="5" fill="#fff3c4" stroke="#e8a400" stroke-width="3"/><rect x="9" y="47" width="14" height="19" rx="3" fill="#f4b89f"/><rect x="25" y="47" width="14" height="19" rx="3" fill="#c9d8a6"/><rect x="41" y="47" width="14" height="19" rx="3" fill="#bfdce5"/><rect x="8" y="77" width="48" height="5" rx="2" fill="#e6d6c4"/><rect x="8" y="86" width="34" height="5" rx="2" fill="#e6d6c4"/></svg></span>
+          <span class="option-vue__txt"><b>Sur la page d’accueil</b><small>Dans « Les plus commandées », juste sous le grand titre. 4 produits au maximum.</small><em data-accueil-compte></em></span>
+          <span class="switch"><input type="checkbox" data-f="featured"><span></span></span>
+        </label>
+        <label class="option-vue">
+          <span class="option-vue__img"><svg viewBox="0 0 64 104" aria-hidden="true"><rect x="2" y="2" width="60" height="100" rx="10" fill="#fff7ec" stroke="#2a1810" stroke-width="3"/><rect x="8" y="10" width="30" height="6" rx="2" fill="#bf472c"/><rect x="8" y="19" width="48" height="2" fill="#bf472c"/><g fill="#e6d6c4"><rect x="8" y="26" width="9" height="9" rx="2"/><rect x="20" y="28" width="26" height="4" rx="2"/><rect x="8" y="39" width="9" height="9" rx="2"/><rect x="20" y="41" width="22" height="4" rx="2"/></g><rect x="5" y="54" width="54" height="38" rx="7" fill="#fff3c4" stroke="#e8a400" stroke-width="3"/><rect x="10" y="59" width="44" height="28" rx="5" fill="#fff" stroke="#bf472c" stroke-width="2"/><g fill="#f4b89f"><rect x="14" y="64" width="8" height="8" rx="2"/><rect x="14" y="75" width="8" height="8" rx="2"/></g><g fill="#2a1810"><rect x="25" y="66" width="22" height="3" rx="1.5"/><rect x="25" y="77" width="18" height="3" rx="1.5"/></g></svg></span>
+          <span class="option-vue__txt"><b>Dans l’encadré « Signatures »</b><small>Sur la carte, dans un cadre à part, en bas de sa catégorie.</small></span>
+          <span class="switch"><input type="checkbox" data-f="signature"><span></span></span>
+        </label>
+        <div class="option-vue">
+          <span class="option-vue__img"><svg viewBox="0 0 64 104" aria-hidden="true"><rect x="2" y="2" width="60" height="100" rx="10" fill="#fff7ec" stroke="#2a1810" stroke-width="3"/><rect x="10" y="14" width="44" height="76" rx="7" fill="#fff" stroke="#2a1810" stroke-width="2"/><rect x="14" y="18" width="36" height="40" rx="5" fill="#f4b89f"/><rect x="11" y="15" width="26" height="11" rx="5.5" fill="#fff3c4" stroke="#e8a400" stroke-width="3"/><rect x="15" y="19" width="18" height="3" rx="1.5" fill="#2a1810"/><rect x="14" y="64" width="30" height="5" rx="2" fill="#2a1810"/><rect x="14" y="73" width="16" height="5" rx="2" fill="#bf472c"/><circle cx="45" cy="80" r="5" fill="#bf472c"/></svg></span>
+          <label class="option-vue__txt"><b>Une petite étiquette</b><small>Un mot posé sur le produit. Laisse vide pour ne rien mettre.</small><input data-f="badge" maxlength="24" placeholder="Ex. : Nouveau, Best-seller"></label>
+        </div>
       </fieldset>
       <div class="fiche__bas">
         <span>Place dans la carte</span>

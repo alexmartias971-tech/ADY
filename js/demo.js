@@ -223,6 +223,16 @@ window.ADY_SEED = {"categories":[{"id":"cafeinees","title":"Les caféinées","ki
         const connecte = !!localStorage.getItem(SESSION);
         if (fn === "is_admin" || fn === "is_staff") return { data: connecte, error: null };
         if (fn === "mon_role") return { data: connecte ? "gerant" : null, error: null };
+        // code secret du gérant (démo : 1234 tant qu'il n'a pas été changé)
+        if (fn === "code_existe") return { data: connecte, error: null };
+        if (fn === "verifier_code") return { data: connecte && String(args.p_code || "") === (load().code || "1234"), error: null };
+        if (fn === "definir_code") {
+          const db = load();
+          if (!/^[0-9]{4,6}$/.test(String(args.p_nouveau || ""))) return { data: null, error: { message: "Le code doit faire 4 à 6 chiffres." } };
+          if (String(args.p_ancien || "") !== (db.code || "1234")) return { data: null, error: { message: "L'ancien code n'est pas le bon." } };
+          db.code = String(args.p_nouveau); save(db, true);
+          return { data: true, error: null };
+        }
         if (fn === "livreur_avance") {
           if (!connecte) return { data: null, error: { message: "Accès refusé." } };
           const db = load(); const o = db.orders.find((x) => x.id === args.p_id);

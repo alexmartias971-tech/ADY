@@ -364,6 +364,67 @@ grant execute on function public.order_status(uuid) to anon, authenticated;
 grant execute on function public.livreur_avance(uuid, text) to authenticated;
 
 -- =====================================================================
+-- Code secret du gérant : il protège les onglets « Chiffres » et « Clients »
+-- du back-office (un employé ou un client qui voit l'écran n'y a pas accès).
+-- La table n'a aucune règle d'accès : seules ces fonctions la lisent.
+-- Code oublié : delete from public.secrets; (puis en choisir un nouveau)
+-- =====================================================================
+create table if not exists public.secrets (
+  cle text primary key,
+  valeur text not null
+);
+alter table public.secrets enable row level security;
+
+create or replace function public.code_existe() returns boolean
+language sql stable security definer set search_path = public as $$
+  select public.is_admin() and exists (select 1 from public.secrets where cle = 'code_gerant');
+$$;
+
+-- 5 essais ratés → 5 minutes d'attente
+create or replace function public.verifier_code(p_code text) returns boolean
+language plpgsql security definer set search_path = public, extensions as $$
+declare h text; bloque text; n int;
+begin
+  if not public.is_admin() then return false; end if;
+  select valeur into bloque from public.secrets where cle = 'code_bloque';
+  if bloque is not null and bloque::timestamptz > now() then raise exception 'Trop d''essais : réessaie dans quelques minutes.'; end if;
+  select valeur into h from public.secrets where cle = 'code_gerant';
+  if h is null then return false; end if;
+  if crypt(coalesce(p_code, ''), h) = h then
+    delete from public.secrets where cle in ('code_echecs', 'code_bloque');
+    return true;
+  end if;
+  insert into public.secrets (cle, valeur) values ('code_echecs', '1')
+    on conflict (cle) do update set valeur = (public.secrets.valeur::int + 1)::text
+    returning valeur::int into n;
+  if n >= 5 then
+    insert into public.secrets (cle, valeur) values ('code_bloque', (now() + interval '5 minutes')::text)
+      on conflict (cle) do update set valeur = excluded.valeur;
+    delete from public.secrets where cle = 'code_echecs';
+  end if;
+  return false;
+end $$;
+
+create or replace function public.definir_code(p_ancien text, p_nouveau text) returns boolean
+language plpgsql security definer set search_path = public, extensions as $$
+declare h text;
+begin
+  if not public.is_admin() then raise exception 'Accès refusé.'; end if;
+  if coalesce(p_nouveau, '') !~ '^[0-9]{4,6}$' then raise exception 'Le code doit faire 4 à 6 chiffres.'; end if;
+  select valeur into h from public.secrets where cle = 'code_gerant';
+  if h is not null and not public.verifier_code(p_ancien) then raise exception 'L''ancien code n''est pas le bon.'; end if;
+  insert into public.secrets (cle, valeur) values ('code_gerant', crypt(p_nouveau, gen_salt('bf')))
+    on conflict (cle) do update set valeur = excluded.valeur;
+  return true;
+end $$;
+revoke all on function public.code_existe() from public, anon;
+revoke all on function public.verifier_code(text) from public, anon;
+revoke all on function public.definir_code(text, text) from public, anon;
+grant execute on function public.code_existe() to authenticated;
+grant execute on function public.verifier_code(text) to authenticated;
+grant execute on function public.definir_code(text, text) to authenticated;
+
+-- =====================================================================
 -- Sécurité (RLS)
 -- =====================================================================
 alter table public.admins enable row level security;

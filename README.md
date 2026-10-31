@@ -117,21 +117,22 @@ Un seul écran, qui s’ouvre depuis le panier.
 - **Fidélité** : rien à saisir. Le client montre son QR code au livreur ou au comptoir au moment de payer.
 
 ### Le gérant (`/admin`)
-Idéal sur une tablette au comptoir, et pensé aussi pour le téléphone (une étape à la fois).
+Idéal sur une tablette au comptoir, et pensé aussi pour le téléphone (une étape à la fois). L’écran peut rester ouvert devant les clients et l’équipe : **aucun montant global n’y est affiché**. Les onglets *Clients* et *Chiffres* sont fermés par le **code secret du gérant** (vérifié par la base, 5 essais puis 5 minutes d’attente) et se referment dès qu’on change d’onglet ou après 3 minutes sans toucher l’écran.
 - **Commandes** : chaque commande arrive **en direct** avec un son (bouton « Son », à activer une fois). **Accepter** ou **Refuser** : le refus demande un motif que le client voit (« Un produit est épuisé », « Trop de commandes »…) ; pour un produit épuisé, une case le marque « Épuisé » sur le site en même temps. Ensuite : *Prête : le livreur part* → *Livreur au point* → *Livrée* (plage) ou *Prête au comptoir* → *Récupérée* (shop).
 - **Épuisé ?** : un interrupteur par produit.
-- **Carte & prix** : chaque produit est une vignette avec son dessin. On la touche : une fiche simple s’ouvre (nom, prix, description, allergènes, options, « sur l’accueil »…) et, à côté, **l’aperçu du site en direct** montre le résultat pendant qu’on tape. Tout est enregistré automatiquement.
-- **Clients** : les clients du site (commandes, montant, dernière visite, plage ou shop) et, quand Walty est relié, leurs **tampons de fidélité** sur la même ligne (voir « Relier Walty »).
+- **Carte & prix** : chaque produit est une vignette avec son dessin. On la touche : une fiche simple s’ouvre (nom, prix, description, allergènes, options) et, à côté, **l’aperçu du site en direct** montre le résultat pendant qu’on tape. Chaque mise en avant (page d’accueil, encadré « Signatures », petite étiquette) a son petit schéma qui montre où elle apparaît. Tout est enregistré automatiquement.
+- **Clients** 🔒 : chaque client du site (commandes, dépenses, dernière visite) et, quand Walty est relié, ses **tampons de fidélité** sur la même ligne. Filtres *Fidèles*, *Cadeau prêt*, *À relancer*, *Nouveaux* ; une fiche par client avec ses commandes et les boutons Appeler / WhatsApp.
+- **Chiffres** 🔒 : chiffre d’affaires, commandes, panier moyen, part livrée sur la plage, ventes heure par heure ou jour par jour, produits les plus vendus, et les chiffres de la carte Walty (sans pouvoir la modifier : elle se règle sur Walty).
 - **Points plage** : glisser chaque numéro sur la carte illustrée (ou « Prendre ma position ici » sur place), changer la photo, imprimer le QR code. Un point sans photo n’est pas proposé aux clients.
-- **Réglages** : couper les commandes ou la livraison plage, minimum, horaires du salé ; c’est aussi là qu’apparaîtra l’interrupteur du **paiement en ligne** (voir plus bas).
+- **Réglages** : chaque réglage expliqué en une phrase et enregistré tout de suite : commandes en ligne, livraison plage et son minimum, heures du salé, lien vers l’espace Walty, **code secret**, et l’emplacement du futur **paiement en ligne**. Le premier code se choisit en ouvrant *Clients* ou *Chiffres* ; code oublié : `delete from public.secrets;` dans Supabase, puis en choisir un nouveau.
 
 ### Le livreur (`/livreur`)
 Sur son téléphone, de gros boutons, trois gestes par livraison :
 1. **À récupérer au shop** : les commandes plage acceptées. « Je pars avec ».
-2. **À livrer** : la photo du point, son nom, le signe du client, ce qu’il faut encaisser. « Itinéraire » puis **« Je suis au point »** : le téléphone du client affiche aussitôt « Ton livreur est là » avec la photo du point, et le livreur envoie un **message WhatsApp ou SMS déjà écrit** en un geste (ou appelle).
+2. **À livrer** : la photo du point, son nom, le signe du client, ce qu’il faut encaisser. « Itinéraire » puis **« Je suis au point »** : le téléphone du client affiche aussitôt « Ton livreur est là » avec la photo du point. Les boutons **WhatsApp / SMS / Appeler** ouvrent l’application du portable du livreur avec le message déjà écrit : il n’a plus qu’à appuyer sur Envoyer (aucun abonnement ni service à brancher, c’est son propre WhatsApp).
 3. **« Livrée et encaissée »**. En bas : les livraisons du jour et le total encaissé.
 
-L’écran reste allumé pendant les livraisons, et un son prévient quand une nouvelle commande est à récupérer.
+L’écran reste allumé pendant les livraisons, et un son prévient quand une nouvelle commande est à récupérer. **Accès protégé** : il faut un compte livreur (ou gérant) pour voir quoi que ce soit ; sans compte, `/livreur` n’affiche que l’écran de connexion et la base refuse de donner les commandes.
 
 ### Le suivi
 À la commande, la base renvoie un numéro et un **jeton secret**. Le téléphone du client demande l’étape toutes les 6 secondes (`order_status`, qui ne renvoie ni nom ni téléphone) : Reçue → En préparation → En route → **Ton livreur est là** → Livrée. Une commande refusée affiche le motif et « Rien à payer ». Le suivi reste 8 heures sur le téléphone : une pastille en haut de l’écran y ramène.
@@ -184,7 +185,9 @@ L’onglet *Clients* du back-office affiche les tampons Walty de chaque client �
 3. `api/walty.js` vérifie que la demande vient bien du gérant connecté avant de répondre. En démo, l’onglet montre un exemple.
 
 ## Paiement en ligne (à venir)
-Pas encore branché : le client paie à la livraison ou au comptoir. Pour l’ajouter : le shop crée son compte **Stripe** (pays France, SIRET, IBAN), puis on ajoute une fonction Vercel qui recalcule le total depuis la base et ouvre la page de paiement Stripe (carte, Apple Pay, Google Pay). Les clés Stripe vont dans les variables Vercel, jamais dans le site. Le back-office a déjà son emplacement : *Réglages → Paiement en ligne*.
+Pas encore branché : le client paie à la livraison ou au comptoir.
+- **Pas de lien Stripe par produit.** Un lien de paiement Stripe ne vend qu’un seul produit : il ne sait pas additionner un panier avec des options. On utilise *Stripe Checkout* : au moment de payer, une petite fonction Vercel recalcule le total depuis la base (le client ne peut pas changer les prix) et ouvre la page Stripe avec tout le panier (carte, Apple Pay, Google Pay). Un produit ajouté dans *Carte & prix* est donc payable en ligne tout de suite, sans rien faire dans Stripe.
+- Pour l’activer : le shop crée son compte **Stripe** (pays France, SIRET, IBAN) ; les clés vont dans les variables Vercel, jamais dans le site ; un interrupteur apparaîtra dans *Réglages → Paiement en ligne*.
 
 ## Référencement (Google)
 Déjà fait dans le site : titres et descriptions travaillés page par page, un titre principal (H1) avec le nom et le lieu, adresses canoniques, données structurées (fiche *Café / coffee shop* avec adresse, position, horaires, carte et prix, livraison plage, questions fréquentes), `sitemap.xml`, `robots.txt`, `llms.txt` (pour les assistants IA), manifeste, site rapide, mobile et en HTTPS.

@@ -51,13 +51,14 @@ $$("[data-view]").forEach((b) => b.addEventListener("click", () => {
   if (b.dataset.view === "menu") loadMenu();
   if (b.dataset.view === "stock") loadMenu();
   if (b.dataset.view === "points") loadPoints();
-  if (b.dataset.view === "clients") loadClients();
+  // Clients et Chiffres : derrière le code secret ; on referme dès qu'on va ailleurs
+  if (PROTEGES.includes(b.dataset.view)) montrerProtege(b.dataset.view); else verrouiller();
 }));
 
 /* ===== Son des nouvelles commandes ===== */
 let soundOn = localStorage.getItem("ady-admin-sound") === "1";
 let actx = null;
-function paintSound() { const b = $("[data-sound]"); b.textContent = soundOn ? "Son activé" : "Son coupé"; b.setAttribute("aria-pressed", soundOn); }
+function paintSound() { const b = $("[data-sound]"); b.innerHTML = soundOn ? '<i class="long">Son activé</i><i class="court">Son ✓</i>' : '<i class="long">Son coupé</i><i class="court">Son ✕</i>'; b.setAttribute("aria-pressed", soundOn); }
 $("[data-sound]").addEventListener("click", () => {
   soundOn = !soundOn; localStorage.setItem("ady-admin-sound", soundOn ? "1" : "0");
   if (soundOn) { actx = actx || new AudioContext(); actx.resume(); ding(); }
@@ -80,25 +81,33 @@ function ding() {
 
 /* ===== Réglages ===== */
 let SETTINGS = null;
+const ETATS = { orders_open: ["Ouvertes", "Fermées"], beach_open: ["Ouverte", "Fermée"] };
 async function loadSettings() {
   const { data, error } = await SB.from("settings").select("*").eq("id", 1).single();
   if (error) return fail(error);
   SETTINGS = data;
   $$("[data-quick]").forEach((i) => (i.checked = !!data[i.dataset.quick]));
-  const f = $("[data-settings]");
-  f.orders_open.checked = data.orders_open; f.beach_open.checked = data.beach_open;
-  f.beach_min.value = data.beach_min; f.food_from.value = String(data.food_from).slice(0, 5); f.food_to.value = String(data.food_to).slice(0, 5);
-  f.stamps_goal.value = data.stamps_goal;
+  $$("[data-reglage]").forEach((i) => {
+    const v = data[i.dataset.reglage];
+    if (i.type === "checkbox") i.checked = !!v;
+    else if (i.type === "time") i.value = String(v || "").slice(0, 5);
+    else i.value = v ?? "";
+  });
+  Object.entries(ETATS).forEach(([k, [oui, non]]) => { const b = $(`[data-etat-reglage="${k}"]`); if (b) b.textContent = data[k] ? oui : non; });
 }
 async function saveSettings(patch) {
   const { error } = await SB.from("settings").update(patch).eq("id", 1);
   if (error) return fail(error);
-  toast("Réglages enregistrés"); loadSettings();
+  toast("Enregistré"); loadSettings();
 }
 $$("[data-quick]").forEach((i) => i.addEventListener("change", () => saveSettings({ [i.dataset.quick]: i.checked })));
-$("[data-settings]").addEventListener("submit", (e) => {
-  e.preventDefault(); const f = e.currentTarget;
-  saveSettings({ orders_open: f.orders_open.checked, beach_open: f.beach_open.checked, beach_min: Number(f.beach_min.value || 0), food_from: f.food_from.value, food_to: f.food_to.value, stamps_goal: Number(f.stamps_goal.value || 9) });
+// chaque réglage s'enregistre dès qu'on le change
+$("[data-view-panel=settings]").addEventListener("change", (e) => {
+  const k = e.target.dataset.reglage; if (!k) return;
+  let v = e.target.type === "checkbox" ? e.target.checked : e.target.value;
+  if (k === "beach_min") { v = Number(String(v).replace(",", ".")); if (!(v >= 0)) return toast("Montant invalide"); }
+  if ((k === "food_from" || k === "food_to") && !v) return;
+  saveSettings({ [k]: v });
 });
 
 /* ===== Commandes ===== */
@@ -181,11 +190,6 @@ function renderOrders() {
     $(`[data-col="${c}"] h2`).dataset.count = list.length;
     $(`[data-col-count="${c}"]`).textContent = list.length;
   });
-  const valid = ORDERS.filter((o) => o.status !== "cancelled");
-  $('[data-kpi="count"]').textContent = valid.length;
-  $('[data-kpi="revenue"]').textContent = euro(valid.filter((o) => o.status === "done").reduce((s, o) => s + Number(o.total), 0));
-  $('[data-kpi="open"]').textContent = valid.filter((o) => !["done"].includes(o.status)).length;
-  $('[data-kpi="beach"]').textContent = valid.filter((o) => o.mode === "plage").length;
   const nNew = ORDERS.filter((o) => o.status === "new").length;
   const b = $("[data-new-count]"); b.hidden = !nNew; b.textContent = nNew;
   document.title = (nNew ? `(${nNew}) ` : "") + "Back-office · ADY";
@@ -392,6 +396,13 @@ function envoyerApercu() {
   if (d && apercuPret && cadreApercu.contentWindow) cadreApercu.contentWindow.postMessage({ type: "ady-apercu", produit: d }, location.origin);
 }
 function majVente() { $("[data-vente-txt]").textContent = champ("available").checked ? "En vente" : "Épuisé : pas commandable"; }
+// l'accueil montre 4 produits « mis en avant » au maximum
+function majCompteAccueil() {
+  const p = PRODS.find((x) => x.id === FICHE);
+  if (!p || catDe(p).kind === "merch") { $("[data-accueil-compte]").textContent = ""; return; }
+  const n = PRODS.filter((x) => x.id !== FICHE && x.featured && catDe(x).kind !== "merch").length + (champ("featured").checked ? 1 : 0);
+  $("[data-accueil-compte]").textContent = n > 4 ? `${n} produits cochés : seuls les 4 premiers de la carte s’affichent.` : `${n} sur 4 places utilisées.`;
+}
 function ouvrirFicheProduit(pid) {
   const p = PRODS.find((x) => x.id === pid);
   if (!p) return;
@@ -401,7 +412,7 @@ function ouvrirFicheProduit(pid) {
   champ("available").checked = !!p.available; champ("featured").checked = !!p.featured; champ("signature").checked = !!p.signature;
   $("#fiche-titre").textContent = p.name;
   $("[data-fiche-etat]").textContent = "Enregistré automatiquement";
-  remplirOptions(p); majVente();
+  remplirOptions(p); majVente(); majCompteAccueil();
   fiche.classList.remove("is-apercu");
   fiche.hidden = false;
   document.documentElement.style.overflow = "hidden";
@@ -417,7 +428,7 @@ function fermerFicheProduit() {
   $(`[data-edit="${pid}"]`)?.focus({ preventScroll: true });
 }
 ficheForm.addEventListener("submit", (e) => e.preventDefault());
-ficheForm.addEventListener("input", () => { majVente(); envoyerApercu(); });
+ficheForm.addEventListener("input", () => { majVente(); majCompteAccueil(); envoyerApercu(); });
 ficheForm.addEventListener("change", async (e) => {
   if (!FICHE) return;
   const etat = $("[data-fiche-etat]");
@@ -726,13 +737,82 @@ $("[data-add-point]").addEventListener("click", async () => {
   toast("Point ajouté au centre de la carte : glisse-le à sa place, puis ajoute sa photo"); loadPoints();
 });
 
-/* ===== Clients : commandes du site + fidélité Walty ===== */
-// Walty reste la source de la carte fidélité : on lit ses données (via /api/walty, la clé reste
-// côté serveur), on ne les modifie pas et on ne les copie pas dans la base du site.
+/* ===== Code secret du gérant : « Clients » et « Chiffres » ===== */
+// Le code est vérifié par la base (jamais stocké dans la page). Les deux onglets se referment
+// dès qu'on va ailleurs, ou après 3 minutes sans toucher l'écran.
+const PROTEGES = ["clients", "chiffres"];
+const CADENAS_GRAND = '<svg viewBox="0 0 24 24" aria-hidden="true"><rect x="5" y="10.5" width="14" height="9.5" rx="2"/><path d="M8.5 10.5V8a3.5 3.5 0 0 1 7 0v2.5"/><circle cx="12" cy="15.2" r="1.3"/></svg>';
+let ouvert = false, minuteurVerrou = null;
+const vueActive = () => ($("[data-view][aria-selected=true]") || { dataset: {} }).dataset.view;
+function relancerMinuteur() {
+  clearTimeout(minuteurVerrou);
+  if (!ouvert) return;
+  minuteurVerrou = setTimeout(() => {
+    verrouiller();
+    if (PROTEGES.includes(vueActive())) montrerProtege(vueActive());
+    toast("Masqué automatiquement");
+  }, 3 * 60 * 1000);
+}
+function verrouiller() {
+  ouvert = false; clearTimeout(minuteurVerrou);
+  PROTEGES.forEach((v) => ($(`[data-zone-${v}]`).innerHTML = ""));
+  $("[data-cli-detail]")?.remove();
+}
+async function montrerProtege(vue) {
+  const zone = $(`[data-zone-${vue}]`);
+  if (ouvert) { relancerMinuteur(); return vue === "clients" ? loadClients() : loadChiffres(); }
+  const { data: existe } = await SB.rpc("code_existe");
+  zone.innerHTML = `<form class="verrou" data-verrou-form>
+      <span class="verrou__icone">${CADENAS_GRAND}</span>
+      <h2>${existe ? "Réservé au gérant" : "Choisis ton code secret"}</h2>
+      <p>${existe ? "Entre ton code pour voir tes clients et tes chiffres." : "4 à 6 chiffres. Il protège tes clients et tes chiffres : ne le donne pas à ton équipe."}</p>
+      <input class="verrou__code" type="password" name="code" inputmode="numeric" pattern="[0-9]*" maxlength="6" autocomplete="off" aria-label="Code secret" required>
+      ${existe ? "" : '<input class="verrou__code" type="password" name="confirme" inputmode="numeric" pattern="[0-9]*" maxlength="6" autocomplete="off" aria-label="Retape le code" placeholder="Retape-le" required>'}
+      <button class="btn" type="submit">${existe ? "Ouvrir" : "Enregistrer mon code"}</button>
+      <p class="verrou__err" data-verrou-err role="alert"></p>
+      ${DEMO ? '<p class="login__demo">Code de la démo : <b>1234</b></p>' : ""}
+    </form>`;
+  const f = $("[data-verrou-form]", zone);
+  f.code.focus({ preventScroll: true });
+  f.addEventListener("submit", async (e) => {
+    e.preventDefault();
+    const err = $("[data-verrou-err]", f); err.textContent = "";
+    const code = f.code.value.trim();
+    if (!existe) {
+      if (code !== f.confirme.value.trim()) { err.textContent = "Les deux codes ne sont pas pareils."; return; }
+      const { error } = await SB.rpc("definir_code", { p_ancien: null, p_nouveau: code });
+      if (error) { err.textContent = error.message; return; }
+    } else {
+      const { data: ok, error } = await SB.rpc("verifier_code", { p_code: code });
+      if (error) { err.textContent = error.message; return; }
+      if (!ok) { err.textContent = "Ce n’est pas le bon code."; f.code.value = ""; f.code.focus(); return; }
+    }
+    ouvert = true; relancerMinuteur();
+    montrerProtege(vue);
+  });
+}
+$$("[data-verrouiller]").forEach((b) => b.addEventListener("click", () => { verrouiller(); montrerProtege(vueActive()); }));
+PROTEGES.forEach((v) => $(`[data-view-panel="${v}"]`).addEventListener("pointerdown", relancerMinuteur));
+// changer son code (Réglages) : l'ancien code est demandé seulement s'il en existe un
+async function majFormCode() {
+  const { data: existe } = await SB.rpc("code_existe");
+  $("[data-code-ancien]").hidden = !existe;
+}
+$("[data-code-form]").addEventListener("submit", async (e) => {
+  e.preventDefault();
+  const f = e.currentTarget;
+  const { error } = await SB.rpc("definir_code", { p_ancien: f.ancien.value.trim() || null, p_nouveau: f.nouveau.value.trim() });
+  if (error) return toast(error.message);
+  f.reset(); verrouiller(); majFormCode();
+  toast("Code enregistré");
+});
+
+/* ===== Walty (carte fidélité) : lecture seule ===== */
+// Walty reste la référence : on lit ses données (via /api/walty, la clé reste côté serveur),
+// on ne les modifie pas et on ne les copie pas dans la base du site.
 const WALTY_ESPACE = "https://walty.fr/espace";
 const telCle = (t) => String(t || "").replace(/\D/g, "").slice(-9);
 let WALTY = null;
-let CLIENTS = [];
 async function lireWalty() {
   if (DEMO) return waltyDemo();
   try {
@@ -754,10 +834,57 @@ function waltyDemo() {
       { prenom: "Yann", nom: "Bordelais", telephone: "0690 98 76 54", tampons: 1, cadeaux: 0, derniere_visite: new Date(Date.now() - 12 * 864e5).toISOString() },
     ] };
 }
+function blocWalty(w, avecStats) {
+  return `<div class="walty">
+    <div class="walty__tete"><b>Carte fidélité Walty</b><span class="pill${w.connecte ? " pill--ok" : ""}">${w.connecte ? (w.exemple ? "Exemple (démo)" : "Reliée") : "Pas encore reliée"}</span>
+      <a class="btn btn--small btn--ghost" href="${WALTY_ESPACE}" target="_blank" rel="noopener">Modifier ma carte sur Walty</a></div>
+    ${avecStats && w.stats ? `<div class="walty__stats"><div><b>${w.stats.cartes ?? "–"}</b><span>cartes créées</span></div><div><b>${w.stats.passages_mois ?? "–"}</b><span>passages ce mois</span></div><div><b>${w.stats.cadeaux_mois ?? "–"}</b><span>cadeaux offerts ce mois</span></div></div>` : ""}
+    ${w.connecte ? "" : `<p class="muted">Une fois reliée (formule « Tout compris »), les tampons de chaque client s’affichent ici. La carte elle-même se règle toujours sur Walty.</p>`}
+  </div>`;
+}
+
+/* ===== Clients ===== */
+let CLIENTS = [];
+let FILTRE = "tous";
+const jour = (iso) => (iso ? new Intl.DateTimeFormat("fr-FR", { timeZone: TZ, day: "numeric", month: "short" }).format(new Date(iso)) : "–");
+const ilYa = (iso) => { if (!iso) return "–"; const j = Math.floor((Date.now() - new Date(iso)) / 864e5); return j <= 0 ? "aujourd’hui" : j === 1 ? "hier" : `il y a ${j} jours`; };
+const initiales = (nom) => String(nom).trim().split(/\s+/).slice(0, 2).map((m) => m[0] || "").join("").toUpperCase();
+const TEINTES_AV = ["#f4b89f", "#c9d8a6", "#bfdce5", "#f7d58a", "#efd2b2", "#e9c3d6"];
+const teinte = (nom) => TEINTES_AV[[...String(nom)].reduce((s, c) => s + c.charCodeAt(0), 0) % TEINTES_AV.length];
+function international(tel) {
+  const d = String(tel || "").replace(/[^\d+]/g, "");
+  if (d.startsWith("+")) return d.slice(1);
+  if (d.startsWith("00")) return d.slice(2);
+  if (/^0(590|690|691)/.test(d)) return "590" + d.slice(1);
+  if (/^0(596|696|697)/.test(d)) return "596" + d.slice(1);
+  if (/^0(594|694)/.test(d)) return "594" + d.slice(1);
+  if (/^0(262|692|693|639)/.test(d)) return "262" + d.slice(1);
+  if (/^0\d{9}$/.test(d)) return "33" + d.slice(1);
+  return d;
+}
+const objectifFid = () => (WALTY && WALTY.objectif) || (SETTINGS && SETTINGS.stamps_goal) || 10;
+const FILTRES = [
+  ["tous", "Tous", () => true],
+  ["fideles", "Fidèles", (c) => c.commandes >= 2 || (c.fid && c.fid.tampons >= 5)],
+  ["cadeau", "Cadeau prêt", (c) => c.fid && c.fid.tampons >= objectifFid()],
+  ["relancer", "À relancer", (c) => { const d = [c.derniere, c.fid && c.fid.visite].filter(Boolean).sort().pop(); return d && Date.now() - new Date(d) > 21 * 864e5; }],
+  ["nouveaux", "Nouveaux", (c) => c.commandes === 1 && Date.now() - new Date(c.derniere) < 14 * 864e5],
+];
 async function loadClients() {
+  const zone = $("[data-zone-clients]");
+  if (!zone.querySelector("[data-clients]")) {
+    zone.innerHTML = `<div data-walty></div>
+      <div class="cli-barre"><div class="cli-filtres" data-cli-filtres role="tablist" aria-label="Filtrer"></div>
+        <label class="recherche"><span class="sr-only">Rechercher</span><input type="search" placeholder="Rechercher un nom ou un téléphone" data-clients-recherche></label></div>
+      <div class="clients" data-clients></div>
+      <p class="muted clients__note">Commandes des 90 derniers jours. Les numéros de téléphone des commandes sont effacés au bout de 30 jours (page Confidentialité).</p>`;
+    $("[data-clients-recherche]", zone).addEventListener("input", renderClients);
+    $("[data-cli-filtres]", zone).addEventListener("click", (e) => { const b = e.target.closest("[data-filtre]"); if (b) { FILTRE = b.dataset.filtre; renderClients(); } });
+    $("[data-clients]", zone).addEventListener("click", (e) => { const c = e.target.closest("[data-cli]"); if (c && !e.target.closest("a")) ouvrirClient(Number(c.dataset.cli)); });
+  }
   const depuis = new Date(Date.now() - 90 * 864e5).toISOString();
   const [{ data, error }, walty] = await Promise.all([
-    SB.from("orders").select("customer_name, phone, total, mode, status, created_at").gte("created_at", depuis).order("created_at", { ascending: false }),
+    SB.from("orders").select("customer_name, phone, total, mode, status, created_at, order_items(name, qty)").gte("created_at", depuis).order("created_at", { ascending: false }),
     lireWalty(),
   ]);
   if (error) return fail(error);
@@ -766,48 +893,133 @@ async function loadClients() {
   const parCle = new Map();
   data.filter((o) => o.status !== "cancelled").forEach((o) => {
     const cle = telCle(o.phone) || "nom:" + String(o.customer_name).trim().toLowerCase();
-    const c = parCle.get(cle) || { nom: o.customer_name, tel: o.phone || "", commandes: 0, total: 0, plage: 0, derniere: o.created_at };
+    const c = parCle.get(cle) || { nom: o.customer_name, tel: o.phone || "", commandes: 0, total: 0, plage: 0, derniere: o.created_at, premiere: o.created_at, historique: [] };
     c.commandes++; c.total += Number(o.total); if (o.mode === "plage") c.plage++;
     if (!c.tel && o.phone) c.tel = o.phone;
+    c.premiere = o.created_at;
+    c.historique.push(o);
     parCle.set(cle, c);
   });
   const liste = [...parCle.values()];
-  // on rapproche chaque carte Walty d'un client du site par le téléphone, sinon par le nom
+  // chaque carte Walty rejoint le client du site qui a le même téléphone (sinon le même nom)
   (walty.clients || []).forEach((w) => {
     const nom = `${w.prenom || ""} ${w.nom || ""}`.trim();
     const c = liste.find((x) => (telCle(w.telephone) && telCle(x.tel) === telCle(w.telephone)) || x.nom.trim().toLowerCase() === nom.toLowerCase());
     const fid = { tampons: w.tampons, cadeaux: w.cadeaux, visite: w.derniere_visite };
-    if (c) c.fid = fid;
-    else liste.push({ nom, tel: w.telephone || "", commandes: 0, total: 0, plage: 0, derniere: null, fid });
+    if (c) { c.fid = fid; if (!c.tel && w.telephone) c.tel = w.telephone; }
+    else liste.push({ nom, tel: w.telephone || "", commandes: 0, total: 0, plage: 0, derniere: null, premiere: null, historique: [], fid });
   });
   CLIENTS = liste.sort((a, b) => b.commandes - a.commandes || (b.fid?.tampons || 0) - (a.fid?.tampons || 0));
-  renderWalty(); renderClients();
+  $("[data-walty]", zone).innerHTML = blocWalty(walty, false);
+  renderClients();
 }
-function renderWalty() {
-  const w = WALTY || {};
-  $("[data-walty]").innerHTML = w.connecte
-    ? `<div class="walty__tete"><b>Carte fidélité Walty</b><span class="pill pill--ok">${w.exemple ? "Exemple (démo)" : "Connectée"}</span><a class="btn btn--small btn--ghost" href="${WALTY_ESPACE}" target="_blank" rel="noopener">Ouvrir mon espace Walty</a></div>
-       ${w.stats ? `<div class="walty__stats"><div><b>${w.stats.cartes ?? "–"}</b><span>cartes créées</span></div><div><b>${w.stats.passages_mois ?? "–"}</b><span>passages ce mois</span></div><div><b>${w.stats.cadeaux_mois ?? "–"}</b><span>cadeaux offerts ce mois</span></div></div>` : ""}`
-    : `<div class="walty__tete"><b>Carte fidélité Walty</b><span class="pill">Pas encore reliée</span><a class="btn btn--small btn--ghost" href="${WALTY_ESPACE}" target="_blank" rel="noopener">Ouvrir mon espace Walty</a></div>
-       <p class="muted">Une fois reliée (formule « Tout compris »), les tampons de chaque client s’affichent ici, à côté de ses commandes.</p>`;
+function barreFid(f) {
+  const obj = objectifFid();
+  const pct = Math.min(100, Math.round((f.tampons / obj) * 100));
+  return `<span class="fid"><span class="fid__barre"><i style="width:${pct}%"></i></span><small>${f.tampons >= obj ? "<b>Cadeau prêt</b>" : `${f.tampons}/${obj} tampons`}</small></span>`;
 }
-const jour = (iso) => (iso ? new Intl.DateTimeFormat("fr-FR", { timeZone: TZ, day: "numeric", month: "short" }).format(new Date(iso)) : "–");
 function renderClients() {
   const q = $("[data-clients-recherche]").value.trim().toLowerCase();
   const qTel = q.replace(/\D/g, "");
-  const liste = CLIENTS.filter((c) => !q || c.nom.toLowerCase().includes(q) || (qTel.length > 2 && c.tel.replace(/\D/g, "").includes(qTel)));
-  const site = CLIENTS.filter((c) => c.commandes);
-  const fideles = site.filter((c) => c.commandes > 1).length;
-  const ca = site.reduce((s, c) => s + c.total, 0), nb = site.reduce((s, c) => s + c.commandes, 0);
-  $("[data-clients-kpis]").innerHTML = `<div><b>${site.length}</b><span>clients en ligne</span></div><div><b>${fideles}</b><span>reviennent</span></div><div><b>${euro(nb ? ca / nb : 0)}</b><span>panier moyen</span></div><div><b>${nb ? Math.round(site.reduce((s, c) => s + c.plage, 0) / nb * 100) : 0} %</b><span>livrés plage</span></div>`;
-  const objectif = (WALTY && WALTY.objectif) || (SETTINGS && SETTINGS.stamps_goal) || 10;
-  $("[data-clients]").innerHTML = liste.length ? liste.map((c) => `<article class="client">
-      <div class="client__qui"><b>${esc(c.nom)}</b>${c.tel ? `<a href="tel:${esc(c.tel.replace(/\s/g, ""))}">${esc(c.tel)}</a>` : ""}</div>
-      <div class="client__chiffres">${c.commandes ? `<span><b>${c.commandes}</b> commande${c.commandes > 1 ? "s" : ""}</span><span><b>${euro(c.total)}</b></span><span>dernière : ${jour(c.derniere)}</span>${c.plage ? `<span class="pill pill--plage">plage ×${c.plage}</span>` : ""}` : `<span class="muted">Pas encore commandé en ligne</span>`}</div>
-      <div class="client__fid">${c.fid ? `<span class="tampons" title="${c.fid.tampons} tampons sur ${objectif}">${"●".repeat(Math.min(c.fid.tampons, objectif))}${"○".repeat(Math.max(0, objectif - c.fid.tampons))}</span><small>${c.fid.tampons >= objectif ? "<b>Cadeau prêt</b>" : `${c.fid.tampons}/${objectif} tampons`}${c.fid.cadeaux ? ` · ${c.fid.cadeaux} cadeau${c.fid.cadeaux > 1 ? "x" : ""} reçu${c.fid.cadeaux > 1 ? "s" : ""}` : ""}</small>` : `<small class="muted">${WALTY && WALTY.connecte ? "Pas de carte fidélité" : "Fidélité : Walty pas encore relié"}</small>`}</div>
-    </article>`).join("") : `<p class="empty">${q ? "Aucun client ne correspond." : "Pas encore de client sur les 90 derniers jours."}</p>`;
+  $("[data-cli-filtres]").innerHTML = FILTRES.map(([k, l, fn]) => `<button type="button" role="tab" data-filtre="${k}" aria-selected="${k === FILTRE}">${l} <span>${CLIENTS.filter(fn).length}</span></button>`).join("");
+  const test = (FILTRES.find(([k]) => k === FILTRE) || FILTRES[0])[2];
+  const liste = CLIENTS.map((c, i) => [c, i]).filter(([c]) => test(c) && (!q || c.nom.toLowerCase().includes(q) || (qTel.length > 2 && c.tel.replace(/\D/g, "").includes(qTel))));
+  $("[data-clients]").innerHTML = liste.length ? liste.map(([c, i]) => `<article class="cli" data-cli="${i}" tabindex="0" role="button" aria-label="Voir la fiche de ${esc(c.nom)}">
+      <span class="cli__av" style="background:${teinte(c.nom)}">${esc(initiales(c.nom))}</span>
+      <span class="cli__qui"><b>${esc(c.nom)}</b>${c.tel ? `<small>${esc(c.tel)}</small>` : ""}</span>
+      <span class="cli__tags">${c.commandes >= 2 ? '<em class="t-fid">Fidèle</em>' : ""}${c.fid && c.fid.tampons >= objectifFid() ? '<em class="t-cad">Cadeau prêt</em>' : ""}${c.commandes === 1 && Date.now() - new Date(c.derniere) < 14 * 864e5 ? '<em class="t-new">Nouveau</em>' : ""}${!c.commandes ? '<em>Au comptoir</em>' : ""}</span>
+      <span class="cli__chiffres">${c.commandes ? `<b>${c.commandes}</b> commande${c.commandes > 1 ? "s" : ""} · <b>${euro(c.total)}</b><small>dernière : ${ilYa(c.derniere)}</small>` : `<small>Pas encore commandé en ligne</small>`}</span>
+      <span class="cli__fid">${c.fid ? barreFid(c.fid) : `<small class="muted">${WALTY && WALTY.connecte ? "Pas de carte fidélité" : ""}</small>`}</span>
+    </article>`).join("") : `<p class="empty">${q ? "Aucun client ne correspond." : "Personne dans cette liste pour l’instant."}</p>`;
 }
-$("[data-clients-recherche]").addEventListener("input", renderClients);
+function ouvrirClient(i) {
+  const c = CLIENTS[i]; if (!c) return;
+  $("[data-cli-detail]")?.remove();
+  const tel = c.tel.replace(/\s/g, "");
+  const el = document.createElement("div");
+  el.className = "cli-detail"; el.dataset.cliDetail = ""; el.setAttribute("role", "dialog"); el.setAttribute("aria-modal", "true"); el.setAttribute("aria-label", c.nom);
+  el.innerHTML = `<div class="cli-detail__fond" data-fermer-cli></div>
+    <div class="cli-detail__box">
+      <header><span class="cli__av cli__av--grand" style="background:${teinte(c.nom)}">${esc(initiales(c.nom))}</span>
+        <div><h2>${esc(c.nom)}</h2>${c.tel ? `<p>${esc(c.tel)}</p>` : ""}</div>
+        <button class="iconbtn" type="button" data-fermer-cli>Fermer</button></header>
+      ${tel ? `<div class="cli-detail__actions"><a class="btn btn--small" href="tel:${esc(tel)}">Appeler</a><a class="btn btn--small btn--wa" href="https://wa.me/${international(tel)}" target="_blank" rel="noopener">WhatsApp</a></div>` : ""}
+      <div class="cli-detail__chiffres">
+        <div><b>${c.commandes}</b><span>commande${c.commandes > 1 ? "s" : ""}</span></div>
+        <div><b>${euro(c.total)}</b><span>dépensé en ligne</span></div>
+        <div><b>${c.commandes ? euro(c.total / c.commandes) : "–"}</b><span>panier moyen</span></div>
+        <div><b>${c.commandes ? `${c.plage}/${c.commandes}` : "–"}</b><span>livré sur la plage</span></div>
+      </div>
+      <section><h3>Carte fidélité</h3>${c.fid ? `${barreFid(c.fid)}<p class="muted">${c.fid.cadeaux ? `${c.fid.cadeaux} cadeau${c.fid.cadeaux > 1 ? "x" : ""} déjà offert${c.fid.cadeaux > 1 ? "s" : ""} · ` : ""}dernier passage : ${ilYa(c.fid.visite)}</p>` : `<p class="muted">${WALTY && WALTY.connecte ? "Pas de carte fidélité." : "Walty pas encore relié."}</p>`}</section>
+      <section><h3>Ses commandes en ligne</h3>${c.historique.length ? `<ul class="historique">${c.historique.map((o) => `<li><span class="historique__date">${jour(o.created_at)}</span><span>${(o.order_items || []).map((x) => `${x.qty} × ${esc(x.name)}`).join(", ") || "–"}</span><span class="pill pill--${o.mode}">${o.mode === "plage" ? "Plage" : "Shop"}</span><b>${euro(o.total)}</b></li>`).join("")}</ul>` : '<p class="muted">Aucune sur les 90 derniers jours.</p>'}</section>
+    </div>`;
+  document.body.appendChild(el);
+  el.addEventListener("click", (e) => { if (e.target.closest("[data-fermer-cli]")) el.remove(); });
+  $(".cli-detail__box [data-fermer-cli]", el).focus({ preventScroll: true });
+}
+addEventListener("keydown", (e) => {
+  if (e.key === "Escape") $("[data-cli-detail]")?.remove();
+  if (e.key === "Enter" && e.target.matches && e.target.matches("[data-cli]")) ouvrirClient(Number(e.target.dataset.cli));
+});
+
+/* ===== Chiffres ===== */
+let PERIODE = "jour";
+const PERIODES = [["jour", "Aujourd’hui"], ["semaine", "7 jours"], ["mois", "Ce mois-ci"], ["mois-1", "Mois dernier"]];
+const debut = (ymd) => new Date(ymd + "T00:00:00-04:00");   // Guadeloupe = UTC−4 toute l'année
+function bornes(per) {
+  const auj = todayStr(), [y, m] = auj.split("-").map(Number);
+  const demain = new Date(debut(auj).getTime() + 864e5);
+  if (per === "semaine") return [new Date(debut(auj).getTime() - 6 * 864e5), demain];
+  if (per === "mois") return [debut(`${y}-${String(m).padStart(2, "0")}-01`), demain];
+  if (per === "mois-1") { const py = m === 1 ? y - 1 : y, pm = m === 1 ? 12 : m - 1; return [debut(`${py}-${String(pm).padStart(2, "0")}-01`), debut(`${y}-${String(m).padStart(2, "0")}-01`)]; }
+  return [debut(auj), demain];
+}
+async function loadChiffres() {
+  const zone = $("[data-zone-chiffres]");
+  const [de, a] = bornes(PERIODE);
+  const [{ data, error }, walty] = await Promise.all([
+    SB.from("orders").select("total, mode, status, created_at, order_items(name, qty, product_id)").gte("created_at", de.toISOString()).lt("created_at", a.toISOString()).order("created_at", { ascending: true }),
+    lireWalty(),
+  ]);
+  if (error) return fail(error);
+  WALTY = walty;
+  const valides = data.filter((o) => o.status !== "cancelled");
+  const faites = valides.filter((o) => o.status === "done");
+  const ca = faites.reduce((s, o) => s + Number(o.total), 0);
+  const enCours = valides.filter((o) => o.status !== "done").reduce((s, o) => s + Number(o.total), 0);
+  const plage = valides.filter((o) => o.mode === "plage").length;
+  // barres : par heure aujourd'hui, par jour sinon
+  const parHeure = PERIODE === "jour";
+  const cles = [];
+  if (parHeure) for (let h = 7; h <= 19; h++) cles.push(String(h));
+  else for (let t = de.getTime(); t < a.getTime(); t += 864e5) cles.push(new Intl.DateTimeFormat("en-CA", { timeZone: TZ }).format(new Date(t + 12 * 36e5)));
+  const sommes = Object.fromEntries(cles.map((k) => [k, 0]));
+  faites.forEach((o) => {
+    const d = new Date(o.created_at);
+    const k = parHeure ? String((d.getUTCHours() + 20) % 24) : new Intl.DateTimeFormat("en-CA", { timeZone: TZ }).format(d);   // heure de Guadeloupe (UTC−4)
+    if (k in sommes) sommes[k] += Number(o.total);
+  });
+  const max = Math.max(1, ...Object.values(sommes));
+  const etiquette = (k) => (parHeure ? `${k}h` : new Intl.DateTimeFormat("fr-FR", { day: "numeric" }).format(new Date(k + "T12:00:00")));
+  // les produits les plus vendus
+  const ventes = new Map();
+  valides.forEach((o) => (o.order_items || []).forEach((i) => ventes.set(i.name, (ventes.get(i.name) || 0) + i.qty)));
+  const top = [...ventes].sort((x, y) => y[1] - x[1]).slice(0, 5);
+  const dessinNom = (nom) => { const p = PRODS.find((x) => x.name === nom); return p ? dessin(p) : ILL ? ILL.illustration({ nom }) : ""; };
+  zone.innerHTML = `<div class="periodes" role="tablist" aria-label="Période">${PERIODES.map(([k, l]) => `<button type="button" role="tab" data-periode="${k}" aria-selected="${k === PERIODE}">${l}</button>`).join("")}</div>
+    <div class="chiffres">
+      <div class="chiffre chiffre--grand"><span>Chiffre d’affaires</span><b>${euro(ca)}</b><small>commandes livrées ou récupérées${enCours ? ` · ${euro(enCours)} encore en cours` : ""}</small></div>
+      <div class="chiffre"><span>Commandes</span><b>${valides.length}</b><small>${data.length - valides.length ? `${data.length - valides.length} refusée${data.length - valides.length > 1 ? "s" : ""}` : "aucune refusée"}</small></div>
+      <div class="chiffre"><span>Panier moyen</span><b>${faites.length ? euro(ca / faites.length) : "–"}</b></div>
+      <div class="chiffre"><span>Livrées sur la plage</span><b>${valides.length ? Math.round((plage / valides.length) * 100) : 0} %</b><small>${plage} sur ${valides.length}</small></div>
+    </div>
+    <section class="graph"><h2>${parHeure ? "Ventes d’aujourd’hui, heure par heure" : "Ventes, jour par jour"}</h2>
+      <div class="barres" role="img" aria-label="Chiffre d’affaires ${parHeure ? "par heure" : "par jour"}">${cles.map((k) => `<div class="barre" title="${etiquette(k)} : ${euro(sommes[k])}"><em>${sommes[k] ? Math.round(sommes[k]) + " €" : ""}</em><i style="height:${Math.max(2, Math.round((sommes[k] / max) * 130))}px"></i><span>${etiquette(k)}</span></div>`).join("")}</div>
+    </section>
+    <section class="palmares"><h2>Les plus vendus</h2>${top.length ? `<ol>${top.map(([n, q]) => `<li><span class="palmares__art">${dessinNom(n)}</span><b>${esc(n)}</b><span>${q} vendu${q > 1 ? "s" : ""}</span></li>`).join("")}</ol>` : '<p class="muted">Pas encore de vente sur cette période.</p>'}</section>
+    ${blocWalty(walty, true)}`;
+  $$("[data-periode]", zone).forEach((b) => b.addEventListener("click", () => { PERIODE = b.dataset.periode; loadChiffres(); }));
+}
 
 /* ===== Démarrage ===== */
 function start() {
@@ -816,7 +1028,7 @@ function start() {
   const haut = () => document.documentElement.style.setProperty("--haut-top", $(".top").offsetHeight + "px");
   haut(); addEventListener("resize", haut);
   dayInput.value = todayStr();
-  loadSettings(); loadPoints().then(loadOrders); loadMenu(); startRealtime();
+  loadSettings(); majFormCode(); loadPoints().then(loadOrders); loadMenu(); startRealtime();
   if ("Notification" in window && Notification.permission === "default") {
     document.addEventListener("click", () => Notification.requestPermission(), { once: true });
   }

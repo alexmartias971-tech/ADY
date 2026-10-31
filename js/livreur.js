@@ -130,7 +130,7 @@ function carteLivraison(o) {
       ${note ? `<p class="order__note">${esc(note)}</p>` : ""}
       <p class="liv-card__pay">À encaisser : <b>${euro(o.total)}</b>${paiement(o) ? ` · ${esc(paiement(o))}` : ""}</p>
       <p class="liv-card__fid">Carte fidélité&nbsp;? Scanne son QR code au moment de payer.</p>
-      ${au ? `<p class="liv-card__aide">Envoie un message à ${esc(prenom(o.customer_name)) || "ton client"}. Son téléphone affiche déjà «&nbsp;Ton livreur est là&nbsp;».</p>
+      ${au ? `<p class="liv-card__aide">Son téléphone affiche déjà «&nbsp;Ton livreur est là&nbsp;». Préviens aussi ${esc(prenom(o.customer_name)) || "ton client"}&nbsp;: WhatsApp ou SMS s’ouvre sur ton portable avec le message déjà écrit, tu n’as plus qu’à appuyer sur Envoyer.</p>
       <div class="liv-card__msg">
         ${tel ? `<a class="btn btn--wa" href="https://wa.me/${international(tel)}?text=${encodeURIComponent(message(o, pt))}" target="_blank" rel="noopener">WhatsApp</a>
         <a class="btn btn--ghost" href="sms:+${international(tel)}?&body=${encodeURIComponent(message(o, pt))}">SMS</a>
